@@ -89,12 +89,26 @@ void BayesFilter::transitionUpdateLog(std::vector<double>& logProbList, std::vec
 //                             Update Section                                 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// This section now applies to a particle filter
+
 //overload this function
 void BayesFilter::transitionUpdateLog(std::vector<double> action){
-  transitionUpdateLog(logProbList_, action);
+  transitionUpdateLog(stateList_, action);
 }
 
 //overload this function
+void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList, std::vector<double> action){
+  // in here, we need to for each state
+  // 0) transition to a new state
+
+  for (size_t i=0; i<stateList.size(); i++) {
+    // Transition the state
+    stateList[i] = translator::stateTransition(stateList[i], action);		
+  }
+
+}
+
+/* //old
 void BayesFilter::transitionUpdateLog(std::vector<double>& logProbList, std::vector<double> action){
 	//in here, we need to for each state 
   //1) do a state transition 
@@ -134,7 +148,7 @@ void BayesFilter::transitionUpdateLog(std::vector<double>& logProbList, std::vec
 	}
 
 	logProbList = tempLogProbList;
-}
+	} */
 
 //overload this function
 void BayesFilter::observationUpdateLog(std::vector<double> obs){
@@ -179,7 +193,7 @@ void BayesFilter::observationUpdateLog(std::vector<double>& logProbList, std::ve
 	std::cout << "probability: "<< *result << std::endl;
 	*/
 
-	logProbList = logUtils::normalizeVectorInLogSpace(logProbList);
+	//logProbList = logUtils::normalizeVectorInLogSpace(logProbList);
 
 }
 

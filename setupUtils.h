@@ -5,6 +5,8 @@
 #include "stateStruct.h"
 
 namespace setupUtils {
+  std::vector<stateStruct> setupParticles(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes);
+
   //models
   std::vector<stateStruct> setupModel0(std::vector<stateStruct>& modelParamPairs);  
   std::vector<stateStruct> setupModel1(std::vector<stateStruct>& modelParamPairs);  

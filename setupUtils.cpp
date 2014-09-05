@@ -10,6 +10,33 @@
 #include <math.h> // cos, sin
 
 ////////////////////////////////////////////////////////////////////////////////
+//                            Particle Section                                //
+////////////////////////////////////////////////////////////////////////////////
+
+// SAMPLING SECTION
+
+std::vector<double> setupUtils::standardGaussianVariates(){
+  double x1 = ((double)rand()/(double)RAND_MAX);
+  double x2 = ((double)rand()/(double)RAND_MAX);
+  std::vector<double> variates;
+  variates.push_back(sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2));
+  variates.push_back(sqrt(-2*logUtils::safe_log(x1))*sin(2*M_PI*x2));
+  return variates;
+}
+
+stateStruct setupUtils::sampleParticle(
+
+// END SAMPLING SECTION
+
+std::vector<stateStruct> setupUtils::setupParticles(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes){
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//                          End Particle Section                              //
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
 //                              Model Section                                 //
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -17,8 +17,13 @@ class RealWorld {
   bool writeOutFile_;
 
   //variables
-  BayesFilter filter_;
+  std::vector<BayesFilter> filterBank_; // this is new
+  //BayesFilter filter_;
   Mechanism* mechPtr_; // the mechanism for the simulation if Robot is not used
+
+  // particle filter stuff
+  int numMechTypes_; // this is the number of mechanism types that exist; new
+  int numParticles_; // this is the number of particles per filter; new
 
   std::vector<stateStruct> modelParamPairs_;
   std::vector< std::vector<double> > actionList_;

@@ -1,0 +1,34 @@
+#include <iostream> // DELETE
+#define _USE_MATH_DEFINES
+#include <math.h> // cos, sin
+#include "../Eigen/Dense"
+
+////////////////////////////////////////////////////////////////////////////////
+//                            Particle Section                                //
+////////////////////////////////////////////////////////////////////////////////
+
+// SAMPLING SECTION
+
+std::vector<double> standardGaussianVariates(){
+  double x1 = ((double)rand()/(double)RAND_MAX);
+  double x2 = ((double)rand()/(double)RAND_MAX);
+  std::vector<double> variates;
+  variates.push_back(sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2));
+  variates.push_back(sqrt(-2*logUtils::safe_log(x1))*sin(2*M_PI*x2));
+  return variates;
+}
+
+std::vector<double> sampleParticle(){
+  unsigned int size = 6;
+  Eigen::MatrixXd Cov = MatrixXd::Zero(size,size);
+  Eigen::VectorXd mu = VectorXd::Zero(size);
+  for (size_t i=0; i<size; i++){
+    Cov(i,i) = 0.1
+  }
+  Eigen::MatrixXd A( Cov.llt().matrixL() );
+  Eigen::VectorXd z = VectorXd::Zero(size);
+  for (size_t i=0; i<size; i+=2){
+    std::vector<double> variates = standardGaussianVariates();
+
+  }
+}

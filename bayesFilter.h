@@ -25,7 +25,7 @@ class BayesFilter {
   void transitionUpdateLog(std::vector<double> action, sasUtils::mapPairSVS& sasList);
   void transitionUpdateLog(std::vector<double>& logProbList, std::vector<double> action, sasUtils::mapPairSVS& sasList);
   void transitionUpdateLog(std::vector<double> action);
-  void transitionUpdateLog(std::vector<double>& logProbList, std::vector<double> action);
+  void transitionUpdateLog(std::vector<stateStruct>& stateList, std::vector<double> action);
 
   // overloaded
   void observationUpdateLog(std::vector<double> obs);

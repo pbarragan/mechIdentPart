@@ -77,10 +77,33 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   workspace_[1][0]=WORKSPACE[1][0];
   workspace_[1][1]=WORKSPACE[1][1];
 
-  // setup the state list, model-parameter pairs, and log probability list
-  setupUtils::setupStates(filter_.stateList_,modelParamPairs_); //initialize states and model parameter pairs
+  // initialize a few things for the particle filter
+  numMechTypes_ = 6;
+  numParticles_ = 100;
+
+  // create each of the filters and push them into the bank
+  for (size_t i=0; i<numMechTypes_; i++){
+    BayesFilter filter;
+    float initParamVar = 4.0; // initial parameter variance
+    float initVarVar = 0.1; // initial variable variance
+    // this function must validate the particles
+    setupUtils::setupParticles(filter.stateList_,
+			       filter.logProbList_,
+			       i,
+			       initParamVar,
+			       initVarVar,
+			       numParticles_,
+			       numMechTypes_); // initialize particles.
+    filterBank_.push_back(filter); // add filter to bank
+  }
 
   setupUtils::setupActions(actionList_); //initialize actions
+
+  ///////////////////////////// Old
+
+  // setup the state list, model-parameter pairs, and log probability list
+  //setupUtils::setupStates(filter_.stateList_,modelParamPairs_); //initialize states and model parameter pairs
+
 
   /*
   std::cout << "actionList_ size before: " << actionList_.size() << std::endl;
@@ -98,10 +121,14 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
     std::cout << std::endl;
   }
   */
+
+  /*
   setupUtils::validateStates(filter_.stateList_,workspace_); // validate states
   if (!RELATIVE){
     setupUtils::validateActions(actionList_,workspace_); // validate actions
   }
+  */
+
   /*
   std::cout << "actionList_ size after: " << actionList_.size() << std::endl;
 
@@ -119,13 +146,16 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
     }
   }
   */
-
+  /*
   setupUtils::setupModelParamPairs(filter_.stateList_,modelParamPairs_,numVarTypesPerStateType_); // reinitialize modelParamPairs_ after cutting out states
 
   //setupUtils::setupUniformPrior(filter_.stateList_,filter_.logProbList_,modelParamPairs_); // initliaze probabilities with a uniform distribution
 
   setupUtils::setupGaussianPrior(filter_.stateList_,filter_.logProbList_,modelParamPairs_); // initliaze probabilities with a gaussian distribution
   std::cout << "stateList_ size: " << filter_.stateList_.size() << std::endl; // Print number of states
+  */
+
+  ////////////////////////////// OLD
 
   // setup either robot or simulator
   //useRobot_ = false;
@@ -176,7 +206,7 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   std::cout << "poseInRbt_: " << poseInRbt_[0] << "," <<poseInRbt_[1] << std::endl; // print out the robot's pose
 
   // use the SAS list?
-  useSAS_ = true;
+  useSAS_ = false; // this is not applicable to the particle filter
   if (useSAS_){
     bool overwriteCSV = true;
     std::string fileName;
@@ -191,8 +221,8 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   }
 
   // print model probabilities before any action is taken
-  std::vector<double> mpProbsLog = modelUtils::calcModelParamProbLog(filter_.stateList_,filter_.logProbList_,modelParamPairs_);
-  printModelParamProbs(mpProbsLog);
+  //std::vector<double> mpProbsLog = modelUtils::calcModelParamProbLog(filter_.stateList_,filter_.logProbList_,modelParamPairs_);
+  //printModelParamProbs(mpProbsLog);
 
   /*
   // trying to debug model 4
@@ -596,7 +626,7 @@ bool RealWorld::initializedNearZero(){
 }
 
 void RealWorld::updateFilter(std::vector<double> action,std::vector<double> obs){
-
+  /*
   std::cout << "Printing Log Probablity List for Prismatic 3 before:" << std::endl;
   std::cout << std::fixed;
   std::cout << std::setprecision(16);
@@ -605,8 +635,8 @@ void RealWorld::updateFilter(std::vector<double> action,std::vector<double> obs)
       std::cout << filter_.logProbList_[ii] <<std::endl;
     }
   }
-
-
+  */
+  /*
   // check if you should pass the SAS list to the filter
   if (useSAS_){
     filter_.transitionUpdateLog(action,sasList_);
@@ -614,7 +644,8 @@ void RealWorld::updateFilter(std::vector<double> action,std::vector<double> obs)
   else {
     filter_.transitionUpdateLog(action);
   }
-
+  */
+  /*
   std::cout << "Printing Log Probablity List for Prismatic 3 after:" << std::endl;
   std::cout << std::fixed;
   std::cout << std::setprecision(16);
@@ -623,10 +654,18 @@ void RealWorld::updateFilter(std::vector<double> action,std::vector<double> obs)
     std::cout << filter_.logProbList_[ii] <<std::endl;
     }
   }
+  */
 
   //std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after transition" << std::endl; // DELETE
   //filter_.printStatesAndProbs(); // DELETE
-  filter_.observationUpdateLog(obs);
+
+  // Iterate through filter bank updating
+  for (size_t i=0; i<numMechTypes; i++){
+    filterBank_[i].transitionUpdateLog(action)
+    filterBank_[i].observationUpdateLog(obs);
+  }
+  // WRITE SOMETHING TO NORMALIZE ACROSS ALL FILTERS
+
   //std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after observation" << std::endl; // DELETE
   //filter_.printStatesAndProbs(); // DELETE
 
@@ -786,8 +825,8 @@ void RealWorld::runWorld(int numSteps){
     step_=i;
     stepWorld();
     //filter_.printLogProbList();
-    std::vector<double> mpProbsLog = modelUtils::calcModelParamProbLog(filter_.stateList_,filter_.logProbList_,modelParamPairs_);
-    printModelParamProbs(mpProbsLog);
+    //std::vector<double> mpProbsLog = modelUtils::calcModelParamProbLog(filter_.stateList_,filter_.logProbList_,modelParamPairs_);
+    //printModelParamProbs(mpProbsLog);
     if(writeOutFile_){
       writeFileStepData(); // write the step data to the file
     }
