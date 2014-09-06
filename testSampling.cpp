@@ -23,7 +23,7 @@ std::vector<double> standardGaussianVariates(){
   return variates;
 }
 
-void sampleParticle(){
+Eigen::VectorXd sampleParticle(){
   unsigned int size = 2;
   Eigen::MatrixXd Cov = MatrixXd::Zero(size,size);
   Eigen::VectorXd mu = VectorXd::Zero(size);
@@ -38,15 +38,37 @@ void sampleParticle(){
     if (i != size-1) z[i+1] = variates[1];
   }
   Eigen::VectorXd x = mu+A*z;
-  std::cout << x << std::endl;
+  //std::cout << x << std::endl;
+  //std::cout << x[0] << std::endl;
+  //std::cout << x(0) << std::endl;
+  return x;
 }
 
 int main(){
   srand((unsigned)time(NULL));
   //std::cout << rand() << std::endl;
-  for (size_t i=0;i<30;i++){
-    sampleParticle();
-    std::cout << std::endl;  
+  std::vector<Eigen::VectorXd> samples;
+  for (size_t i=0;i<100;i++){
+    samples.push_back(sampleParticle());
+    //std::cout << std::endl;  
   }
+  // calc mean
+  Eigen::VectorXd mu = VectorXd::Zero(size);
+  Eigen::MatrixXd Cov = MatrixXd::Zero(size,size);
+
+  for (size_t i=0;i<samples.size();i++){
+    mu += samples[i];
+  }
+  mu /= samples.size();
+
+  for (size_t i=0;i<samples.size();i++){
+    cov += (samples[i]-mu)*(samples[i]-mu).transpose();
+  }
+
+  cov /= samples.size();
+
+  std::cout << mu << std::endl;
+  std::cout << cov << std::endl;
+
   return 1;
 }

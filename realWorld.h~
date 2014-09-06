@@ -18,10 +18,6 @@ class RealWorld {
 
   //variables
   std::vector<BayesFilter> filterBank_; // this is new
-  std::vector<double> fbProbs_; // mass of each filter in filter bank
-  std::vector<stateStruct> bestStates_; // best guess state for each filter
-  std::vector<double> bestStatesProbs_; // corresponding probabilities
-
   //BayesFilter filter_;
   Mechanism* mechPtr_; // the mechanism for the simulation if Robot is not used
 
@@ -74,9 +70,6 @@ class RealWorld {
   double randomDouble();
   double gaussianNoise();
   void printModelParamProbs(std::vector<double> mpProbsLog);
-  void printFilterBankProbs(std::vector<double>& fbProbs);
-  void printFilterBankGuesses(std::vector<stateStruct>& bestStates,std::vector<double>& bestStatesProbs);
-  void printFilterBankProbsAndGuesses(std::vector<double>& fbProbs,std::vector<stateStruct>& bestStates,std::vector<double>& bestStatesProbs);
 
   void writeFileStatesForMATLAB();
   void writeFileInitialData();

@@ -39,6 +39,8 @@ void sampleParticle(){
   }
   Eigen::VectorXd x = mu+A*z;
   std::cout << x << std::endl;
+  std::cout << x[0] << std::endl;
+  std::cout << x(0) << std::endl;
 }
 
 int main(){

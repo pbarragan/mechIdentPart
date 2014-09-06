@@ -80,12 +80,12 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   // initialize a few things for the particle filter
   numMechTypes_ = 6;
   numParticles_ = 100;
-  float initParamVar = 4.0; // initial parameter variance
-  float initVarVar = 0.1; // initial variable variance
 
   // create each of the filters and push them into the bank
   for (size_t i=0; i<numMechTypes_; i++){
     BayesFilter filter;
+    float initParamVar = 4.0; // initial parameter variance
+    float initVarVar = 0.1; // initial variable variance
     // this function must validate the particles
     setupUtils::setupParticles(filter.stateList_,
 			       filter.logProbList_,
@@ -93,14 +93,9 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
 			       initParamVar,
 			       initVarVar,
 			       numParticles_,
-			       numMechTypes_,
-			       workspace_); // initialize particles.
+			       numMechTypes_); // initialize particles.
     filterBank_.push_back(filter); // add filter to bank
   }
-
-  // print filter bank probabilities before any action is taken
-  fbProbs_ = modelUtils::calcFilterBankProbs(filterBank_);
-  printFilterBankProbsAndGuesses(fbProbs_);
 
   setupUtils::setupActions(actionList_); //initialize actions
 
@@ -664,18 +659,13 @@ void RealWorld::updateFilter(std::vector<double> action,std::vector<double> obs)
   //std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after transition" << std::endl; // DELETE
   //filter_.printStatesAndProbs(); // DELETE
 
-  // We have to normalize the probabilities across all filters at the end
-  // observationUpdateLog does not do any normalizing on purpose
-
   // Iterate through filter bank updating
-  for (size_t i=0; i<filterBank_.size(); i++){
-    filterBank_[i].transitionUpdateLog(action); // transition update
-    filterBank_[i].observationUpdateLog(obs); // observation update
+  for (size_t i=0; i<numMechTypes; i++){
+    filterBank_[i].transitionUpdateLog(action)
+    filterBank_[i].observationUpdateLog(obs);
   }
+  // WRITE SOMETHING TO NORMALIZE ACROSS ALL FILTERS
 
-  // Normalize across all filters
-  modelUtils::normalizeAcrossFilters(filterBank_);
-  
   //std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after observation" << std::endl; // DELETE
   //filter_.printStatesAndProbs(); // DELETE
 
@@ -827,7 +817,7 @@ void RealWorld::stepWorld(){
   nextAction(); // 1. choose an action
   runAction(); // 2. run action on the world
   std::vector<double> tempObs = getObs(); // 3. get observation from the world
-  updateFilter(action_,tempObs); // 4. update filter bank
+  updateFilter(action_,tempObs);
 }
 
 void RealWorld::runWorld(int numSteps){
@@ -837,14 +827,6 @@ void RealWorld::runWorld(int numSteps){
     //filter_.printLogProbList();
     //std::vector<double> mpProbsLog = modelUtils::calcModelParamProbLog(filter_.stateList_,filter_.logProbList_,modelParamPairs_);
     //printModelParamProbs(mpProbsLog);
-
-    // Print filter bank probs and best guesses
-    std::vector<double> fbProbs_ = modelUtils::calcFilterBankProbs(filterBank_);
-    modelUtils::findFilterBankBestGuesses(filterBank_,
-					  bestStates_,
-					  bestStatesProbs_);
-    printFilterBankProbsAndGuesses(fbProbs_,bestStates_,bestStatesProbs_);
-
     if(writeOutFile_){
       writeFileStepData(); // write the step data to the file
     }
@@ -911,35 +893,6 @@ void RealWorld::printModelParamProbs(std::vector<double> mpProbsLog){
     std::cout << "Prob: " << mpProbsLog[i] << std::endl;
     std::cout << "Number Var Types: " << numVarTypesPerStateType_[i] << std::endl;
   }
-}
-
-void RealWorld::printFilterBankProbs(std::vector<double>& fbProbs){
-  std::cout << "Filter Bank Probabilities:" << std::endl;
-  for (size_t i=0;i<fbProbs.size();i++){
-    std::cout << "Filter " << i << " mass:" << std::endl;
-    std::cout << fbProbs[i] << std::endl;
-  }
-}
-void RealWorld::printFilterBankGuesses(std::vector<stateStruct>& bestStates,std::vector<double>& bestStatesProbs){
-  std::cout << "Filter Bank Best States and Probabilities:" << std::endl;
-  for (size_t i=0;i<bestStates.size();i++){
-    std::cout << "Model: " << bestStates[i].model << std::endl;
-    std::cout << "Params: ";
-    for (size_t j = 0; j<bestStates[i].params.size(); j++) {
-      std::cout << bestStates[i].params[j] << ',';
-    }
-    std::cout << std::endl;
-    std::cout << "Vars: ";
-    for (size_t j = 0; j<bestStates[i].vars.size(); j++) {
-      std::cout << bestStates[i].vars[j] << ',';
-    }
-    std::cout << std::endl;
-    std::cout << "Prob: " << bestStatesProbs[i] << std::endl;
-  }
-}
-void RealWorld::printFilterBankProbsAndGuesses(std::vector<double>& fbProbs,std::vector<stateStruct>& bestStates,std::vector<double>& bestStatesProbs){
-  printFilterBankProbs(fbProbs);
-  printFilterBankGuesses(bestStates,bestStatesProbs);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

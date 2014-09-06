@@ -15,81 +15,22 @@
 
 // SAMPLING SECTION
 
-using Eigen::MatrixXd;
-using Eigen::VectorXd;
-
 std::vector<double> setupUtils::standardGaussianVariates(){
-  // Box-Muller Transform
-  // Generate random numbers between 0 and 1
   double x1 = ((double)rand()/(double)RAND_MAX);
   double x2 = ((double)rand()/(double)RAND_MAX);
-  // Calculate standard normal variates (mean 0, var 1)
   std::vector<double> variates;
   variates.push_back(sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2));
   variates.push_back(sqrt(-2*logUtils::safe_log(x1))*sin(2*M_PI*x2));
   return variates;
 }
 
-Eigen::VectorXd setupUtils::sampleParticle(unsigned int size,Eigen::VectorXd& mu,Eigen::MatrixXd& A){
-  // Sample size standard normal variates
-  Eigen::VectorXd z = VectorXd::Zero(size);
-  for (size_t i=0; i<size; i+=2){
-    std::vector<double> variates = standardGaussianVariates();
-    z[i] = variates[0];
-    if (i != size-1) z[i+1] = variates[1];
-  }
-  // Return sample from multivariate guassian (type Eigen::VectorXd x)
-  return  mu+A*z;
-}
-
-std::vector<stateStruct> setupUtils::setupParticles(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace){
-  // Determine shape of state space for this modelNum
-  int numParams = MODEL_DESCRIPTIONS[modelNum][0]; // in globalVars.h
-  int numVars = MODEL_DESCRIPTIONS[modelNum][1]; // in globalVars.h
-  unsigned int size = numParams+numVars; // dimension of space
-  Eigen::MatrixXd Cov = MatrixXd::Zero(size,size);
-  Eigen::VectorXd mu = VectorXd::Zero(size);
-  // Setup initial diagonal covariance matrix with
-  // a) initial parameter variance for each parameter dimension
-  // b) initial variable variance for each variable dimension
-  for (size_t i=0; i<numParams; i++){
-    Cov(i,i) = initParamVar;
-  }
-  for (size_t i=numParams; i<size; i++){
-    Cov(i,i) = initVarVar;
-  }
-  // Generate matrix A from Choleksy decomposition of Cov Matrix
-  // Cast back to dense matrix for use in sampling function
-  Eigen::MatrixXd A( Cov.llt().matrixL() );
-
-  // Sample numParticles particles, shape them into states, and place in vector
-  size_t count = 0; // How many valid particles we have sampled
-  stateList.clear(); // Make sure the stateList is empty
-  while (count<numParticles){
-    Eigen::VectorXd x = sampleParticle(size,mu,A);
-    stateStruct x_state;
-    x_state.model = modelNum;
-    for (size_t i=0; i<numParams; i++){
-      x_state.params.push_back(x(i));
-    }
-    for (size_t i=numParams; i<size; i++){
-      x_state.vars.push_back(x(i));
-    }
-    if (translator::isStateValid(x_state,workspace)){
-      stateList.push_back(x_state);
-      count++;
-    }
-  }
-
-  // Set the probability of the samples equal across all models
-  // prob per particle
-  double probPerParticle = logUtils::safe_log(1.0/(numParticles*numMechTypes));
-  logProbList.clear(); // Make sure the logProbList is empty
-  std::vector<double> probs (numParticles,probPerParticle);
-  logProbList = probs;
-}
+stateStruct setupUtils::sampleParticle(
 
 // END SAMPLING SECTION
+
+std::vector<stateStruct> setupUtils::setupParticles(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes){
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //                          End Particle Section                              //
