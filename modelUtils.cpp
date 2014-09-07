@@ -35,9 +35,11 @@ void modelUtils::findFilterBankBestGuesses(std::vector<BayesFilter>& filterBank,
   
   // this part is gonna be all screwed up
   for (size_t j=0; j<filterBank.size(); j++){
-    double maxProb = *std::max_element(filterBank[j].logProbList_.begin(),
-				      filterBank[j].logProbList_.end());
-    size_t maxProbInd = filterBank[j].logProbList_.index(maxProb);
+    std::vector<double>::iterator maxProbPtr;
+    maxProbPtr = std::max_element(filterBank[j].logProbList_.begin(),
+				  filterBank[j].logProbList_.end());
+    double maxProb = *maxProbPtr;
+    size_t maxProbInd = distance(filterBank[j].logProbList_.begin(),maxProbPtr);
     bestStatesProbs.push_back(maxProb);
     bestStates.push_back(filterBank[j].stateList_[maxProbInd]);
   }  

@@ -23,13 +23,15 @@ std::vector<double> standardGaussianVariates(){
   return variates;
 }
 
-Eigen::VectorXd sampleParticle(){
-  unsigned int size = 2;
+Eigen::VectorXd sampleParticle(unsigned int size){
   Eigen::MatrixXd Cov = MatrixXd::Zero(size,size);
   Eigen::VectorXd mu = VectorXd::Zero(size);
   for (size_t i=0; i<size; i++){
     Cov(i,i) = 0.1;
   }
+  Cov(0,1) = 0.05;
+  Cov(1,0) = 0.05;
+  
   Eigen::MatrixXd A( Cov.llt().matrixL() );
   Eigen::VectorXd z = VectorXd::Zero(size);
   for (size_t i=0; i<size; i+=2){
@@ -46,15 +48,16 @@ Eigen::VectorXd sampleParticle(){
 
 int main(){
   srand((unsigned)time(NULL));
+  unsigned int size = 6;
   //std::cout << rand() << std::endl;
   std::vector<Eigen::VectorXd> samples;
-  for (size_t i=0;i<100;i++){
-    samples.push_back(sampleParticle());
+  for (size_t i=0;i<1000000;i++){
+    samples.push_back(sampleParticle(size));
     //std::cout << std::endl;  
   }
   // calc mean
   Eigen::VectorXd mu = VectorXd::Zero(size);
-  Eigen::MatrixXd Cov = MatrixXd::Zero(size,size);
+  Eigen::MatrixXd cov = MatrixXd::Zero(size,size);
 
   for (size_t i=0;i<samples.size();i++){
     mu += samples[i];

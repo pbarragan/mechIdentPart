@@ -48,7 +48,7 @@ void actionSelection::chooseActionLog(BayesFilter& filter,std::vector< std::vect
 
       //Step 2.3: Get an observation
       //Step 2.4: Update the belief state in log space
-      filter.transitionUpdateLog(localLogProbList,actionList[i]);
+      filter.transitionUpdateLog(actionList[i]);
       filter.observationUpdateLog(localLogProbList,getNoisyObs(nextState));
 
       //Step 2.5: Calculate the entropy over models of the new belief state
@@ -411,7 +411,7 @@ void actionSelection::chooseActionLogRel(BayesFilter& filter,std::vector< std::v
 
       //Step 2.3: Get an observation
       //Step 2.4: Update the belief state in log space
-      filter.transitionUpdateLog(localLogProbList,validRelActionList[i]);
+      filter.transitionUpdateLog(validRelActionList[i]);
       filter.observationUpdateLog(localLogProbList,getNoisyObs(nextState));
 
       //Step 2.5: Calculate the entropy over models of the new belief state
