@@ -42,45 +42,57 @@ Eigen::VectorXd setupUtils::sampleParticle(unsigned int size,Eigen::VectorXd& mu
   return  mu+A*z;
 }
 
-std::vector<stateStruct> setupUtils::setupParticles(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace){
-  // Determine shape of state space for this modelNum
-  int numParams = MODEL_DESCRIPTIONS[modelNum][0]; // in globalVars.h
-  int numVars = MODEL_DESCRIPTIONS[modelNum][1]; // in globalVars.h
-  unsigned int size = numParams+numVars; // dimension of space
-  Eigen::MatrixXd Cov = MatrixXd::Zero(size,size);
-  Eigen::VectorXd mu = VectorXd::Zero(size);
-  // Setup initial diagonal covariance matrix with
-  // a) initial parameter variance for each parameter dimension
-  // b) initial variable variance for each variable dimension
-  for (size_t i=0; i<numParams; i++){
-    Cov(i,i) = initParamVar;
-  }
-  for (size_t i=numParams; i<size; i++){
-    Cov(i,i) = initVarVar;
-  }
-  // Generate matrix A from Choleksy decomposition of Cov Matrix
-  // Cast back to dense matrix for use in sampling function
-  Eigen::MatrixXd A( Cov.llt().matrixL() );
-
-  // Sample numParticles particles, shape them into states, and place in vector
-  size_t count = 0; // How many valid particles we have sampled
+void setupUtils::setupParticles(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace){
   stateList.clear(); // Make sure the stateList is empty
-  while (count<numParticles){
-    Eigen::VectorXd x = sampleParticle(size,mu,A);
-    stateStruct x_state;
-    x_state.model = modelNum;
+  if (modelNum == 1){
+    // For model 1 (the fixed model), only ever sample the single valid state
+    for (size_t i=0;i<numParticles;i++){
+      stateStruct x_state;
+      x_state.model = modelNum;
+      x_state.params.push_back(0.0);
+      x_state.params.push_back(0.0);
+      stateList.push_back(x_state);
+    }
+  }
+  else{
+    // For any other model:
+    // Determine shape of state space for this modelNum
+    int numParams = MODEL_DESCRIPTIONS[modelNum][0]; // in globalVars.h
+    int numVars = MODEL_DESCRIPTIONS[modelNum][1]; // in globalVars.h
+    unsigned int size = numParams+numVars; // dimension of space
+    Eigen::MatrixXd Cov = MatrixXd::Zero(size,size);
+    Eigen::VectorXd mu = VectorXd::Zero(size);
+    // Setup initial diagonal covariance matrix with
+    // a) initial parameter variance for each parameter dimension
+    // b) initial variable variance for each variable dimension
     for (size_t i=0; i<numParams; i++){
-      x_state.params.push_back(x(i));
+      Cov(i,i) = initParamVar;
     }
     for (size_t i=numParams; i<size; i++){
-      x_state.vars.push_back(x(i));
+      Cov(i,i) = initVarVar;
     }
-    if (translator::isStateValid(x_state,workspace)){
-      stateList.push_back(x_state);
-      count++;
+    // Generate matrix A from Choleksy decomposition of Cov Matrix
+    // Cast back to dense matrix for use in sampling function
+    Eigen::MatrixXd A( Cov.llt().matrixL() );
+    // Sample numParticles particles, 
+    // shape them into states, and place in vector
+    size_t count = 0; // How many valid particles we have sampled
+    while (count<numParticles){
+      Eigen::VectorXd x = sampleParticle(size,mu,A);
+      stateStruct x_state;
+      x_state.model = modelNum;
+      for (size_t i=0; i<numParams; i++){
+	x_state.params.push_back(x(i));
+      }
+      for (size_t i=numParams; i<size; i++){
+	x_state.vars.push_back(x(i));
+      }
+      if (translator::isStateValid(x_state,workspace)){
+	stateList.push_back(x_state);
+	count++;
+      }
     }
   }
-
   // Set the probability of the samples equal across all models
   // prob per particle
   double probPerParticle = logUtils::safe_log(1.0/(numParticles*numMechTypes));

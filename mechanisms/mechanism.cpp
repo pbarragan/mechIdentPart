@@ -119,7 +119,7 @@ stateStruct Mechanism::simulate(std::vector<double>& action){
     }
   }
   // return the state of the world after the iterations
-  std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  //std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
   return returnStateOfWorld(); // Virtual function: not defined in this file
 }
 
@@ -168,10 +168,10 @@ void Mechanism::setGoalWithAction(std::vector<double>& action){
     //goalPose_ = startPose_; // set the goal pose to the start pose
     goalPose_ = pose_; // set the goal pose to the current pose
     goalPose_ += convStdVectToBtVect3(tempActSim); // add the relative action
-    std::cout << "relative" << std::endl;
-    std::cout << "x: " << goalPose_.getX() << std::endl;
-    std::cout << "y: " << goalPose_.getY() << std::endl;
-    std::cout << "z: " << goalPose_.getZ() << std::endl;
+    //std::cout << "relative" << std::endl;
+    //std::cout << "x: " << goalPose_.getX() << std::endl;
+    //std::cout << "y: " << goalPose_.getY() << std::endl;
+    //std::cout << "z: " << goalPose_.getZ() << std::endl;
   }
   else {
     // Action looks like:

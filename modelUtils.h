@@ -10,6 +10,7 @@ namespace modelUtils {
 
   // Particle Filter
   std::vector<double> calcFilterBankProbs(std::vector<BayesFilter>& filterBank);
+  std::vector<double> calcFilterBankProbsLog(std::vector<BayesFilter>& filterBank);
   void findFilterBankBestGuesses(std::vector<BayesFilter>& filterBank,std::vector<stateStruct>& bestStates,std::vector<double>& bestStatesProbs);
   void normalizeAcrossFilters(std::vector<BayesFilter>& filterBank);
 

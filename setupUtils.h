@@ -10,7 +10,7 @@ namespace setupUtils {
   // Particle filter
   std::vector<double> standardGaussianVariates();
   Eigen::VectorXd sampleParticle(unsigned int size,Eigen::VectorXd& mu,Eigen::MatrixXd& A);
-  std::vector<stateStruct> setupParticles(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace);
+  void setupParticles(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace);
 
   //models
   std::vector<stateStruct> setupModel0(std::vector<stateStruct>& modelParamPairs);  

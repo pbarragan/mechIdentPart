@@ -25,6 +25,11 @@
 #include <ctime>
 #include <algorithm>
 
+// for directory checking
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 // for gaussianNoise()
 #include "logUtils.h"
 #define _USE_MATH_DEFINES
@@ -44,20 +49,30 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   actionSelectionType_ = actionSelectionType;
   useRobot_ = useRobot;
 
+  // Where the executable is
+  std::string exeDir = "/mit/barragan/Documents/cppCode/mechIdentPart";
+
   // get today's date and time
   // current date/time based on current system
   time_t now = time(0);
   
   // convert now to string form
   char* dt = ctime(&now);
+  char d [80];
+  strftime(d,80,"%Y_%m_%d",localtime(&now));
   std::string dateString = dt;
+  std::string dString = d;
   dateString = dateString.substr(0,dateString.size()-1);
   std::replace(dateString.begin(),dateString.end(),' ','_');
   std::replace(dateString.begin(),dateString.end(),':','_');
 
-  if(writeOutFile_){ 
+  if(writeOutFile_){
+    struct stat st = {0};
+    if (stat((exeDir+"/data/"+dString).c_str(), &st) == -1) {
+      mkdir((exeDir+"/data/"+dString).c_str(), 0777);
+    }
     std::stringstream ss;
-    ss << "data/data" << modelNum << dateString << ".txt";
+    ss << exeDir+"/data/"+dString+"/data" << modelNum << dateString << ".txt";
     std::string saveName = ss.str();
     outFile_.open(saveName.c_str());
   }
@@ -78,11 +93,12 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   workspace_[1][1]=WORKSPACE[1][1];
 
   // initialize a few things for the particle filter
-  numMechTypes_ = 6;
-  numParticles_ = 100;
+  numMechTypes_ = 2;
+  numParticles_ = 3;
   float initParamVar = 4.0; // initial parameter variance
   float initVarVar = 0.1; // initial variable variance
 
+  std::cout << "before sampling" << std::endl;
   // create each of the filters and push them into the bank
   for (size_t i=0; i<numMechTypes_; i++){
     BayesFilter filter;
@@ -95,12 +111,13 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
 			       numParticles_,
 			       numMechTypes_,
 			       workspace_); // initialize particles.
+    std::cout << "inside" << std::endl;
     filterBank_.push_back(filter); // add filter to bank
   }
-
+  std::cout << "after sampling" << std::endl;
   // print filter bank probabilities before any action is taken
   fbProbs_ = modelUtils::calcFilterBankProbs(filterBank_);
-  printFilterBankProbsAndGuesses(fbProbs_);
+  printFilterBankProbs(fbProbs_);
 
   setupUtils::setupActions(actionList_); //initialize actions
 
@@ -212,6 +229,7 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
 
   // use the SAS list?
   useSAS_ = false; // this is not applicable to the particle filter
+  /*
   if (useSAS_){
     bool overwriteCSV = true;
     std::string fileName;
@@ -224,6 +242,7 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
     //fileName = "files/sasSaveRel.txt";
     sasUtils::setupSAS(sasList_,filter_.stateList_,actionList_,overwriteCSV,fileName);
   }
+  */
 
   // print model probabilities before any action is taken
   //std::vector<double> mpProbsLog = modelUtils::calcModelParamProbLog(filter_.stateList_,filter_.logProbList_,modelParamPairs_);
@@ -247,7 +266,7 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
     }
   }
   */
-
+  /*
   if(false){
     // File style
     std::stringstream ss2;
@@ -261,7 +280,7 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
     }
     statesFile.close();
   }
-  
+  */
   if(writeOutFile_){
     writeFileInitialData(); // write the initial data to the file
   }
@@ -697,6 +716,7 @@ void RealWorld::nextAction(){
       std::cout << "Random Action Selection:" << std::endl;
       actionSelection::chooseActionRandomRel(actionList_,action_,poseInRbt_,workspace_);
     }
+    /*
     else if (whichSelectionType == 2){
       std::cout << "Entropy Action Selection:" << std::endl;
       if(useSAS_){
@@ -715,6 +735,7 @@ void RealWorld::nextAction(){
 	actionSelection::chooseActionOGRel(filter_,actionList_,action_,modelParamPairs_,poseInRbt_,workspace_);
       }
     }
+    */
   }
   else{
     // Absolute
@@ -727,6 +748,7 @@ void RealWorld::nextAction(){
       std::cout << "Random Action Selection:" << std::endl;
       actionSelection::chooseActionRandom(actionList_,action_);
     }
+    /*
     else if (whichSelectionType == 2){
       std::cout << "Entropy Action Selection:" << std::endl;
       if(useSAS_){
@@ -745,6 +767,7 @@ void RealWorld::nextAction(){
 	actionSelection::chooseActionOG(filter_,actionList_,action_,modelParamPairs_);
       }
     }
+    */
   }
   std::cout << "\033[1;31mstep: \033[0m" << step_ << std::endl;
   std::cout << "\033[1;31maction: \033[0m" << action_[0] << "," << action_[1] << std::endl;
@@ -839,7 +862,7 @@ void RealWorld::runWorld(int numSteps){
     //printModelParamProbs(mpProbsLog);
 
     // Print filter bank probs and best guesses
-    std::vector<double> fbProbs_ = modelUtils::calcFilterBankProbs(filterBank_);
+    fbProbs_ = modelUtils::calcFilterBankProbs(filterBank_);
     modelUtils::findFilterBankBestGuesses(filterBank_,
 					  bestStates_,
 					  bestStatesProbs_);
@@ -852,6 +875,7 @@ void RealWorld::runWorld(int numSteps){
   //outFile << "did this work\n";
 }
 
+
 int RealWorld::runWorldToConf(int numSteps,double confidence){
   // run the world until confidence in a single model reaches threshold or number of steps runs out
   int stepsNeeded = 0;
@@ -860,7 +884,7 @@ int RealWorld::runWorldToConf(int numSteps,double confidence){
     step_=i;
     stepWorld();
     //filter_.printLogProbList();
-    std::vector<double> mpProbsLog = modelUtils::calcModelParamProbLog(filter_.stateList_,filter_.logProbList_,modelParamPairs_);
+    std::vector<double> mpProbsLog;// = modelUtils::calcModelParamProbLog(filter_.stateList_,filter_.logProbList_,modelParamPairs_);
     //printModelParamProbs(mpProbsLog);
     if(writeOutFile_){
       writeFileStepData(); // write the step data to the file
@@ -881,6 +905,7 @@ int RealWorld::runWorldToConf(int numSteps,double confidence){
   return stepsNeeded+1;
   //outFile << "did this work\n";
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //                               Aux Section                                  //
@@ -953,6 +978,7 @@ void RealWorld::writeFileStatesForMATLAB(){
   stateFile.open(stateFileName.c_str());
 
   std::vector<double> tempCartPosInRbt;
+  /*
   for(size_t i=0;i<filter_.stateList_.size();i++){
     stateFile << filter_.stateList_[i].model;
     tempCartPosInRbt = translator::translateStToRbt(filter_.stateList_[i]);
@@ -961,6 +987,7 @@ void RealWorld::writeFileStatesForMATLAB(){
     }
     stateFile << ";\n";
   }
+  */
   stateFile.close();
 }
 
@@ -968,6 +995,9 @@ void RealWorld::writeFileInitialData(){
   // Write action type
   outFile_ << "Action type:\n";
   outFile_ << RELATIVE << "\n";
+  //
+  outFile_ << "Action Selection Type:\n";
+  outFile_ << actionSelectionType_ << "\n";
   // Write different things depending on whether using the robot or not
   if (!useRobot_){
     // use simulation
@@ -1000,38 +1030,65 @@ void RealWorld::writeFileInitialData(){
     outFile_ << "unknown" << "\n";
   }
   //
-  outFile_ << "Num States:\n";
-  outFile_ << filter_.stateList_.size() << "\n";	
+  outFile_ << "Number of Mechanism Types:\n";
+  outFile_ << numMechTypes_ << "\n";
   //
-  outFile_ << "States:\n";
-  for (size_t j=0;j<filter_.stateList_.size();j++){
+  outFile_ << "Number of Particles per Filter:\n";
+  outFile_ << numParticles_ << "\n";
+  //
+  for (size_t l=0;l<filterBank_.size();l++){
+    outFile_ << "Filter model number:\n";
+    outFile_ << filterBank_[l].stateList_[0].model << "\n";
+    outFile_ << "Num States:\n";
+    outFile_ << filterBank_[l].stateList_.size() << "\n";	
     //
-    outFile_ << "Model:\n";
-    outFile_ << filter_.stateList_[j].model << "\n";
-    //
-    outFile_ << "Params:\n";
-    for (size_t i=0;i<filter_.stateList_[j].params.size();i++){
-      outFile_ << filter_.stateList_[j].params[i] << ",";
+    outFile_ << "States:\n";
+    for (size_t j=0;j<filterBank_[l].stateList_.size();j++){
+      //
+      outFile_ << "Model:\n";
+      outFile_ << filterBank_[l].stateList_[j].model << "\n";
+      //
+      outFile_ << "Params:\n";
+      for (size_t i=0;i<filterBank_[l].stateList_[j].params.size();i++){
+	outFile_ << filterBank_[l].stateList_[j].params[i] << ",";
+      }
+      outFile_ << "\n";
+      //
+      outFile_ << "Vars:\n";
+      for (size_t i=0;i<filterBank_[l].stateList_[j].vars.size();i++){
+	outFile_ << filterBank_[l].stateList_[j].vars[i] << ",";
+      }
+      outFile_ << "\n";
     }
-    outFile_ << "\n";
     //
-    outFile_ << "Vars:\n";
-    for (size_t i=0;i<filter_.stateList_[j].vars.size();i++){
-      outFile_ << filter_.stateList_[j].vars[i] << ",";
+    outFile_ << "States in Rbt:\n";
+    //
+    std::vector<double> tempCartPosInRbt;
+    for(size_t i=0;i<filterBank_[l].stateList_.size();i++){
+      outFile_ << filterBank_[l].stateList_[i].model;
+      tempCartPosInRbt = translator::translateStToRbt(filterBank_[l].stateList_[i]);
+      for(size_t j=0;j<tempCartPosInRbt.size();j++){
+	outFile_ << "," << tempCartPosInRbt[j]; 
+      }
+      outFile_ << "\n";
     }
-    outFile_ << "\n";
+    //
+    outFile_ << "Initial Log Probs:\n";
+    for (size_t i=0;i<filterBank_[l].logProbList_.size();i++){
+      outFile_ << filterBank_[l].logProbList_[i]<< "\n";
+    }    
   }
   //
-  outFile_ << "States in Rbt:\n";
+  outFile_ << "Initial Filter Bank Probs:\n";
+  for (size_t i=0;i<fbProbs_.size();i++){
+    outFile_ << fbProbs_[i]<< "\n";
+  }
   //
-  std::vector<double> tempCartPosInRbt;
-  for(size_t i=0;i<filter_.stateList_.size();i++){
-    outFile_ << filter_.stateList_[i].model;
-    tempCartPosInRbt = translator::translateStToRbt(filter_.stateList_[i]);
-    for(size_t j=0;j<tempCartPosInRbt.size();j++){
-      outFile_ << "," << tempCartPosInRbt[j]; 
-    }
-    outFile_ << "\n";
+  outFile_ << "Initial Filter Bank Log Probs:\n";
+  std::vector<double> fbProbsLog = 
+    modelUtils::calcFilterBankProbsLog(filterBank_);
+  for (size_t i=0;i<fbProbsLog.size();i++){
+    outFile_ << fbProbsLog[i]<< "\n";
   }
   //
   outFile_ << "Num Actions:\n";
@@ -1044,6 +1101,16 @@ void RealWorld::writeFileInitialData(){
     }
     outFile_ << "\n";
   }
+  //
+  outFile_ << "Initial Pose in Rbt:\n";
+  for (size_t i=0;i<poseInRbt_.size();i++){
+    outFile_ << poseInRbt_[i]<< ",";
+  }
+  outFile_ << "\n";
+  //
+  outFile_ << "Total Steps:\n";
+  outFile_ << stepsTotal_ << "\n";
+  /*
   //
   outFile_ << "Num Model-Param Pairs:\n";
   outFile_ << modelParamPairs_.size() << "\n";	
@@ -1063,42 +1130,13 @@ void RealWorld::writeFileInitialData(){
     outFile_ << "Num Var Types:\n";
     outFile_ << numVarTypesPerStateType_[j] << "\n";
   }
-  //
-  outFile_ << "Initial Log Probs:\n";
-  for (size_t i=0;i<filter_.logProbList_.size();i++){
-    outFile_ << filter_.logProbList_[i]<< "\n";
-  }
-  //
-  outFile_ << "Initial Model-Param Log Probs:\n";
-  std::vector<double> mpProbsLog = modelUtils::calcModelParamProbLogWOExp(filter_.stateList_,filter_.logProbList_,modelParamPairs_);
-  for (size_t i=0;i<mpProbsLog.size();i++){
-    outFile_ << mpProbsLog[i]<< "\n";
-  }
-  //
-  outFile_ << "Initial Model-Param Probs:\n";
-  std::vector<double> mpProbs = modelUtils::calcModelParamProbLog(filter_.stateList_,filter_.logProbList_,modelParamPairs_);
-  for (size_t i=0;i<mpProbs.size();i++){
-    outFile_ << mpProbs[i]<< "\n";
-  }
-  //
-  outFile_ << "Initial Pose in Rbt:\n";
-  for (size_t i=0;i<poseInRbt_.size();i++){
-    outFile_ << poseInRbt_[i]<< ",";
-  }
-  outFile_ << "\n";
-  //
-  outFile_ << "Total Steps:\n";
-  outFile_ << stepsTotal_ << "\n";
-
+  */
 }
 
 void RealWorld::writeFileStepData(){
   //
   outFile_ << "Step:\n";
   outFile_ << step_ << "\n";
-  //
-  outFile_ << "Action Selection Type:\n";
-  outFile_ << actionSelectionType_ << "\n";
   //
   outFile_ << "Action:\n";
   for (size_t i=0;i<action_.size();i++){
@@ -1118,20 +1156,88 @@ void RealWorld::writeFileStepData(){
   }
   outFile_ << "\n";
   //
-  outFile_ << "Log Probs after Transition before Observation:\n";
-  for (size_t i=0;i<filter_.logProbList_T_.size();i++){
-    outFile_ << filter_.logProbList_T_[i]<< "\n";
+  for (size_t l=0;l<filterBank_.size();l++){
+    //
+    outFile_ << "Filter model number:\n";
+    outFile_ << filterBank_[l].stateList_[0].model << "\n";
+    //
+    outFile_ << "States:\n";
+    for (size_t j=0;j<filterBank_[l].stateList_.size();j++){
+      //
+      outFile_ << "Model:\n";
+      outFile_ << filterBank_[l].stateList_[j].model << "\n";
+      //
+      outFile_ << "Params:\n";
+      for (size_t i=0;i<filterBank_[l].stateList_[j].params.size();i++){
+	outFile_ << filterBank_[l].stateList_[j].params[i] << ",";
+      }
+      outFile_ << "\n";
+      //
+      outFile_ << "Vars:\n";
+      for (size_t i=0;i<filterBank_[l].stateList_[j].vars.size();i++){
+	outFile_ << filterBank_[l].stateList_[j].vars[i] << ",";
+      }
+      outFile_ << "\n";
+    }
+    //
+    outFile_ << "States in Rbt:\n";
+    //
+    std::vector<double> tempCartPosInRbt;
+    for(size_t i=0;i<filterBank_[l].stateList_.size();i++){
+      outFile_ << filterBank_[l].stateList_[i].model;
+      tempCartPosInRbt = translator::translateStToRbt(filterBank_[l].stateList_[i]);
+      for(size_t j=0;j<tempCartPosInRbt.size();j++){
+	outFile_ << "," << tempCartPosInRbt[j]; 
+      }
+      outFile_ << "\n";
+    }
+    //
+    outFile_ << "Log Probs of Observation:\n";
+    for (size_t i=0;i<filterBank_[l].logProbList_O_.size();i++){
+      outFile_ << filterBank_[l].logProbList_O_[i]<< "\n";
+    }
+    //
+    outFile_ << "Log Probs:\n";
+    for (size_t i=0;i<filterBank_[l].logProbList_.size();i++){
+      outFile_ << filterBank_[l].logProbList_[i]<< "\n";
+    }
   }
   //
-  outFile_ << "Log Probs of Observation:\n";
-  for (size_t i=0;i<filter_.logProbList_O_.size();i++){
-    outFile_ << filter_.logProbList_O_[i]<< "\n";
+  outFile_ << "Filter Bank Probs:\n";
+  for (size_t i=0;i<fbProbs_.size();i++){
+    outFile_ << fbProbs_[i]<< "\n";
   }
   //
-  outFile_ << "Log Probs:\n";
-  for (size_t i=0;i<filter_.logProbList_.size();i++){
-    outFile_ << filter_.logProbList_[i]<< "\n";
+  outFile_ << "Filter Bank Log Probs:\n";
+  std::vector<double> fbProbsLog = 
+    modelUtils::calcFilterBankProbsLog(filterBank_);
+  for (size_t i=0;i<fbProbsLog.size();i++){
+    outFile_ << fbProbsLog[i]<< "\n";
   }
+  //
+  outFile_ << "Filter Bank Best States and Probabilities:" << "\n";
+  for (size_t i=0;i<bestStates_.size();i++){
+    //
+    outFile_ << "Model:\n";
+    outFile_ << bestStates_[i].model << "\n";
+    //
+    outFile_ << "Params:\n";
+    for (size_t j = 0; j<bestStates_[i].params.size(); j++) {
+      outFile_ << bestStates_[i].params[j] << ',';
+    }
+    outFile_ << "\n";
+    //
+    outFile_ << "Vars:\n";
+    for (size_t j = 0; j<bestStates_[i].vars.size(); j++) {
+      outFile_ << bestStates_[i].vars[j] << ',';
+    }
+    outFile_ << "\n";
+    //
+    outFile_ << "Prob:\n";
+    outFile_ << bestStatesProbs_[i] << "\n";
+  }
+
+  /*
   //
   outFile_ << "Model-Param Log Probs:\n";
   std::vector<double> mpProbsLog = modelUtils::calcModelParamProbLogWOExp(filter_.stateList_,filter_.logProbList_,modelParamPairs_);
@@ -1144,6 +1250,7 @@ void RealWorld::writeFileStepData(){
   for (size_t i=0;i<mpProbs.size();i++){
     outFile_ << mpProbs[i]<< "\n";
   }
+  */
 }
 
 
@@ -1222,14 +1329,15 @@ int main(int argc, char* argv[])
       timespec ts3;
       
       clock_gettime(CLOCK_REALTIME, &ts1); // get time before constructor
-      //std::cout << "hello" << std::endl;
+      std::cout << "hello" << std::endl;
       RealWorld world(modelNum,steps,writeOutFile,actionSelectionType,useRobot);
-      //std::cout << "didnt get here" << std::endl;
+      std::cout << "didnt get here" << std::endl;
       clock_gettime(CLOCK_REALTIME, &ts2); // get time after constructor
 
       //////////
       // DELETE - JUST FOR DEBUG
 
+      /*
       for (size_t b =0;b<world.filter_.stateList_.size();b++){
 	if (world.filter_.stateList_[b].model == 5){
 	  stateStruct tempState = translator::stateTransition(world.filter_.stateList_[b],world.actionList_[4]);
@@ -1262,6 +1370,7 @@ int main(int argc, char* argv[])
 	  std::cout << std::endl;
 	}
       }
+      */
 
       ////////////
 

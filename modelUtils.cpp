@@ -25,6 +25,22 @@ std::vector<double> modelUtils::calcFilterBankProbs(std::vector<BayesFilter>& fi
   return sumHold;   
 }
 
+//Returns the filter log probabilities when given a filter bank
+std::vector<double> modelUtils::calcFilterBankProbsLog(std::vector<BayesFilter>& filterBank){
+  // 0. Initialize a holder
+  std::vector<double> sumHold (filterBank.size(),0.0);
+  
+  // 1. Iterate through filters
+  // Log-sum-exp the log probability lists for each filter
+  // and then exponentiate.
+  
+  for (size_t j=0; j<sumHold.size(); j++){
+    sumHold[j] = logUtils::logSumExp(filterBank[j].logProbList_);
+  }
+  
+  return sumHold;   
+}
+
 void modelUtils::findFilterBankBestGuesses(std::vector<BayesFilter>& filterBank,std::vector<stateStruct>& bestStates,std::vector<double>& bestStatesProbs){
   // 0. Make sure containers are empty
   bestStates.clear();
