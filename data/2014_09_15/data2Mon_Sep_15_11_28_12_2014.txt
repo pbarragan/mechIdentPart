@@ -1,0 +1,1074 @@
+Action type:
+1
+Action Selection Type:
+1
+Real Model:
+2
+Real Params:
+0.396,0.396,0.56,
+Real Vars:
+-2.356,
+Number of Mechanism Types:
+2
+Number of Particles per Filter:
+3
+Filter model number:
+0
+Num States:
+3
+States:
+Model:
+0
+Params:
+
+Vars:
+-0.116391,0.0506207,
+Model:
+0
+Params:
+
+Vars:
+0.133918,-0.128063,
+Model:
+0
+Params:
+
+Vars:
+-0.0369258,0.145459,
+States in Rbt:
+0,-0.116391,0.0506207
+0,0.133918,-0.128063
+0,-0.0369258,0.145459
+Initial Log Probs:
+-1.79176
+-1.79176
+-1.79176
+Filter model number:
+2
+Num States:
+3
+States:
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.205898,
+Model:
+2
+Params:
+-2.42903,0.837395,2.64746,
+Vars:
+-0.3731,
+Model:
+2
+Params:
+-1.07797,0.0427398,1.09691,
+Vars:
+-0.143027,
+States in Rbt:
+2,-0.0254065,-0.0192147
+2,0.0362891,-0.127613
+2,0.00773289,-0.113613
+Initial Log Probs:
+-1.79176
+-1.79176
+-1.79176
+Initial Filter Bank Probs:
+0.5
+0.5
+Initial Filter Bank Log Probs:
+-0.693147
+-0.693147
+Num Actions:
+8
+Actions:
+0.12,0,
+0.0848528,0.0848528,
+7.34788e-18,0.12,
+-0.0848528,0.0848528,
+-0.12,1.46958e-17,
+-0.0848528,-0.0848528,
+-2.20436e-17,-0.12,
+0.0848528,-0.0848528,
+Initial Pose in Rbt:
+9.72242e-05,-5.68042e-05,
+Total Steps:
+10
+Step:
+0
+Action:
+7.34788e-18,0.12,
+Pose in Rbt:
+-0.0645938,0.0806375,
+Observation in Obs:
+-0.0645938,0.0806375,
+Filter model number:
+0
+States:
+Model:
+0
+Params:
+
+Vars:
+-0.116403,0.170621,
+Model:
+0
+Params:
+
+Vars:
+0.133906,-0.00806277,
+Model:
+0
+Params:
+
+Vars:
+-0.0369393,0.265459,
+States in Rbt:
+0,-0.116403,0.170621
+0,0.133906,-0.00806277
+0,-0.0369393,0.265459
+Log Probs of Observation:
+1.23078
+-10.172
+-6.31379
+Log Probs:
+-2.9605
+-14.3633
+-10.5051
+Filter model number:
+2
+States:
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+0.276414,
+Model:
+2
+Params:
+-2.42903,0.837395,2.64746,
+Vars:
+-0.330209,
+Model:
+2
+Params:
+-1.07797,0.0427398,1.09691,
+Vars:
+-0.0334703,
+States in Rbt:
+2,-0.0295972,0.0995924
+2,0.0753991,-0.0210178
+2,0.0183189,0.00603286
+Log Probs of Observation:
+4.10486
+-4.75382
+0.712258
+Log Probs:
+-0.0864176
+-8.9451
+-3.47902
+Filter Bank Probs:
+0.0518209
+0.948179
+Filter Bank Log Probs:
+-2.95996
+-0.0532118
+Filter Bank Best States and Probabilities:
+Model:
+0
+Params:
+
+Vars:
+-0.116403,0.170621,
+Prob:
+-2.9605
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+0.276414,
+Prob:
+-0.0864176
+Step:
+1
+Action:
+-2.20436e-17,-0.12,
+Pose in Rbt:
+-0.0241671,0.00180108,
+Observation in Obs:
+-0.0241671,0.00180108,
+Filter model number:
+0
+States:
+Model:
+0
+Params:
+
+Vars:
+-0.116414,0.0506206,
+Model:
+0
+Params:
+
+Vars:
+0.133895,-0.128063,
+Model:
+0
+Params:
+
+Vars:
+-0.0369526,0.145459,
+States in Rbt:
+0,-0.116414,0.0506206
+0,0.133895,-0.128063
+0,-0.0369526,0.145459
+Log Probs of Observation:
+1.19589
+-8.47772
+-1.90047
+Log Probs:
+-6.11435
+-27.1907
+-16.7553
+Filter model number:
+2
+States:
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.214117,
+Model:
+2
+Params:
+-2.42903,0.837395,2.64746,
+Vars:
+-0.37244,
+Model:
+2
+Params:
+-1.07797,0.0427398,1.09691,
+Vars:
+-0.141981,
+States in Rbt:
+2,-0.025833,-0.0212153
+2,0.0369247,-0.125987
+2,0.0078958,-0.112477
+Log Probs of Observation:
+4.43346
+-1.66951
+0.197512
+Log Probs:
+-0.00269998
+-14.9643
+-7.63125
+Filter Bank Probs:
+0.00221096
+0.997789
+Filter Bank Log Probs:
+-6.11433
+-0.00221341
+Filter Bank Best States and Probabilities:
+Model:
+0
+Params:
+
+Vars:
+-0.116414,0.0506206,
+Prob:
+-6.11435
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.214117,
+Prob:
+-0.00269998
+Step:
+2
+Action:
+0.12,0,
+Pose in Rbt:
+0.067494,-0.0474058,
+Observation in Obs:
+0.067494,-0.0474058,
+Filter model number:
+0
+States:
+Model:
+0
+Params:
+
+Vars:
+0.00446223,0.0506206,
+Model:
+0
+Params:
+
+Vars:
+0.25477,-0.128063,
+Model:
+0
+Params:
+
+Vars:
+0.0839214,0.145459,
+States in Rbt:
+0,0.00446223,0.0506206
+0,0.25477,-0.128063
+0,0.0839214,0.145459
+Log Probs of Observation:
+0.355448
+-8.39324
+-7.10847
+Log Probs:
+-7.23026
+-37.0553
+-25.3351
+Filter model number:
+2
+States:
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.144593,
+Model:
+2
+Params:
+-2.42903,0.837395,2.64746,
+Vars:
+-0.356616,
+Model:
+2
+Params:
+-1.07797,0.0427398,1.09691,
+Vars:
+-0.128014,
+States in Rbt:
+2,-0.0227468,-0.00419292
+2,0.0518603,-0.0868459
+2,0.00995771,-0.0972964
+Log Probs of Observation:
+1.47152
+4.03739
+2.78753
+Log Probs:
+-0.00254051
+-12.3983
+-6.31507
+Filter Bank Probs:
+0.000724331
+0.999276
+Filter Bank Log Probs:
+-7.23026
+-0.000724594
+Filter Bank Best States and Probabilities:
+Model:
+0
+Params:
+
+Vars:
+0.00446223,0.0506206,
+Prob:
+-7.23026
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.144593,
+Prob:
+-0.00254051
+Step:
+3
+Action:
+-0.12,1.46958e-17,
+Pose in Rbt:
+0.00602604,0.0123316,
+Observation in Obs:
+0.00602604,0.0123316,
+Filter model number:
+0
+States:
+Model:
+0
+Params:
+
+Vars:
+-0.116434,0.0506206,
+Model:
+0
+Params:
+
+Vars:
+0.133874,-0.128063,
+Model:
+0
+Params:
+
+Vars:
+-0.036974,0.145459,
+States in Rbt:
+0,-0.116434,0.0506206
+0,0.133874,-0.128063
+0,-0.036974,0.145459
+Log Probs of Observation:
+-0.544661
+-6.66751
+-1.51636
+Log Probs:
+-11.2358
+-47.1837
+-30.3123
+Filter model number:
+2
+States:
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.276675,
+Model:
+2
+Params:
+-2.42903,0.837395,2.64746,
+Vars:
+-0.37314,
+Model:
+2
+Params:
+-1.07797,0.0427398,1.09691,
+Vars:
+-0.143679,
+States in Rbt:
+2,-0.0296149,-0.0363163
+2,0.03625,-0.127712
+2,0.00763068,-0.114321
+Log Probs of Observation:
+3.46335
+-1.81443
+-0.413684
+Log Probs:
+-5.07744e-05
+-17.6736
+-10.1896
+Filter Bank Probs:
+1.31936e-05
+0.999987
+Filter Bank Log Probs:
+-11.2358
+-1.31937e-05
+Filter Bank Best States and Probabilities:
+Model:
+0
+Params:
+
+Vars:
+-0.116434,0.0506206,
+Prob:
+-11.2358
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.276675,
+Prob:
+-5.07744e-05
+Step:
+4
+Action:
+-2.20436e-17,-0.12,
+Pose in Rbt:
+0.0528664,-0.0487025,
+Observation in Obs:
+0.0528664,-0.0487025,
+Filter model number:
+0
+States:
+Model:
+0
+Params:
+
+Vars:
+-0.116447,-0.0693795,
+Model:
+0
+Params:
+
+Vars:
+0.133865,-0.248063,
+Model:
+0
+Params:
+
+Vars:
+-0.0369873,0.0254591,
+States in Rbt:
+0,-0.116447,-0.0693795
+0,0.133865,-0.248063
+0,-0.0369873,0.0254591
+Log Probs of Observation:
+-4.49218
+-9.87051
+0.358117
+Log Probs:
+-13.6741
+-55.0004
+-27.9004
+Filter model number:
+2
+States:
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.665653,
+Model:
+2
+Params:
+-2.42903,0.837395,2.64746,
+Vars:
+-0.414638,
+Model:
+2
+Params:
+-1.07797,0.0427398,1.09691,
+Vars:
+-0.24988,
+States in Rbt:
+2,-0.0732835,-0.122037
+2,-0.0059104,-0.229155
+2,-0.0151342,-0.228511
+Log Probs of Observation:
+-2.05377
+-6.6557
+-6.94862
+Log Probs:
+-1.43321e-06
+-22.2755
+-15.0844
+Filter Bank Probs:
+1.15186e-06
+0.999999
+Filter Bank Log Probs:
+-13.6741
+-1.15186e-06
+Filter Bank Best States and Probabilities:
+Model:
+0
+Params:
+
+Vars:
+-0.116447,-0.0693795,
+Prob:
+-13.6741
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.665653,
+Prob:
+-1.43321e-06
+Step:
+5
+Action:
+0.0848528,-0.0848528,
+Pose in Rbt:
+0.151828,-0.10741,
+Observation in Obs:
+0.151828,-0.10741,
+Filter model number:
+0
+States:
+Model:
+0
+Params:
+
+Vars:
+-0.0310122,-0.154232,
+Model:
+0
+Params:
+
+Vars:
+0.219297,-0.332915,
+Model:
+0
+Params:
+
+Vars:
+0.0484467,-0.0593937,
+States in Rbt:
+0,-0.0310122,-0.154232
+0,0.219297,-0.332915
+0,0.0484467,-0.0593937
+Log Probs of Observation:
+-6.53228
+-12.7141
+0.539481
+Log Probs:
+-7.94333
+-55.4515
+-15.0978
+Filter model number:
+2
+States:
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.704582,
+Model:
+2
+Params:
+-2.42903,0.837395,2.64746,
+Vars:
+-0.430393,
+Model:
+2
+Params:
+-1.07797,0.0427398,1.09691,
+Vars:
+-0.30086,
+States in Rbt:
+2,-0.079414,-0.129539
+2,-0.0230148,-0.267199
+2,-0.0303375,-0.282319
+Log Probs of Observation:
+-12.2634
+-12.9322
+-15.3306
+Log Probs:
+-0.000355375
+-22.9446
+-18.1519
+Filter Bank Probs:
+0.000355298
+0.999645
+Filter Bank Log Probs:
+-7.94255
+-0.000355362
+Filter Bank Best States and Probabilities:
+Model:
+0
+Params:
+
+Vars:
+-0.0310122,-0.154232,
+Prob:
+-7.94333
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.704582,
+Prob:
+-0.000355375
+Step:
+6
+Action:
+-0.0848528,0.0848528,
+Pose in Rbt:
+0.0606031,-0.0590708,
+Observation in Obs:
+0.0606031,-0.0590708,
+Filter model number:
+0
+States:
+Model:
+0
+Params:
+
+Vars:
+-0.116468,-0.0693793,
+Model:
+0
+Params:
+
+Vars:
+0.133841,-0.248063,
+Model:
+0
+Params:
+
+Vars:
+-0.0370106,0.0254591,
+States in Rbt:
+0,-0.116468,-0.0693793
+0,0.133841,-0.248063
+0,-0.0370106,0.0254591
+Log Probs of Observation:
+-5.23152
+-8.23817
+-0.610667
+Log Probs:
+-11.6395
+-62.1542
+-14.1731
+Filter model number:
+2
+States:
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.629792,
+Model:
+2
+Params:
+-2.42903,0.837395,2.64746,
+Vars:
+-0.41394,
+Model:
+2
+Params:
+-1.07797,0.0427398,1.09691,
+Vars:
+-0.2445,
+States in Rbt:
+2,-0.0678985,-0.114919
+2,-0.0051673,-0.227465
+2,-0.0136903,-0.222789
+Log Probs of Observation:
+-1.53504
+-5.61338
+-5.50116
+Log Probs:
+-9.51106e-06
+-27.0226
+-22.1177
+Filter Bank Probs:
+9.51077e-06
+0.99999
+Filter Bank Log Probs:
+-11.5631
+-9.51081e-06
+Filter Bank Best States and Probabilities:
+Model:
+0
+Params:
+
+Vars:
+-0.116468,-0.0693793,
+Prob:
+-11.6395
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.629792,
+Prob:
+-9.51106e-06
+Step:
+7
+Action:
+-0.12,1.46958e-17,
+Pose in Rbt:
+-0.026405,0.0235259,
+Observation in Obs:
+-0.026405,0.0235259,
+Filter model number:
+0
+States:
+Model:
+0
+Params:
+
+Vars:
+-0.237364,-0.0693793,
+Model:
+0
+Params:
+
+Vars:
+0.0129451,-0.248063,
+Model:
+0
+Params:
+
+Vars:
+-0.157907,0.0254591,
+States in Rbt:
+0,-0.237364,-0.0693793
+0,0.0129451,-0.248063
+0,-0.157907,0.0254591
+Log Probs of Observation:
+-12.0049
+-18.9341
+-0.80528
+Log Probs:
+-10.1203
+-67.5642
+-1.45428
+Filter model number:
+2
+States:
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-1.06528,
+Model:
+2
+Params:
+-2.42903,0.837395,2.64746,
+Vars:
+-0.432958,
+Model:
+2
+Params:
+-1.07797,0.0427398,1.09691,
+Vars:
+-0.274118,
+States in Rbt:
+2,-0.148511,-0.186088
+2,-0.0258561,-0.273367
+2,-0.0220204,-0.25419
+Log Probs of Observation:
+-13.7901
+-22.9457
+-19.5081
+Log Probs:
+-0.266061
+-36.4442
+-28.1017
+Filter Bank Probs:
+0.233608
+0.766392
+Filter Bank Log Probs:
+-1.45411
+-0.266061
+Filter Bank Best States and Probabilities:
+Model:
+0
+Params:
+
+Vars:
+-0.157907,0.0254591,
+Prob:
+-1.45428
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-1.06528,
+Prob:
+-0.266061
+Step:
+8
+Action:
+0.0848528,0.0848528,
+Pose in Rbt:
+-0.0092752,0.0118407,
+Observation in Obs:
+-0.0092752,0.0118407,
+Filter model number:
+0
+States:
+Model:
+0
+Params:
+
+Vars:
+-0.151932,0.0154735,
+Model:
+0
+Params:
+
+Vars:
+0.0983784,-0.16321,
+Model:
+0
+Params:
+
+Vars:
+-0.0724718,0.110312,
+States in Rbt:
+0,-0.151932,0.0154735
+0,0.0983784,-0.16321
+0,-0.0724718,0.110312
+Log Probs of Observation:
+-1.76392
+-8.59761
+0.321633
+Log Probs:
+-11.7244
+-76.0021
+-0.972867
+Filter model number:
+2
+States:
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.574394,
+Model:
+2
+Params:
+-2.42903,0.837395,2.64746,
+Vars:
+-0.391098,
+Model:
+2
+Params:
+-1.07797,0.0427398,1.09691,
+Vars:
+-0.183803,
+States in Rbt:
+2,-0.0600905,-0.103558
+2,0.0185223,-0.171825
+2,0.000456656,-0.157742
+Log Probs of Observation:
+-0.368546
+-6.18321
+-4.41665
+Log Probs:
+-0.474824
+-42.4677
+-32.3586
+Filter Bank Probs:
+0.378006
+0.621994
+Filter Bank Log Probs:
+-0.972846
+-0.474824
+Filter Bank Best States and Probabilities:
+Model:
+0
+Params:
+
+Vars:
+-0.0724718,0.110312,
+Prob:
+-0.972867
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-0.574394,
+Prob:
+-0.474824
+Step:
+9
+Action:
+-0.0848528,-0.0848528,
+Pose in Rbt:
+-0.00964831,0.00779839,
+Observation in Obs:
+-0.00964831,0.00779839,
+Filter model number:
+0
+States:
+Model:
+0
+Params:
+
+Vars:
+-0.237389,-0.0693793,
+Model:
+0
+Params:
+
+Vars:
+0.012922,-0.248062,
+Model:
+0
+Params:
+
+Vars:
+-0.157928,0.025459,
+States in Rbt:
+0,-0.237389,-0.0693793
+0,0.012922,-0.248062
+0,-0.157928,0.025459
+Log Probs of Observation:
+-13.4695
+-16.0171
+-2.36853
+Log Probs:
+-21.8526
+-88.6778
+-4.35206e-05
+Filter model number:
+2
+States:
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-1.05736,
+Model:
+2
+Params:
+-2.42903,0.837395,2.64746,
+Vars:
+-0.433662,
+Model:
+2
+Params:
+-1.07797,0.0427398,1.09691,
+Vars:
+-0.279654,
+States in Rbt:
+2,-0.14679,-0.185127
+2,-0.0266382,-0.275058
+2,-0.0236802,-0.260031
+Log Probs of Observation:
+-12.9088
+-20.4927
+-17.8781
+Log Probs:
+-10.0423
+-59.619
+-46.8953
+Filter Bank Probs:
+0.999956
+4.35193e-05
+Filter Bank Log Probs:
+-4.35203e-05
+-10.0423
+Filter Bank Best States and Probabilities:
+Model:
+0
+Params:
+
+Vars:
+-0.157928,0.025459,
+Prob:
+-4.35206e-05
+Model:
+2
+Params:
+-0.269036,0.0316692,0.248887,
+Vars:
+-1.05736,
+Prob:
+-10.0423
+Time for constructor:
+0.040346
+Time for running world:
+1.02618
+Time per step:
+0.102618
+

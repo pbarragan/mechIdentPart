@@ -26,6 +26,8 @@ class RealWorld {
   Mechanism* mechPtr_; // the mechanism for the simulation if Robot is not used
 
   // particle filter stuff
+  // this is which mechanism types exist; new
+  std::vector<int> whichMechTypes_; 
   int numMechTypes_; // this is the number of mechanism types that exist; new
   int numParticles_; // this is the number of particles per filter; new
 

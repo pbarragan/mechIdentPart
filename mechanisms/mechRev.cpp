@@ -294,7 +294,7 @@ bool MechRev::isStateValid(stateStruct& state,std::vector< std::vector<double> >
   // Multiple conditions to check in order of increasing cost of computation
   double r = state.params[2];
   // Check if state violates the basic rules of this latch
-  if (r<=0){ std::cout << "error 1" << std::endl; return false;}
+  if (r<=0){ /*std::cout << "error 1" << std::endl;*/ return false;}
   else{
     // Check if state places rbt outside of rbt workspace
     std::vector<double> rbt = stToRbt(state);

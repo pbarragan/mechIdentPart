@@ -74,6 +74,7 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
     std::stringstream ss;
     ss << exeDir+"/data/"+dString+"/data" << modelNum << dateString << ".txt";
     std::string saveName = ss.str();
+    std::cout << saveName << std::endl;
     outFile_.open(saveName.c_str());
   }
 
@@ -93,8 +94,15 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   workspace_[1][1]=WORKSPACE[1][1];
 
   // initialize a few things for the particle filter
-  numMechTypes_ = 2;
-  numParticles_ = 3;
+  //whichMechTypes_.push_back(0);
+  //whichMechTypes_.push_back(1);
+  //whichMechTypes_.push_back(2);
+  whichMechTypes_.push_back(3);
+  //whichMechTypes_.push_back(4);
+  //whichMechTypes_.push_back(5);
+  
+  numMechTypes_ = whichMechTypes_.size();
+  numParticles_ = 300;
   float initParamVar = 4.0; // initial parameter variance
   float initVarVar = 0.1; // initial variable variance
 
@@ -105,7 +113,7 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
     // this function must validate the particles
     setupUtils::setupParticles(filter.stateList_,
 			       filter.logProbList_,
-			       i,
+			       whichMechTypes_[i],
 			       initParamVar,
 			       initVarVar,
 			       numParticles_,
@@ -372,12 +380,12 @@ void RealWorld::initMechRev(){
   stateStruct startState;
   startState.model = 2;
   std::vector<double> stateParams;
-  stateParams.push_back(0.396); // 0.3111
-  stateParams.push_back(0.396); // 0.3111
-  stateParams.push_back(0.56); // 0.44
+  stateParams.push_back(-0.396); //0.396 // 0.3111
+  stateParams.push_back(-0.396); //0.396 // 0.3111
+  stateParams.push_back(0.56); //0.44 // 0.44
   startState.params = stateParams;
   std::vector<double> stateVars;
-  stateVars.push_back(-2.356);
+  stateVars.push_back(0.7854); // -2.356
   startState.vars = stateVars;
 
   // check if state is valid
@@ -941,7 +949,7 @@ void RealWorld::printModelParamProbs(std::vector<double> mpProbsLog){
 void RealWorld::printFilterBankProbs(std::vector<double>& fbProbs){
   std::cout << "Filter Bank Probabilities:" << std::endl;
   for (size_t i=0;i<fbProbs.size();i++){
-    std::cout << "Filter " << i << " mass:" << std::endl;
+    std::cout << "Filter " << whichMechTypes_[i] << " mass:" << std::endl;
     std::cout << fbProbs[i] << std::endl;
   }
 }

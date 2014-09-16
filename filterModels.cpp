@@ -62,6 +62,7 @@ double filterModels::logProbObs(std::vector<double> obs, stateStruct state){
   //Move this outside later maybe
   //double obsArray[] = {0.01,0.0,0.0,0.01}; // change
   //double obsArray[] = {0.0001,0.0,0.0,0.0001};
+  //double obsArray[] = {0.0016,0.0,0.0,0.0016};
   //double obsArray[] = {0.0004,0.0,0.0,0.0004};
 
   //std::vector<double> obsCovMat;
