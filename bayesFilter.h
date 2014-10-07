@@ -29,7 +29,9 @@ class BayesFilter {
 
   // overloaded
   void observationUpdateLog(std::vector<double> obs);
-  void observationUpdateLog(std::vector<double>& logProbList, std::vector<double> obs);
+  void observationUpdateLog(std::vector<double>& logProbList, std::vector<double>& logProbList_O, std::vector<stateStruct>& stateList, std::vector<double> obs);
+  void observationUpdateLog(std::vector<double>& logProbList, std::vector<double> obs);  
+  void observationUpdateLog(std::vector<double>& logProbList, std::vector<stateStruct>& stateList, std::vector<double> obs);
 
   void printLogProbList();
   void printStateList();

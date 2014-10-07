@@ -2,6 +2,7 @@
 #include "setupUtils.h"
 #include "logUtils.h"
 #include "translator.h"
+#include "actionSelection.h"
 
 #include "globalVars.h" // Global variables
 
@@ -17,6 +18,30 @@
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+
+void setupUtils::resampleParticles(std::vector<stateStruct>& stateList,std::vector<double>& logProbList){
+  double logProbPerPart = logUtils::logSumExp(logProbList)
+    -logUtils::safe_log(logProbList.size());
+
+  // Samples from the particles state according to the probability distribution 
+  // Step 0: Normalize the log probability list
+  std::vector<double> normLogProbList = 
+    logUtils::normalizeVectorInLogSpace(logProbList);
+
+  //Step 1: Assume only log probs exist. Exponentiate to get probs.
+  std::vector<double> probList = logUtils::expLogProbs(normLogProbList);
+
+  //Step 1: Create the CDF of the current belief from the PDF probList_.
+  std::vector<double> probCDF = actionSelection::createCDF(probList);
+
+  //Step 2: Sample states from the belief
+  std::vector<stateStruct> tempStateList; // empty state list
+  for (size_t i=0;i<stateList.size();i++){
+    tempStateList.push_back(actionSelection::getSampleState(probCDF,stateList));
+  }
+  std::vector<double> tempLogProbList (logProbList.size(),logProbPerPart);
+  logProbList = tempLogProbList;
+}
 
 std::vector<double> setupUtils::standardGaussianVariates(){
   // Box-Muller Transform
@@ -93,6 +118,227 @@ void setupUtils::setupParticles(std::vector<stateStruct>& stateList,std::vector<
       }
     }
   }
+  // Set the probability of the samples equal across all models
+  // prob per particle
+  double probPerParticle = logUtils::safe_log(1.0/(numParticles*numMechTypes));
+  logProbList.clear(); // Make sure the logProbList is empty
+  std::vector<double> probs (numParticles,probPerParticle);
+  logProbList = probs;
+}
+
+void setupUtils::setupParticlesIndependent(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace){
+  stateList.clear(); // Make sure the stateList is empty
+  if (modelNum == 1){
+    // For model 1 (the fixed model), only ever sample the single valid state
+    for (size_t i=0;i<numParticles;i++){
+      stateStruct x_state;
+      x_state.model = modelNum;
+      x_state.params.push_back(0.0);
+      x_state.params.push_back(0.0);
+      stateList.push_back(x_state);
+    }
+  }
+  else{
+    // For any other model:
+    // Determine shape of state space for this modelNum
+    int numParams = MODEL_DESCRIPTIONS[modelNum][0]; // in globalVars.h
+    int numVars = MODEL_DESCRIPTIONS[modelNum][1]; // in globalVars.h
+    unsigned int size = numParams+numVars; // dimension of space
+    std::vector<double> z (size,0.0); // holds standard normal variates
+
+    // Get standard deviations
+    double paramSD = sqrt(initParamVar);
+    double varSD = sqrt(initVarVar);
+    std::cout << paramSD << std::endl;
+    std::cout << varSD << std::endl;
+    // Sample numParticles particles, 
+    // shape them into states, and place in vector
+    size_t count = 0; // How many valid particles we have sampled
+    size_t numRejected = 0; // How many particles we rejected
+    bool reject;
+    while (count<numParticles){
+
+      // Sample size standard normal variates
+      for (size_t i=0; i<size; i+=2){
+	std::vector<double> variates = standardGaussianVariates();
+	z[i] = variates[0];
+	if (i != size-1) z[i+1] = variates[1];
+      }
+      // temporarily sample around the true mean
+      // Create the state
+      std::vector<double> mu;
+      mu.push_back(-0.396);
+      mu.push_back(-0.396);
+      mu.push_back(0.56);      
+      mu.push_back(0.7854);
+
+      stateStruct x_state;
+      x_state.model = modelNum;
+      /*
+      if (count<numParticles*.000001){
+	for (size_t i=0; i<numParams; i++){
+	  x_state.params.push_back(z[i]*.01+mu[i]); // replace .05 with paramSD
+	}
+	for (size_t i=numParams; i<size; i++){
+	  x_state.vars.push_back(z[i]*.01+mu[i]); // replace .05 with varSD
+	}
+      }
+      else{
+	for (size_t i=0; i<numParams; i++){
+	  x_state.params.push_back(z[i]*paramSD+mu[i]); // replace .05 with paramSD
+	}
+	for (size_t i=numParams; i<size; i++){
+	  x_state.vars.push_back(z[i]*paramSD+mu[i]); // replace .05 with varSD
+	}
+      }
+      */
+      for (size_t i=0; i<numParams; i++){
+	x_state.params.push_back(z[i]*paramSD*.1+mu[i]); // replace .05 with paramSD
+      }
+      for (size_t i=numParams; i<size; i++){
+	x_state.vars.push_back(z[i]*paramSD*.1+mu[i]); // replace .05 with varSD
+      }
+      
+      reject = false;
+      
+      /*
+      if (translator::isStateValid(x_state,workspace)){
+	stateList.push_back(x_state);
+	count++;
+	//if (count % 10000 == 9999) std::cout << count << std::endl;
+      }
+      */
+      if (x_state.params[2]<=0){ /*std::cout << "r < 0" << std::endl;*/ reject=true;}
+      else{
+	// Check if state places rbt outside of rbt workspace
+	double x = x_state.params[0]+x_state.params[2]*cos(x_state.vars[0]);
+	double y = x_state.params[1]+x_state.params[2]*sin(x_state.vars[0]);
+	//std::cout << x << "," << y << std::endl;
+	if (x<workspace[0][0] || x>workspace[0][1] || 
+	    y<workspace[1][0] || y>workspace[1][1]){ /*std::cout << "out of workspace" << std::endl;*/ reject=true;}
+      }
+
+      if (!reject){
+	stateList.push_back(x_state);
+	count++;
+	//if (count % 10000 == 9999) std::cout << count << std::endl;
+      }
+      else numRejected++;
+      
+      //stateList.push_back(x_state);
+      //count++;
+    }
+    std::cout << "Number Rejected: " << numRejected << std::endl;
+  }
+  /*
+  // If you put this back, you have to 
+  // add the right answer temporarily
+  stateStruct rightState;
+  rightState.model = 2;
+  rightState.params.push_back(-0.396);
+  rightState.params.push_back(-0.396);
+  rightState.params.push_back(0.56);
+  rightState.vars.push_back(0.7854);
+  stateList.push_back(rightState);
+  */
+
+  // Set the probability of the samples equal across all models
+  // prob per particle
+  double probPerParticle = logUtils::safe_log(1.0/(numParticles*numMechTypes));
+  logProbList.clear(); // Make sure the logProbList is empty
+  std::vector<double> probs (numParticles,probPerParticle);
+  logProbList = probs;
+}
+
+void setupUtils::setupParticlesRevSpecial(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace){
+  stateList.clear(); // Make sure the stateList is empty
+  if (modelNum == 1){
+    // For model 1 (the fixed model), only ever sample the single valid state
+    for (size_t i=0;i<numParticles;i++){
+      stateStruct x_state;
+      x_state.model = modelNum;
+      x_state.params.push_back(0.0);
+      x_state.params.push_back(0.0);
+      stateList.push_back(x_state);
+    }
+  }
+  else{
+    // For any other model:
+    // Determine shape of state space for this modelNum
+    int numParams = MODEL_DESCRIPTIONS[modelNum][0]; // in globalVars.h
+    int numVars = MODEL_DESCRIPTIONS[modelNum][1]; // in globalVars.h
+    unsigned int size = numParams+numVars; // dimension of space
+    std::vector<double> z (size,0.0); // holds standard normal variates
+
+    // Get standard deviations
+    double paramSD = sqrt(initParamVar);
+    double varSD = sqrt(initVarVar);
+    std::cout << paramSD << std::endl;
+    std::cout << varSD << std::endl;
+    // Sample numParticles particles, 
+    // shape them into states, and place in vector
+    size_t count = 0; // How many valid particles we have sampled
+    size_t numRejected = 0; // How many particles we rejected
+    bool reject;
+
+    double pivotSD = 2.0;
+    double handleSD = 0.01;
+
+    while (count<numParticles){
+
+      // Sample a pivot and handle by sampling standard normal variates
+      std::vector<double> pivot = standardGaussianVariates();
+      std::vector<double> handle = standardGaussianVariates();
+      //handle[0] = 0.0;
+      //handle[1] = 0.0;
+
+      stateStruct x_state;
+      x_state.model = modelNum;
+      
+      double xp = pivot[0]*pivotSD;
+      double yp = pivot[1]*pivotSD;
+      double xh = handle[0]*handleSD;
+      double yh = handle[1]*handleSD;
+
+      x_state.params.push_back(xp);
+      x_state.params.push_back(yp);
+      x_state.params.push_back(sqrt((xp-xh)*(xp-xh)+(yp-yh)*(yp-yh)));
+
+      x_state.vars.push_back(atan2((yh-yp),(xh-xp)));
+      
+      reject = false;
+
+      if (x_state.params[2]<=0){ /*std::cout << "r < 0" << std::endl;*/ reject=true;}
+      else{
+	// Check if state places rbt outside of rbt workspace
+	if (xh<workspace[0][0] || xh>workspace[0][1] || 
+	    yh<workspace[1][0] || yh>workspace[1][1]){ /*std::cout << "out of workspace" << std::endl;*/ reject=true;}
+      }
+
+      if (!reject){
+	stateList.push_back(x_state);
+	count++;
+	//if (count % 10000 == 9999) std::cout << count << std::endl;
+      }
+      else numRejected++;
+      
+      //stateList.push_back(x_state);
+      //count++;
+    }
+    std::cout << "Number Rejected: " << numRejected << std::endl;
+  }
+  /*
+  // If you put this back, you have to 
+  // add the right answer temporarily
+  stateStruct rightState;
+  rightState.model = 2;
+  rightState.params.push_back(-0.396);
+  rightState.params.push_back(-0.396);
+  rightState.params.push_back(0.56);
+  rightState.vars.push_back(0.7854);
+  stateList.push_back(rightState);
+  */
+
   // Set the probability of the samples equal across all models
   // prob per particle
   double probPerParticle = logUtils::safe_log(1.0/(numParticles*numMechTypes));
@@ -944,7 +1190,7 @@ void setupUtils::setupActions(std::vector< std::vector<double> >& actionList){
     //This is totally 2D
     // In a circle around the gripper
     int numPts = 8; // how many points around the circle
-    double radius = 0.12; // radius of the points //used to be .06, big is .12
+    double radius = 0.06; // radius of the points //used to be .06, big is .12
     double angleDelta = 2*M_PI/numPts;
 
     actionList.clear(); // clear anything in there

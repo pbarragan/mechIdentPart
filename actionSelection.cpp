@@ -2,11 +2,234 @@
 #include <numeric>
 #include <iostream> // cout
 
+// for debugging only
+#include <time.h> // for srand
+
 #include "actionSelection.h"
 #include "logUtils.h"
 #include "translator.h"
 #include "modelUtils.h"
 #include "setupUtils.h"
+
+// for debugging only
+double timeDiffa(timespec& ts1, timespec& ts2){
+  return (double) ts2.tv_sec - (double) ts1.tv_sec + ((double) ts2.tv_nsec - (double) ts1.tv_nsec)/1000000000; 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//                                New Section                                 //
+////////////////////////////////////////////////////////////////////////////////
+
+// !!!!!!!!!!!!!!!!!!!!!!!! ALL ACTIONS ARE RELATIVE !!!!!!!!!!!!!!!!!!!!!!!! //
+
+// Use an entropy metric to choose the next action
+void actionSelection::chooseActionPartEntropy(std::vector<BayesFilter>& filterBank,std::vector< std::vector<double> >& actionList,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace){
+
+  timespec ts9;
+  timespec ts10;
+  timespec ts11;
+  timespec ts12;
+  timespec ts13;
+  timespec ts14;
+  timespec ts15;
+  timespec ts16;
+  timespec ts17;
+  timespec ts18;
+  timespec ts19;
+  timespec ts20;
+  timespec ts21;
+  timespec ts22;
+  timespec ts23;
+  timespec ts24;
+
+  // The new method samples from the belief state according to the probability 
+  // distribution and simulates from those states for each action. An 
+  // observation is taken for the output state after the simulation. Given the 
+  // observation, the belief state is updated. The probability distribution over
+  // models is calculated. The entropy of this distribution is calculated. The 
+  // action which produces the lowest entropy is chosen.
+
+  clock_gettime(CLOCK_REALTIME, &ts9);
+
+  // Step -2: Validate relative action list
+  std::vector< std::vector<double> > validRelActionList;
+  validateRelActionList(actionList,poseInRbt,workspace,validRelActionList);
+
+  clock_gettime(CLOCK_REALTIME, &ts10);
+
+  // Step 1: Accumulate states and probs from bank into single vectors
+  // Calculate total number of states
+  size_t totalNumStates = 0;
+  for (size_t i = 0; i<filterBank.size(); i++){
+    totalNumStates += filterBank[i].stateList_.size();
+  }
+  // Initialize total vectors
+  std::vector<stateStruct> totalStateList;
+  std::vector<double> totalLogProbList;
+  // Reserve the right amount of space
+  totalStateList.reserve(totalNumStates);
+  totalLogProbList.reserve(totalNumStates);
+  // Insert the vectors
+  for (size_t i = 0; i<filterBank.size(); i++){
+    totalStateList.insert(totalStateList.end(),
+			  filterBank[i].stateList_.begin(),
+			  filterBank[i].stateList_.end());
+
+    totalLogProbList.insert(totalLogProbList.end(),
+			  filterBank[i].logProbList_.begin(),
+			  filterBank[i].logProbList_.end());
+  }
+
+  clock_gettime(CLOCK_REALTIME, &ts11);
+
+
+  // Step 0: Assume only log probs exist. Exponentiate to get probs.
+  std::vector<double> probList = logUtils::expLogProbs(totalLogProbList);
+
+  // Step 1: Create the CDF of the current belief from the PDF probList_.
+  std::vector<double> probCDF = createCDF(probList);
+
+  // Step 2: For each action, sample a state from the belief n times. Simulate 
+  // this state with the action and get an observation. Update the belief with 
+  // the action-observation pair. Calculate the entropy of the new belief. 
+  // Average the entropies over the n samples.
+
+  clock_gettime(CLOCK_REALTIME, &ts12);
+
+  // this is a list of average entropies, one for each action
+  std::vector<double> avgEntropyList; 
+  int nSamples = 4; //number of samples of the belief state per action
+  //std::cout << "samples" << nSamples << std::endl;
+  for (size_t i = 0; i<1;i++){//validRelActionList.size(); i++){
+
+    clock_gettime(CLOCK_REALTIME, &ts13);
+
+    std::vector<double> entropyList; //this is per action
+    for (size_t j = 0; j<nSamples; j++){
+
+      clock_gettime(CLOCK_REALTIME, &ts14);
+
+      // Step 2.0: Create a copy of the real probability list
+      // only for this action and sample
+      std::vector<double> localLogProbList = totalLogProbList;
+      std::vector<stateStruct> localStateList = totalStateList;
+
+      clock_gettime(CLOCK_REALTIME, &ts19);
+
+      // Step 2.1: Sample a state from the belief
+      stateStruct sample = getSampleState(probCDF,localStateList);
+
+      clock_gettime(CLOCK_REALTIME, &ts24);
+
+      stateStruct nextState;
+
+      // Step 2.2: Simulate the state with the action
+      if (sample.model == 2){
+	nextState = sample;
+	double x = validRelActionList[i][0]
+	  +sample.params[2]*cos(sample.vars[0]);
+	double y = validRelActionList[i][1]
+	  +sample.params[2]*sin(sample.vars[0]);
+	nextState.vars[0] = atan2(y,x);
+      }
+      else{	
+	nextState = 
+	  translator::stateTransition(sample, validRelActionList[i]);
+      }
+      clock_gettime(CLOCK_REALTIME, &ts20);
+
+      // Step 2.3: Get an observation
+      // Step 2.4: Update the belief state in log space
+      // Hijack the first filter to use its class functions
+      filterBank[0].transitionUpdateLog(localStateList,validRelActionList[i]);
+
+      clock_gettime(CLOCK_REALTIME, &ts21);
+
+      filterBank[0].observationUpdateLog(localLogProbList,localStateList,
+				  getNoisyObs(nextState));
+
+      clock_gettime(CLOCK_REALTIME, &ts22);
+      
+      // Step 2.5: Normalize probability over full prob list (across the bank)
+      // which is no longer done in the observation update
+      localLogProbList = logUtils::normalizeVectorInLogSpace(localLogProbList);
+
+      clock_gettime(CLOCK_REALTIME, &ts23);
+
+      // Step 2.6: Calculate the entropy over models of the new belief state
+      /*
+      std::vector<double> mpProbs = 
+	modelUtils::calcModelParamProbLog(filter.stateList_,
+					  localLogProbList,modelParamPairs);
+      */
+      entropyList.push_back(calcEntropy(logUtils::expLogProbs(localLogProbList)));
+
+      clock_gettime(CLOCK_REALTIME, &ts15);      
+
+    }
+    // Step 2.7: Average the entropies over the n samples
+    double eSum = 
+      std::accumulate(entropyList.begin(),entropyList.end(),(double) 0.0);
+    avgEntropyList.push_back(eSum/entropyList.size());
+
+    // DELETE
+    /*
+    std::cout << "entropyList: ";
+    for (size_t jj=0;jj<entropyList.size();jj++){
+      std::cout << entropyList[jj] << ",";
+    }
+    std::cout << std::endl;
+    */
+
+    clock_gettime(CLOCK_REALTIME, &ts16);
+
+  }
+  
+  // DELETE
+  /*
+  std::cout << "avgEntropyList: ";
+  for (size_t jj=0;jj<avgEntropyList.size();jj++){
+    std::cout << avgEntropyList[jj] << ",";
+  }
+  std::cout << std::endl;
+  */
+
+
+  clock_gettime(CLOCK_REALTIME, &ts17);
+
+
+  //Step 3: Choose the action which results in the lowest entropy updated belief
+  std::vector<double>::iterator minAvgEntIt = 
+    std::min_element(avgEntropyList.begin(),avgEntropyList.end());
+  action = 
+    validRelActionList[std::distance(avgEntropyList.begin(),minAvgEntIt)];
+
+  clock_gettime(CLOCK_REALTIME, &ts18);
+  
+  std::cout << "Time to validate:\n" << timeDiffa(ts9,ts10) << std::endl;
+  std::cout << "Time to accumulate:\n" << timeDiffa(ts10,ts11) << std::endl;
+  std::cout << "Time to create CDF:\n" << timeDiffa(ts11,ts12) << std::endl;
+  std::cout << "Time for one action:\n" << timeDiffa(ts13,ts16) << std::endl;
+  std::cout << "Time for one sample:\n" << timeDiffa(ts14,ts15) << std::endl;
+  std::cout << "Time to find best:\n" << timeDiffa(ts17,ts18) << std::endl;
+
+  std::cout << "Time to copy:\n" << timeDiffa(ts14,ts19) << std::endl;
+  std::cout << "Time to sample and sim:\n" << timeDiffa(ts19,ts20) << std::endl;
+  std::cout << "Time to sample:\n" << timeDiffa(ts19,ts24) << std::endl;
+  std::cout << "Time to sim:\n" << timeDiffa(ts24,ts20) << std::endl;
+  std::cout << "Time to transition:\n" << timeDiffa(ts20,ts21) << std::endl;
+  std::cout << "Time to observe:\n" << timeDiffa(ts21,ts22) << std::endl;
+  std::cout << "Time to normalize:\n" << timeDiffa(ts22,ts23) << std::endl;
+  std::cout << "Time to calc entropy:\n" << timeDiffa(ts23,ts15) << std::endl;
+
+
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                              End New Section                               //
+////////////////////////////////////////////////////////////////////////////////
+
 
 // Simplest action selection. Just go through the list.
 void actionSelection::chooseActionSimple(std::vector< std::vector<double> >& actionList,int step,std::vector<double>& action){
@@ -364,7 +587,8 @@ void actionSelection::chooseActionSimpleRel(std::vector< std::vector<double> >& 
   action = validRelActionList[step%validRelActionList.size()]; // select action
   
   // DELETE THIS
-  action = actionList[4];
+  action = actionList[7];
+  if (step > 2) action = actionList[3];
 }
 
 // Random action selection.
@@ -739,8 +963,9 @@ std::vector<double> actionSelection::getNoisyObs(stateStruct& state){
   std::vector<double> obs = translator::translateStToObs(state);
   // add some noise
   for (size_t i=0; i<obs.size(); i++){
-    double X = randomDouble();
-    obs[i]+=0.001*X; // add noise to each element
+    //double X = randomDouble();
+    //obs[i]+=0.001*X; // add noise to each element
+    obs[i]+=gaussianNoise(); // add noise to each element
   }
   return obs;
 }
@@ -776,6 +1001,14 @@ double actionSelection::calcEntropy(std::vector<double> probs){
 double actionSelection::randomDouble(){
   double X = ((double)rand()/(double)RAND_MAX);
   return X;
+}
+
+double actionSelection::gaussianNoise(){
+  double x1 = ((double)rand()/(double)RAND_MAX);
+  double x2 = ((double)rand()/(double)RAND_MAX);
+  double sig = 0.01; // standard deviation of noise - it worked when it was 0.00001 - still worked with 0.01
+  double mu = 0.0; // mean of noise
+  return sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
 }
 
 double actionSelection::distPointsSquared(std::vector<double> a, std::vector<double> b){

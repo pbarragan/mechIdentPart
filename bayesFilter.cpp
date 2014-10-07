@@ -9,6 +9,13 @@
 #include "logUtils.h"
 #include "translator.h"
 #include "filterModels.h"
+#include "actionSelection.h" // randomDouble()
+
+// whoa nelly
+#include "realWorld.h" // gaussianNoise()
+
+// FOR TIME TEST ONLY
+#include <math.h>
 
 //Constructor
 BayesFilter::BayesFilter(){
@@ -101,9 +108,27 @@ void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList, std::
   // in here, we need to for each state
   // 0) transition to a new state
 
+  // THIS IS ALL A SPEED TEST
+  // ASSUME THAT YOU ONLY HAVE MODEL 2 AND THAT ACTIONS ARE RELATIVE
+
   for (size_t i=0; i<stateList.size(); i++) {
-    // Transition the state
-    stateList[i] = translator::stateTransition(stateList[i], action);		
+
+    if (stateList[i].model == 2){
+      double x = action[0]+stateList[i].params[2]*cos(stateList[i].vars[0]);
+      double y = action[1]+stateList[i].params[2]*sin(stateList[i].vars[0]);
+      stateList[i].vars[0] = atan2(y,x);
+      /*
+      for (size_t j=0;j<stateList[i].params.size();j++){
+	stateList[i].params[j] 
+	  //+= 0.01*(2*(actionSelection::randomDouble()-0.5));
+	  += RealWorld::gaussianNoise();
+      }
+      */
+    }
+    else{
+      // Transition the state
+      stateList[i] = translator::stateTransition(stateList[i], action);
+    }		
   }
 
 }
@@ -152,49 +177,85 @@ void BayesFilter::transitionUpdateLog(std::vector<double>& logProbList, std::vec
 
 //overload this function
 void BayesFilter::observationUpdateLog(std::vector<double> obs){
-  observationUpdateLog(logProbList_,obs);
+  observationUpdateLog(logProbList_,logProbList_O_,stateList_,obs);
 }
 
 //overload this function
+void BayesFilter::observationUpdateLog(std::vector<double>& logProbList, std::vector<double>& logProbList_O, std::vector<stateStruct>& stateList, std::vector<double> obs){
+
+  logProbList_O.clear();
+  
+  for (size_t i=0; i<stateList.size(); i++) {
+    double holdP = filterModels::logProbObs(obs,stateList[i]);
+    logProbList[i] += holdP;
+    logProbList_O.push_back(holdP); // you added this on 5/7/2014
+  }
+  
+  //std::cout << "??????????????????????????????????????????? before normalization" << std::endl; // DELETE
+  
+  //printLogProbList();
+  //std::cout << "obs prob sum: " << std::accumulate(logProbList.begin(),logProbList.end(),0.0) << std::endl; // wrong
+  //std::cout << "obs prob sum: " << logUtils::logSumExp(logProbList) << std::endl;
+  
+  /*
+  // figure out the max probability state at this point
+  std::vector<double>::iterator result;
+  result = std::max_element(logProbList.begin(),logProbList.end());
+  size_t position = std::distance(logProbList.begin(),result);
+  std::cout << "max probability state:" << std::endl;
+  stateStruct maxState = stateList_[position];
+  std::cout << "model: " << maxState.model << std::endl;
+  std::cout << "parameters: ";
+  for(size_t i=0;i<maxState.params.size();i++){
+  std::cout << maxState.params[i] << ",";
+  }
+  std::cout << std::endl;
+  std::cout << "variables: ";
+  for(size_t i=0;i<maxState.vars.size();i++){
+  std::cout << maxState.vars[i] << ",";
+  }
+  std::cout << std::endl;
+  std::cout << "probability: "<< *result << std::endl;
+  */
+  
+  //logProbList = logUtils::normalizeVectorInLogSpace(logProbList);
+
+}
+
+//overload this function
+// This one is only here for backwards compatibility
 void BayesFilter::observationUpdateLog(std::vector<double>& logProbList, std::vector<double> obs){
+  for (size_t i=0; i<stateList_.size(); i++) {
+    logProbList[i] += filterModels::logProbObs(obs,stateList_[i]);
+  }
+}
 
-  logProbList_O_.clear();
+//overload this function
+// This one gets used in the entropy action selection for the particle filter
+// It skips the logProbList_O which is unnecessary
+void BayesFilter::observationUpdateLog(std::vector<double>& logProbList, std::vector<stateStruct>& stateList, std::vector<double> obs){
 
-	for (size_t i=0; i<stateList_.size(); i++) {
-	  double holdP = filterModels::logProbObs(obs,stateList_[i]);
-	  logProbList[i] += holdP;
-	  logProbList_O_.push_back(holdP); // you added this on 5/7/2014
-	}
+    double detCovMat = 0.00000256; // middle .04
+    double here = logUtils::safe_log(detCovMat);
+    std::vector<double> sampleVecVect = obs;
 
-	//std::cout << "??????????????????????????????????????????? before normalization" << std::endl; // DELETE
+  for (size_t i=0; i<stateList.size(); i++) {
+    // This is just a speed test
+    //double invObsArray[] = {625.0,0.0,0.0,625.0}; // middle .04
+    //std::vector<double> invObsCovMat;
+    //invObsCovMat.assign(invObsArray, invObsArray + sizeof(invObsArray)/sizeof(double));
 
-	//printLogProbList();
-	//std::cout << "obs prob sum: " << std::accumulate(logProbList.begin(),logProbList.end(),0.0) << std::endl; // wrong
-	//std::cout << "obs prob sum: " << logUtils::logSumExp(logProbList) << std::endl;
+    std::vector<double> meanVecVect;
+    meanVecVect.push_back(stateList[i].params[0]+
+			  stateList[i].params[2]*cos(stateList[i].vars[0]));
+    meanVecVect.push_back(stateList[i].params[1]+
+			  stateList[i].params[2]*sin(stateList[i].vars[0]));
+    //std::vector<double> meanStateInObs = translator::translateStToObs(state);
+    double hold = -0.5*(2*1.83787706641+here+(sampleVecVect[0]-meanVecVect[0])*(sampleVecVect[0]-meanVecVect[0])*625.0+(sampleVecVect[1]-meanVecVect[1])*(sampleVecVect[1]-meanVecVect[1])*625.0);
 
-	/*
-	// figure out the max probability state at this point
-	std::vector<double>::iterator result;
-	result = std::max_element(logProbList.begin(),logProbList.end());
-	size_t position = std::distance(logProbList.begin(),result);
-	std::cout << "max probability state:" << std::endl;
-	stateStruct maxState = stateList_[position];
-	std::cout << "model: " << maxState.model << std::endl;
-	std::cout << "parameters: ";
-	for(size_t i=0;i<maxState.params.size();i++){
-	  std::cout << maxState.params[i] << ",";
-	}
-	std::cout << std::endl;
-	std::cout << "variables: ";
-	for(size_t i=0;i<maxState.vars.size();i++){
-	  std::cout << maxState.vars[i] << ",";
-	}
-	std::cout << std::endl;
-	std::cout << "probability: "<< *result << std::endl;
-	*/
-
-	//logProbList = logUtils::normalizeVectorInLogSpace(logProbList);
-
+    logProbList[i] += hold;
+    //logProbList[i] += filterModels::logProbObs(obs,stateList[i]);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

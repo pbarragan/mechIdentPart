@@ -74,7 +74,7 @@ class RealWorld {
   void runWorld(int numSteps);
   int runWorldToConf(int numSteps,double confidence);
   double randomDouble();
-  double gaussianNoise();
+  static double gaussianNoise();
   void printModelParamProbs(std::vector<double> mpProbsLog);
   void printFilterBankProbs(std::vector<double>& fbProbs);
   void printFilterBankGuesses(std::vector<stateStruct>& bestStates,std::vector<double>& bestStatesProbs);

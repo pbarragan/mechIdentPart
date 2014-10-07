@@ -41,6 +41,10 @@
 // for timing
 //#include <sys/time.h>
 
+double timeDiff(timespec& ts1, timespec& ts2){
+  return (double) ts2.tv_sec - (double) ts1.tv_sec + ((double) ts2.tv_nsec - (double) ts1.tv_nsec)/1000000000; 
+}
+
 //Constructor
 RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelectionType,int useRobot) : mechPtr_(NULL) {
   writeOutFile_ = writeOutFile;
@@ -96,14 +100,15 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   // initialize a few things for the particle filter
   //whichMechTypes_.push_back(0);
   //whichMechTypes_.push_back(1);
-  //whichMechTypes_.push_back(2);
-  whichMechTypes_.push_back(3);
+  whichMechTypes_.push_back(2);
+  //whichMechTypes_.push_back(3);
   //whichMechTypes_.push_back(4);
   //whichMechTypes_.push_back(5);
   
   numMechTypes_ = whichMechTypes_.size();
-  numParticles_ = 300;
-  float initParamVar = 4.0; // initial parameter variance
+  numParticles_ = 1000000;
+  std::cout << numParticles_ << std::endl;
+  float initParamVar = 2.0; // initial parameter variance
   float initVarVar = 0.1; // initial variable variance
 
   std::cout << "before sampling" << std::endl;
@@ -111,14 +116,14 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   for (size_t i=0; i<numMechTypes_; i++){
     BayesFilter filter;
     // this function must validate the particles
-    setupUtils::setupParticles(filter.stateList_,
-			       filter.logProbList_,
-			       whichMechTypes_[i],
-			       initParamVar,
-			       initVarVar,
-			       numParticles_,
-			       numMechTypes_,
-			       workspace_); // initialize particles.
+    setupUtils::setupParticlesRevSpecial(filter.stateList_,
+					  filter.logProbList_,
+					  whichMechTypes_[i],
+					  initParamVar,
+					  initVarVar,
+					  numParticles_,
+					  numMechTypes_,
+					  workspace_); // initialize particles
     std::cout << "inside" << std::endl;
     filterBank_.push_back(filter); // add filter to bank
   }
@@ -703,6 +708,23 @@ void RealWorld::updateFilter(std::vector<double> action,std::vector<double> obs)
   // Normalize across all filters
   modelUtils::normalizeAcrossFilters(filterBank_);
   
+  // maybe move this somewhere better
+  for (size_t i=0; i<filterBank_.size(); i++){
+    double Neff = 0;
+    for (size_t j=0; j<filterBank_[i].logProbList_.size(); j++){
+      Neff += logUtils::safe_exp(filterBank_[i].logProbList_[j])
+	*logUtils::safe_exp(filterBank_[i].logProbList_[j]);
+    }
+    Neff = 1/Neff;
+    std::cout << "Neff:" << std::endl;
+    std::cout << i << "," << Neff << std::endl;
+    // Check if resampling is needed
+    if (Neff/numParticles_ < NEFF_FRACT){
+      std::cout << "\033[1;31mRESAMPLING!\033[0m" << std::endl;
+      setupUtils::resampleParticles(filterBank_[i].stateList_,
+				    filterBank_[i].logProbList_);
+    }
+  }
   //std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after observation" << std::endl; // DELETE
   //filter_.printStatesAndProbs(); // DELETE
 
@@ -718,11 +740,18 @@ void RealWorld::nextAction(){
     std::cout << "Relative actions:" << std::endl;
     if (whichSelectionType == 0){
       std::cout << "Simple Action Selection:" << std::endl;
-      actionSelection::chooseActionSimpleRel(actionList_,step_,action_,poseInRbt_,workspace_);
+      actionSelection::chooseActionSimpleRel(actionList_,step_,action_,
+					     poseInRbt_,workspace_);
     }
     else if (whichSelectionType == 1){
       std::cout << "Random Action Selection:" << std::endl;
-      actionSelection::chooseActionRandomRel(actionList_,action_,poseInRbt_,workspace_);
+      actionSelection::chooseActionRandomRel(actionList_,action_,poseInRbt_,
+					     workspace_);
+    }
+    else if (whichSelectionType == 2){
+      std::cout << "Entropy Action Selection:" << std::endl;
+      actionSelection::chooseActionPartEntropy(filterBank_,actionList_,action_,
+					       poseInRbt_,workspace_);
     }
     /*
     else if (whichSelectionType == 2){
@@ -785,7 +814,16 @@ void RealWorld::nextAction(){
 void RealWorld::runAction(){
   if (!useRobot_){
     stateStruct tempState;
-    tempState = mechPtr_->simulate(action_);
+    // CHANGE THIS BACK!
+    // HEY YOU CHANGE ME BACK
+    // HEYYYYYYYYYYY!!!!!!!!!!!!!!!!!!!!!
+    //tempState = mechPtr_->simulate(action_);
+    tempState = startState_;
+    double x = action_[0]+tempState.params[2]*cos(tempState.vars[0]);
+    double y = action_[1]+tempState.params[2]*sin(tempState.vars[0]);
+    tempState.vars[0] = atan2(y,x);
+    startState_ = tempState;
+
     poseInRbt_ = mechPtr_->stToRbt(tempState); // state of the robot
     // The state known to the robot should have some noise on it. 
     // The simulation returns the nominal answer.
@@ -855,10 +893,25 @@ std::vector<double> RealWorld::getObs(std::vector<double>& poseInRbt){
 }
 
 void RealWorld::stepWorld(){
+  timespec ts5;
+  timespec ts6;
+  timespec ts7;
+  timespec ts8;
+      
+  clock_gettime(CLOCK_REALTIME, &ts5);
   nextAction(); // 1. choose an action
+  clock_gettime(CLOCK_REALTIME, &ts6);
   runAction(); // 2. run action on the world
+  clock_gettime(CLOCK_REALTIME, &ts7);
   std::vector<double> tempObs = getObs(); // 3. get observation from the world
   updateFilter(action_,tempObs); // 4. update filter bank
+  clock_gettime(CLOCK_REALTIME, &ts8);
+
+  std::cout << "Time to choose:\n" << timeDiff(ts5,ts6) << std::endl;
+  std::cout << "Time to run:\n" << timeDiff(ts6,ts7) << std::endl;
+  std::cout << "Time to update filter:\n" << timeDiff(ts7,ts8) << std::endl;
+
+
 }
 
 void RealWorld::runWorld(int numSteps){
@@ -927,7 +980,7 @@ double RealWorld::randomDouble(){
 double RealWorld::gaussianNoise(){
   double x1 = ((double)rand()/(double)RAND_MAX);
   double x2 = ((double)rand()/(double)RAND_MAX);
-  double sig = 0.01; // standard deviation of noise - it worked when it was 0.00001 - still worked with 0.01
+  double sig = 0.001; // standard deviation of noise - it worked when it was 0.00001 - still worked with 0.01
   double mu = 0.0; // mean of noise
   return sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
 }
@@ -1267,10 +1320,6 @@ void printVect(std::vector<double> vect){
     std::cout << vect[i] << ",";
   }
   std::cout << std::endl;
-}
-
-double timeDiff(timespec& ts1, timespec& ts2){
-  return (double) ts2.tv_sec - (double) ts1.tv_sec + ((double) ts2.tv_nsec - (double) ts1.tv_nsec)/1000000000; 
 }
 
 int main(int argc, char* argv[])
