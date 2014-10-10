@@ -98,15 +98,15 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   workspace_[1][1]=WORKSPACE[1][1];
 
   // initialize a few things for the particle filter
-  //whichMechTypes_.push_back(0);
+  whichMechTypes_.push_back(0);
   //whichMechTypes_.push_back(1);
-  whichMechTypes_.push_back(2);
+  //whichMechTypes_.push_back(2);
   //whichMechTypes_.push_back(3);
   //whichMechTypes_.push_back(4);
   //whichMechTypes_.push_back(5);
   
   numMechTypes_ = whichMechTypes_.size();
-  numParticles_ = 1000000;
+  numParticles_ = 100;
   std::cout << numParticles_ << std::endl;
   float initParamVar = 2.0; // initial parameter variance
   float initVarVar = 0.1; // initial variable variance
@@ -116,14 +116,14 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   for (size_t i=0; i<numMechTypes_; i++){
     BayesFilter filter;
     // this function must validate the particles
-    setupUtils::setupParticlesRevSpecial(filter.stateList_,
-					  filter.logProbList_,
-					  whichMechTypes_[i],
-					  initParamVar,
-					  initVarVar,
-					  numParticles_,
-					  numMechTypes_,
-					  workspace_); // initialize particles
+    setupUtils::setupParticlesSpecial(filter.stateList_,
+				      filter.logProbList_,
+				      whichMechTypes_[i],
+				      initParamVar,
+				      initVarVar,
+				      numParticles_,
+				      numMechTypes_,
+				      workspace_); // initialize particles
     std::cout << "inside" << std::endl;
     filterBank_.push_back(filter); // add filter to bank
   }
@@ -819,9 +819,12 @@ void RealWorld::runAction(){
     // HEYYYYYYYYYYY!!!!!!!!!!!!!!!!!!!!!
     //tempState = mechPtr_->simulate(action_);
     tempState = startState_;
+    /*
     double x = action_[0]+tempState.params[2]*cos(tempState.vars[0]);
     double y = action_[1]+tempState.params[2]*sin(tempState.vars[0]);
     tempState.vars[0] = atan2(y,x);
+    */
+    tempState = translator::stateTransition(tempState,action_);
     startState_ = tempState;
 
     poseInRbt_ = mechPtr_->stToRbt(tempState); // state of the robot
@@ -1000,14 +1003,15 @@ void RealWorld::printModelParamProbs(std::vector<double> mpProbsLog){
 }
 
 void RealWorld::printFilterBankProbs(std::vector<double>& fbProbs){
-  std::cout << "Filter Bank Probabilities:" << std::endl;
+  std::cout << "\033[1;31mFilter Bank Probabilities:\033[0m" << std::endl;
   for (size_t i=0;i<fbProbs.size();i++){
     std::cout << "Filter " << whichMechTypes_[i] << " mass:" << std::endl;
     std::cout << fbProbs[i] << std::endl;
   }
 }
 void RealWorld::printFilterBankGuesses(std::vector<stateStruct>& bestStates,std::vector<double>& bestStatesProbs){
-  std::cout << "Filter Bank Best States and Probabilities:" << std::endl;
+  std::cout << "\033[1;31mFilter Bank Best States"
+    " and Probabilities:\033[0m" << std::endl;
   for (size_t i=0;i<bestStates.size();i++){
     std::cout << "Model: " << bestStates[i].model << std::endl;
     std::cout << "Params: ";

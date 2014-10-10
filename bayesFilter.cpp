@@ -112,23 +112,9 @@ void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList, std::
   // ASSUME THAT YOU ONLY HAVE MODEL 2 AND THAT ACTIONS ARE RELATIVE
 
   for (size_t i=0; i<stateList.size(); i++) {
-
-    if (stateList[i].model == 2){
-      double x = action[0]+stateList[i].params[2]*cos(stateList[i].vars[0]);
-      double y = action[1]+stateList[i].params[2]*sin(stateList[i].vars[0]);
-      stateList[i].vars[0] = atan2(y,x);
-      /*
-      for (size_t j=0;j<stateList[i].params.size();j++){
-	stateList[i].params[j] 
-	  //+= 0.01*(2*(actionSelection::randomDouble()-0.5));
-	  += RealWorld::gaussianNoise();
-      }
-      */
-    }
-    else{
-      // Transition the state
-      stateList[i] = translator::stateTransition(stateList[i], action);
-    }		
+    // For now, change answers to closed form inside stateTransition
+    // Transition the state
+    stateList[i] = translator::stateTransition(stateList[i], action);
   }
 
 }
@@ -174,6 +160,8 @@ void BayesFilter::transitionUpdateLog(std::vector<double>& logProbList, std::vec
 
 	logProbList = tempLogProbList;
 	} */
+
+//--------------------------------- OBSERVATION ------------------------------//
 
 //overload this function
 void BayesFilter::observationUpdateLog(std::vector<double> obs){
@@ -235,10 +223,17 @@ void BayesFilter::observationUpdateLog(std::vector<double>& logProbList, std::ve
 // It skips the logProbList_O which is unnecessary
 void BayesFilter::observationUpdateLog(std::vector<double>& logProbList, std::vector<stateStruct>& stateList, std::vector<double> obs){
 
-    double detCovMat = 0.00000256; // middle .04
-    double here = logUtils::safe_log(detCovMat);
-    std::vector<double> sampleVecVect = obs;
+  for (size_t i=0; i<stateList.size(); i++) {
+    logProbList[i] += filterModels::logProbObs(obs,stateList[i]);
+  }
 
+  // Comment this out. 
+  // This was when you were speeding this up for action selection:
+  /*
+  double detCovMat = 0.00000256; // middle .04
+  double here = logUtils::safe_log(detCovMat);
+  std::vector<double> sampleVecVect = obs;
+  
   for (size_t i=0; i<stateList.size(); i++) {
     // This is just a speed test
     //double invObsArray[] = {625.0,0.0,0.0,625.0}; // middle .04
@@ -256,6 +251,8 @@ void BayesFilter::observationUpdateLog(std::vector<double>& logProbList, std::ve
     logProbList[i] += hold;
     //logProbList[i] += filterModels::logProbObs(obs,stateList[i]);
   }
+  */
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,5 @@
 #include "translator.h"
+#include "logUtils.h"
 
 //include mechanisms
 #include "mechanisms/mechFree.h"
@@ -47,9 +48,58 @@ Mechanism* translator::createMechanism(int choice){
 
 // overloaded
 stateStruct translator::stateTransition(stateStruct& state, std::vector<double>& action){
+  // Go back to this
+  /* 
   Mechanism* mechPtr = createMechanism(state.model);
   stateStruct nextState = mechPtr->initAndSim(state,action);
   delete mechPtr;
+  return nextState;
+  */
+  // Just for now to speed things up
+  stateStruct nextState = state;
+
+  if (state.model == 0){
+    // Perfect relative motion from current location
+    nextState.vars[0] += action[0];
+    nextState.vars[1] += action[1];
+  }
+  else if (state.model == 1){
+    // Do nothing
+  }
+  else if (state.model == 2){
+    // Calculate equilibrium point
+    double x = action[0]+state.params[2]*cos(state.vars[0]);
+    double y = action[1]+state.params[2]*sin(state.vars[0]);
+    nextState.vars[0] = atan2(y,x);
+    /*
+      for (size_t j=0;j<state.params.size();j++){
+      state.params[j] 
+      //+= 0.01*(2*(actionSelection::randomDouble()-0.5));
+      += RealWorld::gaussianNoise();
+      }
+    */
+  }
+  else if (state.model == 3){
+    // Calculate equilibrium point
+    nextState.vars[0] += action[0]*cos(state.params[2])
+      +action[1]*sin(state.params[2]);
+  }
+  else{
+    Mechanism* mechPtr = createMechanism(state.model);
+    nextState = mechPtr->initAndSim(state,action);
+    delete mechPtr;
+  }	
+
+  // THIS IS VERY TEMPORARY
+  // add noise
+  double sig = 0.001; // standard deviation of noise - it worked when it was 0.00001 - still worked with 0.01
+  double mu = 0.0; // mean of noise
+  for (size_t i=0;i<nextState.vars.size();i++){
+    double x1 = ((double)rand()/(double)RAND_MAX);
+    double x2 = ((double)rand()/(double)RAND_MAX);
+    nextState.vars[i] += sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+  }
+
   return nextState;
 }
 

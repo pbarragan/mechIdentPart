@@ -10,6 +10,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h> // cos, sin
 
+#include <stdexcept> // throw exception
+
 ////////////////////////////////////////////////////////////////////////////////
 //                            Particle Section                                //
 ////////////////////////////////////////////////////////////////////////////////
@@ -338,6 +340,82 @@ void setupUtils::setupParticlesRevSpecial(std::vector<stateStruct>& stateList,st
   rightState.vars.push_back(0.7854);
   stateList.push_back(rightState);
   */
+
+  // Set the probability of the samples equal across all models
+  // prob per particle
+  double probPerParticle = logUtils::safe_log(1.0/(numParticles*numMechTypes));
+  logProbList.clear(); // Make sure the logProbList is empty
+  std::vector<double> probs (numParticles,probPerParticle);
+  logProbList = probs;
+}
+
+void setupUtils::setupParticlesSpecial(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace){
+  stateList.clear(); // Make sure the stateList is empty
+  if (modelNum == 0){
+    // For model 0 (the free model), only ever sample the single valid state
+    // which is vars x,y = (0,0)
+    for (size_t i=0;i<numParticles;i++){
+      stateStruct x_state;
+      x_state.model = modelNum;
+      x_state.vars.push_back(0.0);
+      x_state.vars.push_back(0.0);
+      stateList.push_back(x_state);
+    }
+  }
+  else if (modelNum == 1){
+    // For model 1 (the fixed model), only ever sample the single valid state
+    // which is parameters x,y = (0,0)
+    for (size_t i=0;i<numParticles;i++){
+      stateStruct x_state;
+      x_state.model = modelNum;
+      x_state.params.push_back(0.0);
+      x_state.params.push_back(0.0);
+      stateList.push_back(x_state);
+    }
+  }
+  else if (modelNum == 2){
+    // For model 2 (the revolute model), only sample the pivot position and
+    // calculate the other parameters and variables
+
+    // Sample a pivot by sampling standard normal variates
+    double pivotSD = 2.0;
+
+    for (size_t i=0;i<numParticles;i++){
+      std::vector<double> pivot = standardGaussianVariates();
+      stateStruct x_state;
+      x_state.model = modelNum;
+      double xp = pivot[0]*pivotSD;
+      double yp = pivot[1]*pivotSD;
+      x_state.params.push_back(xp);
+      x_state.params.push_back(yp);
+      x_state.params.push_back(sqrt(xp*xp+yp*yp));
+      x_state.vars.push_back(atan2(-yp,-xp));
+      stateList.push_back(x_state);
+    }
+  }
+  else if (modelNum == 3){
+    // For model 3 (the prismatic model), only sample the angle and calculate
+    // the other parameters and variables.
+    // **** This model needs to be changed in the future because the pivot
+    // is a redundant piece of information ****
+
+    double offset = 0.40; // Pivot offset. This should be unnecessary.
+
+    for (size_t i=0;i<numParticles;i++){
+      // sample uniformly between -pi and pi
+      double angle = 2*M_PI*((double)rand()/(double)RAND_MAX)-M_PI;
+      stateStruct x_state;
+      x_state.model = modelNum;
+      x_state.params.push_back(-offset*cos(angle));
+      x_state.params.push_back(-offset*sin(angle));
+      x_state.params.push_back(angle);
+      x_state.vars.push_back(offset);
+      stateList.push_back(x_state);
+    }
+  }
+  else{
+    throw std::invalid_argument("Sampler not setup for more than models 0-3.");
+  }
 
   // Set the probability of the samples equal across all models
   // prob per particle

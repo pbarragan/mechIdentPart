@@ -188,9 +188,10 @@ def plotSome(whichModels,modelNums,step,plotType,plotSet,plotLog,colorNorm,setPa
         legendList.append(modelNames[modelNums[k]]+" - "\
                           +str("%.3G" % (fbProbs[i+1][k])))
     
-    pyplot.legend(legendList,bbox_to_anchor=(0., -.425, 1., .5),\
-                  loc=3, ncol=2, mode="expand", borderaxespad=0.)
-    pyplot.colorbar()
+    #pyplot.legend(legendList,bbox_to_anchor=(0., -.425, 1., .5),\
+    #              loc=3, ncol=2, mode="expand", borderaxespad=0.)
+    cbar = pyplot.colorbar()
+    cbar.set_label('Log Probability')
     print 'step: '+str(i)
     if actions != None:
         pyplot.plot(poses[0][i],poses[1][i],c='g',marker=r"$ {} $".format("S"),\
@@ -216,7 +217,14 @@ def plotSome(whichModels,modelNums,step,plotType,plotSet,plotLog,colorNorm,setPa
         print 'obs: '+str(obs[0][i])+','+str(obs[1][i])
 
     pyplot.title('Step '+str(i)+' - '+plotType)
+
+    print "is this working"
     pyplot.axis('equal')
+    #pyplot.xlim([-.20,.20])
+    #pyplot.ylim([-.20,.20])
+    pyplot.xlabel('x')
+    pyplot.ylabel('y')
+    
     outFile = setPath+'step'+str(i)+plotType+'.png'
     pyplot.savefig(outFile,bbox_inches='tight')
     
@@ -383,13 +391,16 @@ exeDir = os.path.abspath(os.path.dirname(__file__))
 #fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_29_04_2014.txt'
 #fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_30_14_2014.txt'
 #fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_35_59_2014.txt'
-fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_42_31_2014.txt'
+#fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_42_31_2014.txt'
 #fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_51_21_2014.txt'
+
+# demo of model 0 for group meeting
+fileName = '/../data/2014_10_10/data0Fri_Oct_10_11_06_45_2014.txt'
 
 folderName = fileName[fileName.rfind('/')+1:fileName.find('.txt')]
 setPath = exeDir+'/dataPlots/'+folderName+'/'
 
-doWhat = 1 # 0 - verify, 1 - debug, 2 - plot
+doWhat = 2 # 0 - verify, 1 - debug, 2 - plot
 
 if doWhat == 2:
     if not os.path.exists(setPath):
@@ -595,7 +606,7 @@ if doWhat == 2:
     #print len(logProbs[0])
 
     if plotLog:
-        colorNorm = colors.Normalize(-100,0)
+        colorNorm = colors.Normalize(-6,-4)
     else:
         colorNorm = colors.Normalize(0,1) # YOU NEED THIS SO STUFF DOESN'T EXPLODDDEEE
     # without colorNorm, you can't do repeated plotting and get a useful
@@ -603,8 +614,8 @@ if doWhat == 2:
 
     # plot stuff
     for i in range(numSteps):
-        plotSome([2],modelNums,i,'F',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
+        plotSome([0],modelNums,i,'F',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
         #plotAll(i,'F',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
-        plotHist(2,modelNums,i,'H',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
+        plotHist(0,modelNums,i,'H',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
         print [sum([math.exp(y) for y in logProbs[i][x]]) for x in range(len(modelNums))]
 

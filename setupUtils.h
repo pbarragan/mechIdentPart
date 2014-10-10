@@ -16,6 +16,8 @@ namespace setupUtils {
   void setupParticlesIndependent(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace);
 
   void setupParticlesRevSpecial(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace);
+  
+  void setupParticlesSpecial(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace);
 
   //models
   std::vector<stateStruct> setupModel0(std::vector<stateStruct>& modelParamPairs);  

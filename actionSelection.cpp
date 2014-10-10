@@ -122,20 +122,14 @@ void actionSelection::chooseActionPartEntropy(std::vector<BayesFilter>& filterBa
       clock_gettime(CLOCK_REALTIME, &ts24);
 
       stateStruct nextState;
+      nextState = sample;
 
       // Step 2.2: Simulate the state with the action
-      if (sample.model == 2){
-	nextState = sample;
-	double x = validRelActionList[i][0]
-	  +sample.params[2]*cos(sample.vars[0]);
-	double y = validRelActionList[i][1]
-	  +sample.params[2]*sin(sample.vars[0]);
-	nextState.vars[0] = atan2(y,x);
-      }
-      else{	
-	nextState = 
-	  translator::stateTransition(sample, validRelActionList[i]);
-      }
+ 
+      // For now, change answers to closed form inside stateTransition
+      // Transition the state
+      nextState = translator::stateTransition(nextState, validRelActionList[i]);
+      
       clock_gettime(CLOCK_REALTIME, &ts20);
 
       // Step 2.3: Get an observation
