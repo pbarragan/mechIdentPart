@@ -7,6 +7,8 @@
 #include "bayesFilter.h"
 
 namespace actionSelection {
+  void chooseActionPartDist(std::vector<BayesFilter>& filterBank,std::vector< std::vector<double> >& actionList,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace);
+  void chooseActionPartDist2(std::vector<BayesFilter>& filterBank,std::vector< std::vector<double> >& actionList,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace);
   void chooseActionPartEntropy(std::vector<BayesFilter>& filterBank,std::vector< std::vector<double> >& actionList,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace);
   void chooseActionSimple(std::vector< std::vector<double> >& actionList,int step,std::vector<double>& action);
   void chooseActionRandom(std::vector< std::vector<double> >& actionList,std::vector<double>& action);

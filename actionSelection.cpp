@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <numeric>
 #include <iostream> // cout
+#include <limits> // -inf
+#include <iterator> // std::distance
 
 // for debugging only
 #include <time.h> // for srand
@@ -21,6 +23,150 @@ double timeDiffa(timespec& ts1, timespec& ts2){
 ////////////////////////////////////////////////////////////////////////////////
 
 // !!!!!!!!!!!!!!!!!!!!!!!! ALL ACTIONS ARE RELATIVE !!!!!!!!!!!!!!!!!!!!!!!! //
+
+// Use a distance metric to choose the next action
+void actionSelection::chooseActionPartDist(std::vector<BayesFilter>& filterBank,std::vector< std::vector<double> >& actionList,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace){
+
+  // This method finds the MAP estimate and sees which action will cause it to 
+  // move the most.
+
+  // Step -2: Validate relative action list
+  std::vector< std::vector<double> > validRelActionList;
+  validateRelActionList(actionList,poseInRbt,workspace,validRelActionList);
+
+  // Step -1: Find the MAP estimate
+  size_t maxInd;
+  size_t filterInd;
+  double maxProb = -std::numeric_limits<double>::infinity();
+  for (size_t i = 0; i<filterBank.size(); i++){
+    std::vector<double>::iterator maxIt = 
+      std::max_element(filterBank[i].logProbList_.begin(),
+		       filterBank[i].logProbList_.end());
+    double maxProbNew = *maxIt;
+    if (maxProb < maxProbNew){
+      maxProb = maxProbNew;
+      maxInd = std::distance(filterBank[i].logProbList_.begin(),maxIt);
+      filterInd = i;
+    }
+  }
+
+  stateStruct maxState = filterBank[filterInd].stateList_[maxInd];
+  std::cout << "max state model:" << maxState.model << std::endl;
+  std::cout << "max state prob:" << maxProb << std::endl;
+  // Step 2: For each action, calculate the distance the MAP estimate will move
+  std::vector<double> distsSquaredList; 
+
+  for (size_t i = 0; i<validRelActionList.size(); i++){
+
+    stateStruct nextState = 
+      translator::stateTransition(maxState, validRelActionList[i]);
+
+    std::vector<double> newPoseInRbt = translator::translateStToRbt(nextState);
+
+    distsSquaredList.push_back(distPointsSquared(poseInRbt,newPoseInRbt));
+
+  }
+
+  //Step 3: Choose the action which results in the lowest entropy updated belief
+  std::vector<double>::iterator maxDistSquaredIt = 
+    std::max_element(distsSquaredList.begin(),distsSquaredList.end());
+  action = 
+    validRelActionList[std::distance(distsSquaredList.begin(),
+				     maxDistSquaredIt)];
+
+}
+
+// Use a distance metric to choose the next action
+void actionSelection::chooseActionPartDist2(std::vector<BayesFilter>& filterBank,std::vector< std::vector<double> >& actionList,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace){
+
+  // The new method samples from the belief state according to the probability 
+  // distribution and simulates from those states for each action. An 
+  // observation is taken for the output state after the simulation. Given the 
+  // observation, the belief state is updated. The probability distribution over
+  // models is calculated. The entropy of this distribution is calculated. The 
+  // action which produces the lowest entropy is chosen.
+
+
+  // Step -2: Validate relative action list
+  std::vector< std::vector<double> > validRelActionList;
+  validateRelActionList(actionList,poseInRbt,workspace,validRelActionList);
+
+  // Step 1: Accumulate states and probs from bank into single vectors
+  // Calculate total number of states
+  size_t totalNumStates = 0;
+  for (size_t i = 0; i<filterBank.size(); i++){
+    totalNumStates += filterBank[i].stateList_.size();
+  }
+  // Initialize total vectors
+  std::vector<stateStruct> totalStateList;
+  std::vector<double> totalLogProbList;
+  // Reserve the right amount of space
+  totalStateList.reserve(totalNumStates);
+  totalLogProbList.reserve(totalNumStates);
+  // Insert the vectors
+  for (size_t i = 0; i<filterBank.size(); i++){
+    totalStateList.insert(totalStateList.end(),
+			  filterBank[i].stateList_.begin(),
+			  filterBank[i].stateList_.end());
+
+    totalLogProbList.insert(totalLogProbList.end(),
+			  filterBank[i].logProbList_.begin(),
+			  filterBank[i].logProbList_.end());
+  }
+  
+
+
+  // Step 0: Assume only log probs exist. Exponentiate to get probs.
+  std::vector<double> probList = logUtils::expLogProbs(totalLogProbList);
+
+  // Step 1: Create the CDF of the current belief from the PDF probList_.
+  std::vector<double> probCDF = createCDF(probList);
+  
+
+  // Step 2: For each action, sample a state from the belief n times. Simulate 
+  // this state with the action and get an observation. Update the belief with 
+  // the action-observation pair. Calculate the entropy of the new belief. 
+  // Average the entropies over the n samples.
+
+
+  // this is a list of average entropies, one for each action
+  std::vector<double> avgDistList; 
+  int nSamples = 4000; //number of samples of the belief state per action
+  //std::cout << "samples" << nSamples << std::endl;
+  for (size_t i = 0; i<validRelActionList.size(); i++){
+
+    std::vector<double> distList; //this is per action
+
+    for (size_t j = 0; j<nSamples; j++){
+
+      // Step 2.1: Sample a nextState from the belief over transitioned states
+      stateStruct sample = getSampleState(probCDF,totalStateList);
+      // Step 2.2: Simulate the state with the action
+      // Step 2.3: Get an observation
+      // Step 2.4: Update the belief state in log space
+
+      stateStruct nextState = 
+	translator::stateTransition(sample, validRelActionList[i]);
+      
+      std::vector<double> newPoseInRbt = 
+	translator::translateStToRbt(nextState);
+
+      distList.push_back(distPointsSquared(poseInRbt,newPoseInRbt));
+
+    }
+    // Step 2.7: Average the entropies over the n samples
+    double dSum = 
+      std::accumulate(distList.begin(),distList.end(),(double) 0.0);
+    avgDistList.push_back(dSum/distList.size());
+  }
+
+  //Step 3: Choose the action which results in the lowest entropy updated belief
+  std::vector<double>::iterator maxAvgDistIt = 
+    std::max_element(avgDistList.begin(),avgDistList.end());
+  action = 
+    validRelActionList[std::distance(avgDistList.begin(),maxAvgDistIt)];
+
+}
 
 // Use an entropy metric to choose the next action
 void actionSelection::chooseActionPartEntropy(std::vector<BayesFilter>& filterBank,std::vector< std::vector<double> >& actionList,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace){
@@ -98,13 +244,26 @@ void actionSelection::chooseActionPartEntropy(std::vector<BayesFilter>& filterBa
 
   // this is a list of average entropies, one for each action
   std::vector<double> avgEntropyList; 
-  int nSamples = 4; //number of samples of the belief state per action
+  int nSamples = 12; //number of samples of the belief state per action
   //std::cout << "samples" << nSamples << std::endl;
-  for (size_t i = 0; i<1;i++){//validRelActionList.size(); i++){
+  for (size_t i = 0; i<validRelActionList.size(); i++){
 
     clock_gettime(CLOCK_REALTIME, &ts13);
 
     std::vector<double> entropyList; //this is per action
+
+    // We only need to do the transition update once per action and do the
+    // observation update for every sample taken under that action.
+
+    // Create a copy of the totalStateList to use for each action
+    std::vector<stateStruct> localStateList = totalStateList;
+
+    // For now, change answers to closed form inside stateTransition
+    // Transition the states
+    // Hijack the first filter to use its class functions
+    filterBank[0].transitionUpdateLog(localStateList,validRelActionList[i]);
+
+
     for (size_t j = 0; j<nSamples; j++){
 
       clock_gettime(CLOCK_REALTIME, &ts14);
@@ -112,30 +271,20 @@ void actionSelection::chooseActionPartEntropy(std::vector<BayesFilter>& filterBa
       // Step 2.0: Create a copy of the real probability list
       // only for this action and sample
       std::vector<double> localLogProbList = totalLogProbList;
-      std::vector<stateStruct> localStateList = totalStateList;
 
       clock_gettime(CLOCK_REALTIME, &ts19);
 
-      // Step 2.1: Sample a state from the belief
-      stateStruct sample = getSampleState(probCDF,localStateList);
+      // Step 2.1: Sample a nextState from the belief over transitioned states
+      stateStruct nextState = getSampleState(probCDF,localStateList);
 
       clock_gettime(CLOCK_REALTIME, &ts24);
 
-      stateStruct nextState;
-      nextState = sample;
-
       // Step 2.2: Simulate the state with the action
- 
-      // For now, change answers to closed form inside stateTransition
-      // Transition the state
-      nextState = translator::stateTransition(nextState, validRelActionList[i]);
       
       clock_gettime(CLOCK_REALTIME, &ts20);
 
       // Step 2.3: Get an observation
       // Step 2.4: Update the belief state in log space
-      // Hijack the first filter to use its class functions
-      filterBank[0].transitionUpdateLog(localStateList,validRelActionList[i]);
 
       clock_gettime(CLOCK_REALTIME, &ts21);
 
@@ -151,11 +300,6 @@ void actionSelection::chooseActionPartEntropy(std::vector<BayesFilter>& filterBa
       clock_gettime(CLOCK_REALTIME, &ts23);
 
       // Step 2.6: Calculate the entropy over models of the new belief state
-      /*
-      std::vector<double> mpProbs = 
-	modelUtils::calcModelParamProbLog(filter.stateList_,
-					  localLogProbList,modelParamPairs);
-      */
       entropyList.push_back(calcEntropy(logUtils::expLogProbs(localLogProbList)));
 
       clock_gettime(CLOCK_REALTIME, &ts15);      
@@ -581,8 +725,20 @@ void actionSelection::chooseActionSimpleRel(std::vector< std::vector<double> >& 
   action = validRelActionList[step%validRelActionList.size()]; // select action
   
   // DELETE THIS
-  action = actionList[7];
-  if (step > 2) action = actionList[3];
+  //action = actionList[7];
+  //if (step > 2) action = actionList[3];
+  if (step == 0) action = actionList[0];
+  else if (step == 1) action = actionList[0];
+  else if (step == 2) action = actionList[2];
+  else if (step == 3) action = actionList[4];
+  else if (step == 4) action = actionList[4];
+  else if (step == 5) action = actionList[6];
+  else if (step == 6) action = actionList[4];
+  else if (step == 7) action = actionList[4];
+  else if (step == 8) action = actionList[2];
+  else action = actionList[0];
+
+
 }
 
 // Random action selection.

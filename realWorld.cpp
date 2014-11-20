@@ -99,14 +99,14 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
 
   // initialize a few things for the particle filter
   whichMechTypes_.push_back(0);
-  //whichMechTypes_.push_back(1);
-  //whichMechTypes_.push_back(2);
-  //whichMechTypes_.push_back(3);
+  whichMechTypes_.push_back(1);
+  whichMechTypes_.push_back(2);
+  whichMechTypes_.push_back(3);
   //whichMechTypes_.push_back(4);
   //whichMechTypes_.push_back(5);
   
   numMechTypes_ = whichMechTypes_.size();
-  numParticles_ = 100;
+  numParticles_ = 10000;
   std::cout << numParticles_ << std::endl;
   float initParamVar = 2.0; // initial parameter variance
   float initVarVar = 0.1; // initial variable variance
@@ -753,6 +753,16 @@ void RealWorld::nextAction(){
       actionSelection::chooseActionPartEntropy(filterBank_,actionList_,action_,
 					       poseInRbt_,workspace_);
     }
+    else if (whichSelectionType == 3){
+      std::cout << "Distance Action Selection:" << std::endl;
+      actionSelection::chooseActionPartDist(filterBank_,actionList_,action_,
+					    poseInRbt_,workspace_);
+    }
+    else if (whichSelectionType == 4){
+      std::cout << "Expected Distance Action Selection:" << std::endl;
+      actionSelection::chooseActionPartDist2(filterBank_,actionList_,action_,
+					    poseInRbt_,workspace_);
+    }
     /*
     else if (whichSelectionType == 2){
       std::cout << "Entropy Action Selection:" << std::endl;
@@ -861,9 +871,13 @@ void RealWorld::runAction(){
     // change the action the robot is supposed to use to make sure it's absolute
     std::vector<double> actionInRbt (2,0.0);
     if (RELATIVE){
+      // The function now expects relative actions. Never send absolute
+      actionInRbt = action_;
+      /*
       for(size_t i=0; i<action_.size(); i++){
 	actionInRbt[i]=poseInRbt_[i]+action_[i];
       }
+      */
     }
     else{
       actionInRbt = action_;

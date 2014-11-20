@@ -64,11 +64,14 @@ def stateDist(s1,s2):
         return 100000000
     else:
         dist = 0
-        for p1,p2 in zip(s1[1],s2[1]):
-            dist += (p1-p2)**2
-        for v1,v2 in zip(s1[2],s2[2]):
-            dist += (v1-v2)**2
-        return math.sqrt(dist)
+        if s1[0] != 3:
+            for p1,p2 in zip(s1[1],s2[1]):
+                dist += (p1-p2)**2
+            for v1,v2 in zip(s1[2],s2[2]):
+                dist += (v1-v2)**2
+            return math.sqrt(dist)
+        else:
+            return math.sqrt((s1[1][2]-s2[1][2])**2)
 
 def findCloseStates(sRef,stateList,thresh):
     closeStateList = []
@@ -395,12 +398,47 @@ exeDir = os.path.abspath(os.path.dirname(__file__))
 #fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_51_21_2014.txt'
 
 # demo of model 0 for group meeting
-fileName = '/../data/2014_10_10/data0Fri_Oct_10_11_06_45_2014.txt'
+#fileName = '/../data/2014_10_10/data0Fri_Oct_10_11_06_45_2014.txt'
+
+# testing distance action selection
+#fileName = '/../data/2014_10_16/data3Thu_Oct_16_11_37_43_2014.txt' # wrong mech, right particle
+#fileName = '/../data/2014_10_16/data3Thu_Oct_16_11_38_40_2014.txt' # right mech, right particle
+
+# 11/12/14 - real robot tests
+#fileName = '/../data/2014_11_12/data3Wed_Nov_12_11_49_27_2014.txt'
+#fileName = '/../data/2014_11_12/data3Wed_Nov_12_11_54_10_2014.txt'
+#fileName = '/../data/2014_11_12/data3Wed_Nov_12_11_58_59_2014.txt'
+
+# 11/13/14 - real robot tests
+#fileName = '/../data/2014_11_13/data2Thu_Nov_13_13_17_56_2014.txt' # chose rev but wrong
+#fileName = '/../data/2014_11_13/data2Thu_Nov_13_13_23_38_2014.txt' # chose rev but wrong
+#fileName = '/../data/2014_11_13/data2Thu_Nov_13_13_26_21_2014.txt' # chose rev but wrong entropy maybe
+#fileName = '/../data/2014_11_13/data2Thu_Nov_13_13_33_44_2014.txt' # chose rev but wrong random with bigger actions
+#fileName = '/../data/2014_11_13/data0Thu_Nov_13_13_36_54_2014.txt' # free failed
+#fileName = '/../data/2014_11_13/data0Thu_Nov_13_13_39_59_2014.txt' # free failed
+#fileName = '/../data/2014_11_13/data1Thu_Nov_13_13_43_30_2014.txt' # fixed wins
+#fileName = '/../data/2014_11_13/data3Thu_Nov_13_13_46_27_2014.txt' # good guess for pris but still chose rev
+
+# 11/19/14 - real robot tests
+# scripted actions - 6cm, +x,+x,-x,-x,-x,-x or +x,+x,+y,-x,-x,-y,-x,-x,+y
+# low stiffness caused weird failures. high stiffness on free helps.
+
+fileName = '/../data/2014_11_19/'
+
+#fileName += 'data0Wed_Nov_19_12_07_40_2014.txt' # 0, short set, low stiffness
+#fileName += 'data0Wed_Nov_19_13_10_23_2014.txt' # 0, short set, low stiffness
+#fileName += 'data0Wed_Nov_19_13_13_05_2014.txt' # 0, short set, low stiffness
+#fileName += 'data0Wed_Nov_19_13_16_26_2014.txt' # 0, short set, low stiffness
+#fileName += 'data0Wed_Nov_19_13_21_26_2014.txt' # 0, short set, high stiffness
+#fileName += 'data0Wed_Nov_19_13_27_26_2014.txt' # 0, short set, high stiffness
+#fileName += 'data0Wed_Nov_19_13_42_11_2014.txt' # 0, long set, high stiffness
+fileName += 'data3Wed_Nov_19_13_46_44_2014.txt' # 3, long set, low stiffness
+
 
 folderName = fileName[fileName.rfind('/')+1:fileName.find('.txt')]
 setPath = exeDir+'/dataPlots/'+folderName+'/'
 
-doWhat = 2 # 0 - verify, 1 - debug, 2 - plot
+doWhat = 1 # 0 - verify, 1 - debug, 2 - plot
 
 if doWhat == 2:
     if not os.path.exists(setPath):
@@ -457,51 +495,83 @@ if doWhat == 0:
 ############################### DEBUGGING CODE #################################
 if doWhat == 1:
     plotDebug = True
+    plotLines = True
+
+    whichModels = [0,2,3]
+
+    # to make sure indices match up
+    lookAtList = [modelNums.index(x) for x in whichModels]
     
     whichStep = -1 # set to -1 for last step
     print max(logProbs[whichStep][0])
     lastObs = [obs[0][whichStep],obs[1][whichStep]]
     print lastObs
-    print
-    maxes = heapq.nlargest(3,logProbs[whichStep][0])
-    maxInds = [logProbs[whichStep][0].index(x) for x in maxes]
-    maxesPrev = [logProbs[-2][0][x] for x in maxInds]
-    maxStates = [states[whichStep][0][x] for x in maxInds]
-    maxStatesInRbt = [[statesInRbt[whichStep][0][0][x],\
-                       statesInRbt[whichStep][0][1][x]]\
-                      for x in maxInds]
+
+    # find the largest probability particles for the models
+    maxes = []
+    numMaxes = 3
+    for m in lookAtList:
+        maxes.append(heapq.nlargest(numMaxes,logProbs[whichStep][m]))
+
+    # find the corresponding indeces
+    maxInds = []
+    maxesPrev = []
+    maxStates = []
+    maxStatesInRbt = []
+    for i,ms in zip(lookAtList,maxes):
+        maxInds.append([logProbs[whichStep][i].index(x) for x in ms])
+        maxesPrev.append([logProbs[whichStep-1][i][x] for x in maxInds[-1]])
+        maxStates.append([states[whichStep][i][x] for x in maxInds[-1]])
+        maxStatesInRbt.append([[statesInRbt[whichStep][i][0][x],\
+                                statesInRbt[whichStep][i][1][x]]\
+                               for x in maxInds[-1]])
     print 'maxes'
     for m,mp,mS,mSR in zip(maxes,maxesPrev,maxStates,maxStatesInRbt):
-        print mS,m,mp
+        print 'states'
+        print mS
+        print 'prob'
+        print m
+        print 'previous step prob'
+        print mp
+        print 'state in robot'
         print mSR
-        print dist(mSR,lastObs)
-    print   
+        #print dist(mSR,lastObs)
+    print
+    
     #print states[whichStep][0][logProbs[whichStep][0].index(max(logProbs[whichStep][0]))]
 
-    sRef = [2, [-0.396, -0.396, 0.56], [0.7854]]
-    #sRef = [2, [0.396, 0.396, 0.56], [-2.35619]]
+    sRef = [0, [], [1,1]] # for free
+    #sRef = [3, [-0.396, 0.396, -0.785], [0.56]] # for pris
+    #sRef = [2, [0.396, 0.396, 0.56], [-2.35619]] # for rev
     #sClosest =
+    # find the closest states to sref
     # this probably shouldn't have which step and only look at step 0
-    closeStates = findCloseStates(sRef,states[0][0],.03)
-    closeStateInds = [states[0][0].index(x) for x in closeStates]
-    closeStateProbs = [logProbs[whichStep][0][x] for x in closeStateInds]
-    closeStateProbsPrev = [logProbs[-2][0][x] for x in closeStateInds]
+    srefMI = modelNums.index(sRef[0])
+    closeStates = findCloseStates(sRef,states[0][srefMI],.003) #.003 for pris
+    
+    closeStateInds = [states[0][srefMI].index(x) for x in closeStates]
+    closeStateProbs = [logProbs[whichStep][srefMI][x] for x in closeStateInds]
+    closeStateProbsPrev = [logProbs[whichStep-1][srefMI][x] \
+                           for x in closeStateInds]
 
     closeStateProbsList = []
     closeStatesInRbtList = []
-    maxStatesInRbtList = []
-    maxProbsList = []
+    maxStatesInRbtList = [[] for x in maxInds]
+    maxProbsList = [[] for x in maxInds]
 
     for i in range(numSteps+1):
-        closeStateProbsList.append([logProbs[i][0][x] for x in closeStateInds])
-        closeStatesInRbtList.append([[statesInRbt[i][0][0][x],\
-                             statesInRbt[i][0][1][x]]\
+        closeStateProbsList.append([logProbs[i][srefMI][x] \
+                                    for x in closeStateInds])
+        closeStatesInRbtList.append([[statesInRbt[i][srefMI][0][x],\
+                             statesInRbt[i][srefMI][1][x]]\
                             for x in closeStateInds])
 
-        maxStatesInRbtList.append([[statesInRbt[i][0][0][x],\
-                           statesInRbt[i][0][1][x]]\
-                          for x in maxInds])
-        maxProbsList.append([logProbs[i][0][x] for x in maxInds])
+    for k,(m,mIs) in enumerate(zip(lookAtList,maxInds)):
+        for i in range(numSteps+1):
+            maxStatesInRbtList[k].append([[statesInRbt[i][m][0][x],\
+                                        statesInRbt[i][m][1][x]]\
+                                       for x in mIs]) #########
+            maxProbsList[k].append([logProbs[i][3][x] for x in mIs]) #######
 
 
     closeStateDists = []
@@ -510,8 +580,8 @@ if doWhat == 1:
     for i in range(numSteps):
         closeStateDists.append([dist([obs[0][i],obs[1][i]],x) \
                                 for x in closeStatesInRbtList[i+1]])
-        maxDists.append([dist([obs[0][i],obs[1][i]],x) \
-                         for x in maxStatesInRbtList[i+1]])
+        #maxDists.append([dist([obs[0][i],obs[1][i]],x) \
+        #                 for x in maxStatesInRbtList[i+1]])
 
 
     print 'here we go:'
@@ -531,8 +601,8 @@ if doWhat == 1:
     print maxProbsList
 
     
-    closeStatesInRbt = [[statesInRbt[whichStep][0][0][x],\
-                         statesInRbt[whichStep][0][1][x]]\
+    closeStatesInRbt = [[statesInRbt[whichStep][srefMI][0][x],\
+                         statesInRbt[whichStep][srefMI][1][x]]\
                         for x in closeStateInds]
     print
     print 'close states'
@@ -555,32 +625,61 @@ if doWhat == 1:
         markerList = itertools.cycle(('^', 'v', '.', 'o', '*')) 
 
         plotableClose = [[[],[]] for x in range(len(closeStateInds))]
-        plotableMax = [[[],[]] for x in range(len(maxInds))]
+        plotableMax = []
+        for mIs in maxInds:
+            plotableMax.append([[[],[]] for x in range(len(mIs))])
+
+        print "plotableMax",plotableMax
+        
         for i in range(numSteps+1):
             for j in range(len(closeStateInds)):
                 plotableClose[j][0].append(closeStatesInRbtList[i][j][0])
                 plotableClose[j][1].append(closeStatesInRbtList[i][j][1])
-            for j in range(len(maxInds)):
-                plotableMax[j][0].append(maxStatesInRbtList[i][j][0])
-                plotableMax[j][1].append(maxStatesInRbtList[i][j][1])
+            for k,mIs in enumerate(maxInds):
+                for j in range(len(mIs)):
+                    plotableMax[k][j][0].append(maxStatesInRbtList[k][i][j][0])
+                    plotableMax[k][j][1].append(maxStatesInRbtList[k][i][j][1])
 
         #closeStatesInRbtList[thisStep][thisOne][x or y]
         for i in range(len(closeStateInds)):
             pyplot.scatter(plotableClose[i][0],plotableClose[i][1],\
                            marker=markerList.next(),c='r',s=sSize)
         for s in closeStates:
+            #if s[0]==0:
+                #pyplot.scatter(s[2][0],s[2][1],c='r',s=sSize)
+            #if s[0]==1:
+                #pyplot.scatter(s[1][0],s[1][1],'sr')
             if s[0]==2:
                 cir = pyplot.Circle((s[1][0],s[1][1]),s[1][2],\
                                     color='r',fill=False)
                 pyplot.gcf().gca().add_artist(cir)
-        for i in range(len(maxInds)):
-            pyplot.scatter(plotableMax[i][0],plotableMax[i][1],\
-                           marker=markerList.next(),c='b',s=sSize)
-        for s in maxStates:
-            if s[0]==2:
-                cir = pyplot.Circle((s[1][0],s[1][1]),s[1][2],\
-                                    color='b',fill=False)
-                pyplot.gcf().gca().add_artist(cir)
+            if s[0]==3:
+                x1 = s[1][0]+math.cos(s[1][2])
+                x2 = s[1][0]-math.cos(s[1][2])
+                y1 = s[1][1]+math.sin(s[1][2])
+                y2 = s[1][1]-math.sin(s[1][2])
+                pyplot.plot([x1,x2],[y1,y2],'--')
+
+        for k,mIs in enumerate(maxInds):
+            for i in range(len(mIs)):
+                pyplot.scatter(plotableMax[k][i][0],plotableMax[k][i][1],\
+                               marker=markerList.next(),c='b',s=sSize)
+        for mSs in maxStates:
+            for s in mSs:
+                #if s[0]==0:
+                    #pyplot.scatter(s[2][0],s[2][1],c='b',s=sSize)
+                #if s[0]==1:
+                    #pyplot.scatter(s[1][0],s[1][1],'sb')
+                if s[0]==2:
+                    cir = pyplot.Circle((s[1][0],s[1][1]),s[1][2],\
+                                        color='b',fill=False)
+                    pyplot.gcf().gca().add_artist(cir)
+                if s[0]==3:
+                    x1 = s[1][0]+math.cos(s[1][2])
+                    x2 = s[1][0]-math.cos(s[1][2])
+                    y1 = s[1][1]+math.sin(s[1][2])
+                    y2 = s[1][1]-math.sin(s[1][2])
+                    pyplot.plot([x1,x2],[y1,y2],'--')
 
         if sRef[0]==2:
             cir = pyplot.Circle((sRef[1][0],sRef[1][1]),sRef[1][2],\
@@ -591,10 +690,34 @@ if doWhat == 1:
                                 color='k',fill=False)
             pyplot.gcf().gca().add_artist(cirFit)
 
-        pyplot.gcf().gca().add_patch(pylab.Rectangle((-.15,-.15),.3,.3,facecolor='none'))
+        # add workspace
+        pyplot.gcf().gca().add_patch(pylab.Rectangle((-.15,-.15),\
+                                                     .3,.3,facecolor='none'))
+        # add arrows
+        for i in range(len(obs[0])-1):
+            pyplot.arrow(obs[0][i],obs[1][i], \
+                         obs[0][i+1]-obs[0][i],obs[1][i+1]-obs[1][i], \
+                         fc='g',ec='g',length_includes_head=True, \
+                         width=0.0001,head_width=0.0002)
+        # add observations
         pyplot.scatter(obs[0],obs[1],c='g',s=sSize)
+
+        if plotLines:
+            # add lines between close states and corresponding observations
+            for i in range(len(closeStateInds)):
+                for j in range(numSteps):
+                    pyplot.plot([plotableClose[i][0][j+1],obs[0][j]],\
+                                [plotableClose[i][1][j+1],obs[1][j]],'r--')
+
+            # add lines between max states and corresponding observations
+            for k,mIs in enumerate(maxInds):
+                for i in range(len(mIs)):
+                    for j in range(numSteps):
+                        pyplot.plot([plotableMax[k][i][0][j+1],obs[0][j]],\
+                                [plotableMax[k][i][1][j+1],obs[1][j]],'b--')
         pyplot.xlim([-.8,.3])
         pyplot.ylim([-.8,.3])
+        pyplot.axis('equal')
         pyplot.show()
 
 ############################# END DEBUGGING CODE ###############################
@@ -614,8 +737,8 @@ if doWhat == 2:
 
     # plot stuff
     for i in range(numSteps):
-        plotSome([0],modelNums,i,'F',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
+        plotSome([2,3],modelNums,i,'F',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
         #plotAll(i,'F',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
-        plotHist(0,modelNums,i,'H',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
+        plotHist(3,modelNums,i,'H',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
         print [sum([math.exp(y) for y in logProbs[i][x]]) for x in range(len(modelNums))]
 
