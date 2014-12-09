@@ -42,7 +42,8 @@
 //#include <sys/time.h>
 
 double timeDiff(timespec& ts1, timespec& ts2){
-  return (double) ts2.tv_sec - (double) ts1.tv_sec + ((double) ts2.tv_nsec - (double) ts1.tv_nsec)/1000000000; 
+  return (double) ts2.tv_sec - (double) ts1.tv_sec + 
+    ((double) ts2.tv_nsec - (double) ts1.tv_nsec)/1000000000; 
 }
 
 //Constructor
@@ -194,7 +195,7 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
 
   // setup either robot or simulator
   //useRobot_ = false;
-  if (!useRobot_){
+  if (useRobot_==0){
     //int modelNum = 5; // Which mechanism to use for the "real world"
     switch(modelNum_){
     case 0:
@@ -229,11 +230,16 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
       break;
     }
   }
-  else if (useRobot_){
+  else {
     mechPtr_ = new Mechanism();
     std::vector<double> zeroVect (2,0.0);
     poseInRbt_ = zeroVect; // relies on 2D - robot always starts at 0.0
+    if(useRobot_==2){
+      FAinds_ = setupUtils::fakeActions(actionList_);
+      fakeObs_ = setupUtils::fakeObs();
+    }
   }
+
 
   // Print the initial pose of the robot
   if(initializedNearZero()) std::cout << "We initialized the simulate robot near zero. Heck yeah." << std::endl;
@@ -735,86 +741,92 @@ void RealWorld::nextAction(){
   //actionSelection::chooseActionSimple(actionList_,step_,action_);
   int whichSelectionType = actionSelectionType_; // which action selection scheme should we use
 
-  if (RELATIVE){
-    // relative
-    std::cout << "Relative actions:" << std::endl;
-    if (whichSelectionType == 0){
-      std::cout << "Simple Action Selection:" << std::endl;
-      actionSelection::chooseActionSimpleRel(actionList_,step_,action_,
-					     poseInRbt_,workspace_);
-    }
-    else if (whichSelectionType == 1){
-      std::cout << "Random Action Selection:" << std::endl;
-      actionSelection::chooseActionRandomRel(actionList_,action_,poseInRbt_,
-					     workspace_);
-    }
-    else if (whichSelectionType == 2){
-      std::cout << "Entropy Action Selection:" << std::endl;
-      actionSelection::chooseActionPartEntropy(filterBank_,actionList_,action_,
+  if (useRobot_!=2){
+    if (RELATIVE){
+      // relative
+      std::cout << "Relative actions:" << std::endl;
+      if (whichSelectionType == 0){
+	std::cout << "Simple Action Selection:" << std::endl;
+	actionSelection::chooseActionSimpleRel(actionList_,step_,action_,
 					       poseInRbt_,workspace_);
-    }
-    else if (whichSelectionType == 3){
-      std::cout << "Distance Action Selection:" << std::endl;
-      actionSelection::chooseActionPartDist(filterBank_,actionList_,action_,
-					    poseInRbt_,workspace_);
-    }
-    else if (whichSelectionType == 4){
-      std::cout << "Expected Distance Action Selection:" << std::endl;
-      actionSelection::chooseActionPartDist2(filterBank_,actionList_,action_,
-					    poseInRbt_,workspace_);
-    }
-    /*
-    else if (whichSelectionType == 2){
-      std::cout << "Entropy Action Selection:" << std::endl;
-      if(useSAS_){
+      }
+      else if (whichSelectionType == 1){
+	std::cout << "Random Action Selection:" << std::endl;
+	actionSelection::chooseActionRandomRel(actionList_,action_,poseInRbt_,
+					       workspace_);
+      }
+      else if (whichSelectionType == 2){
+	std::cout << "Entropy Action Selection:" << std::endl;
+	actionSelection::chooseActionPartEntropy(filterBank_,actionList_,action_,
+						 poseInRbt_,workspace_);
+      }
+      else if (whichSelectionType == 3){
+	std::cout << "Distance Action Selection:" << std::endl;
+	actionSelection::chooseActionPartDist(filterBank_,actionList_,action_,
+					      poseInRbt_,workspace_);
+      }
+      else if (whichSelectionType == 4){
+	std::cout << "Expected Distance Action Selection:" << std::endl;
+	actionSelection::chooseActionPartDist2(filterBank_,actionList_,action_,
+					       poseInRbt_,workspace_);
+      }
+      /*
+	else if (whichSelectionType == 2){
+	std::cout << "Entropy Action Selection:" << std::endl;
+	if(useSAS_){
 	actionSelection::chooseActionLogRel(filter_,actionList_,action_,modelParamPairs_,sasList_,poseInRbt_,workspace_);
-      }
-      else{
+	}
+	else{
 	actionSelection::chooseActionLogRel(filter_,actionList_,action_,modelParamPairs_,poseInRbt_,workspace_);
-      }
-    }
-    else if (whichSelectionType == 3){
-      std::cout << "OG Action Selection:" << std::endl;
-      if(useSAS_){
+	}
+	}
+	else if (whichSelectionType == 3){
+	std::cout << "OG Action Selection:" << std::endl;
+	if(useSAS_){
 	actionSelection::chooseActionOGRel(filter_,actionList_,action_,modelParamPairs_,sasList_,poseInRbt_,workspace_);
-      }
-      else{
+	}
+	else{
 	actionSelection::chooseActionOGRel(filter_,actionList_,action_,modelParamPairs_,poseInRbt_,workspace_);
-      }
+	}
+	}
+      */
     }
-    */
+    else{
+      // Absolute
+      std::cout << "Absolute actions:" << std::endl;
+      if (whichSelectionType == 0){
+	std::cout << "Simple Action Selection:" << std::endl;
+	actionSelection::chooseActionSimple(actionList_,step_,action_);
+      }
+      else if (whichSelectionType == 1){
+	std::cout << "Random Action Selection:" << std::endl;
+	actionSelection::chooseActionRandom(actionList_,action_);
+      }
+      /*
+	else if (whichSelectionType == 2){
+	std::cout << "Entropy Action Selection:" << std::endl;
+	if(useSAS_){
+	actionSelection::chooseActionLog(filter_,actionList_,action_,modelParamPairs_,sasList_);
+	}
+	else{
+	actionSelection::chooseActionLog(filter_,actionList_,action_,modelParamPairs_);
+	}
+	}
+	else if (whichSelectionType == 3){
+	std::cout << "OG Action Selection:" << std::endl;
+	if(useSAS_){
+	actionSelection::chooseActionOG(filter_,actionList_,action_,modelParamPairs_,sasList_);
+	}
+	else{
+	actionSelection::chooseActionOG(filter_,actionList_,action_,modelParamPairs_);
+	}
+	}
+      */
+    }
   }
   else{
-    // Absolute
-    std::cout << "Absolute actions:" << std::endl;
-    if (whichSelectionType == 0){
-      std::cout << "Simple Action Selection:" << std::endl;
-      actionSelection::chooseActionSimple(actionList_,step_,action_);
-    }
-    else if (whichSelectionType == 1){
-      std::cout << "Random Action Selection:" << std::endl;
-      actionSelection::chooseActionRandom(actionList_,action_);
-    }
-    /*
-    else if (whichSelectionType == 2){
-      std::cout << "Entropy Action Selection:" << std::endl;
-      if(useSAS_){
-	actionSelection::chooseActionLog(filter_,actionList_,action_,modelParamPairs_,sasList_);
-      }
-      else{
-	actionSelection::chooseActionLog(filter_,actionList_,action_,modelParamPairs_);
-      }
-    }
-    else if (whichSelectionType == 3){
-      std::cout << "OG Action Selection:" << std::endl;
-      if(useSAS_){
-	actionSelection::chooseActionOG(filter_,actionList_,action_,modelParamPairs_,sasList_);
-      }
-      else{
-	actionSelection::chooseActionOG(filter_,actionList_,action_,modelParamPairs_);
-      }
-    }
-    */
+    std::cout << "\033[1;31mWe are faking it:\033[0m" << step_ << std::endl;
+    action_=actionList_[FAinds_[step_]]; // use fake action
   }
   std::cout << "\033[1;31mstep: \033[0m" << step_ << std::endl;
   std::cout << "\033[1;31maction: \033[0m" << action_[0] << "," << action_[1] << std::endl;
@@ -822,7 +834,7 @@ void RealWorld::nextAction(){
 
 // Run action in either simulation or real world
 void RealWorld::runAction(){
-  if (!useRobot_){
+  if (useRobot_==0){
     stateStruct tempState;
     // CHANGE THIS BACK!
     // HEY YOU CHANGE ME BACK
@@ -830,9 +842,9 @@ void RealWorld::runAction(){
     //tempState = mechPtr_->simulate(action_);
     tempState = startState_;
     /*
-    double x = action_[0]+tempState.params[2]*cos(tempState.vars[0]);
-    double y = action_[1]+tempState.params[2]*sin(tempState.vars[0]);
-    tempState.vars[0] = atan2(y,x);
+      double x = action_[0]+tempState.params[2]*cos(tempState.vars[0]);
+      double y = action_[1]+tempState.params[2]*sin(tempState.vars[0]);
+      tempState.vars[0] = atan2(y,x);
     */
     tempState = translator::stateTransition(tempState,action_);
     startState_ = tempState;
@@ -843,18 +855,18 @@ void RealWorld::runAction(){
     // Noise should be added such that the "true" (nominal) position is unknown
 
     /*
-    std::cout << "------------------------------------------" << std::endl;
-    std::cout << "model: " << tempState.model << std::endl;
-    std::cout << "params: " << std::endl;
-    for(size_t i=0;i<tempState.params.size();i++){
+      std::cout << "------------------------------------------" << std::endl;
+      std::cout << "model: " << tempState.model << std::endl;
+      std::cout << "params: " << std::endl;
+      for(size_t i=0;i<tempState.params.size();i++){
       std::cout << tempState.params[i] << ",";
-    }
-    std::cout << std::endl;
-    std::cout << "vars: " << std::endl;
-    for(size_t i=0;i<tempState.vars.size();i++){
+      }
+      std::cout << std::endl;
+      std::cout << "vars: " << std::endl;
+      for(size_t i=0;i<tempState.vars.size();i++){
       std::cout << tempState.vars[i] << ",";
-    }
-    std::cout << std::endl;
+      }
+      std::cout << std::endl;
     */
 
     std::cout << "poseInRbt_:" << std::endl; // DELETE
@@ -867,16 +879,16 @@ void RealWorld::runAction(){
       std::cout << "after: " << poseInRbt_[i] << std::endl; // DELETE
     }
   }
-  else if (useRobot_){
+  else if (useRobot_==1){
     // change the action the robot is supposed to use to make sure it's absolute
     std::vector<double> actionInRbt (2,0.0);
     if (RELATIVE){
       // The function now expects relative actions. Never send absolute
       actionInRbt = action_;
       /*
-      for(size_t i=0; i<action_.size(); i++){
+	for(size_t i=0; i<action_.size(); i++){
 	actionInRbt[i]=poseInRbt_[i]+action_[i];
-      }
+	}
       */
     }
     else{
@@ -893,6 +905,9 @@ void RealWorld::runAction(){
       else std::cout << "\033[1;31mFailed to get pose from robot.\033[0m" << std::endl;
     }
     else std::cout << "\033[1;31mFailed to send action to robot.\033[0m" << std::endl;
+  }
+  else if (useRobot_==2){
+    poseInRbt_ = fakeObs_[step_];
   }
 }
 

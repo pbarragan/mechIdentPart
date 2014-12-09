@@ -1,6 +1,11 @@
 #include "translator.h"
 #include "logUtils.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <algorithm>
+#include <iterator>
+
 //include mechanisms
 #include "mechanisms/mechFree.h"
 #include "mechanisms/mechFixed.h"
@@ -68,9 +73,14 @@ stateStruct translator::stateTransition(stateStruct& state, std::vector<double>&
   }
   else if (state.model == 2){
     // Calculate equilibrium point
+    //double x = action[0]+state.params[2]*cos(state.vars[0]);
+    //double y = action[1]+state.params[2]*sin(state.vars[0]);
+    //nextState.vars[0] = atan2(y,x);
+    /*
     double x = action[0]+state.params[2]*cos(state.vars[0]);
     double y = action[1]+state.params[2]*sin(state.vars[0]);
     nextState.vars[0] = atan2(y,x);
+    */
     /*
       for (size_t j=0;j<state.params.size();j++){
       state.params[j] 
@@ -78,6 +88,27 @@ stateStruct translator::stateTransition(stateStruct& state, std::vector<double>&
       += RealWorld::gaussianNoise();
       }
     */
+
+    // new way
+    double thi = state.vars[0];
+    int numSteps = 360;
+    double dth = 2*M_PI/numSteps;
+    std::vector<double> E(numSteps);
+    double r = state.params[2];
+    double ax = action[0];
+    double ay = action[1];
+    double KxP = 30;
+    double KyP = 1000;
+
+    for(size_t i=0;i<numSteps;i++){
+      double th = -M_PI+(i+1)*dth;
+      E[i]=0.5*KxP*pow((r*((cos(thi)-cos(th))*ay-(sin(thi)-sin(th))*ax)),2)
+	+ 0.5*KyP*pow((r*((cos(thi)-cos(th))*ax+(sin(thi)-sin(th))*ay)
+		       +ax*ax+ay*ay),2);
+    }
+    nextState.vars[0] = -M_PI
+      +(std::distance(E.begin(),std::min_element(E.begin(),E.end()))+1)*dth;
+
   }
   else if (state.model == 3){
     // Calculate equilibrium point
@@ -90,16 +121,31 @@ stateStruct translator::stateTransition(stateStruct& state, std::vector<double>&
     delete mechPtr;
   }	
 
-  // THIS IS VERY TEMPORARY
-  // add noise
-  double sig = 0.001; // standard deviation of noise - it worked when it was 0.00001 - still worked with 0.01
-  double mu = 0.0; // mean of noise
-  for (size_t i=0;i<nextState.vars.size();i++){
-    double x1 = ((double)rand()/(double)RAND_MAX);
-    double x2 = ((double)rand()/(double)RAND_MAX);
-    nextState.vars[i] += sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+  if(true){
+    //--------------------------ADD NOISE TO VARS---------------------//
+    // THIS IS VERY TEMPORARY
+    // add noise
+    double sig = 0.001; // [cm] standard deviation of noise - it worked when it was 0.00001 - still worked with 0.01
+    double mu = 0.0; // mean of noise
+    for (size_t i=0;i<nextState.vars.size();i++){
+      double x1 = ((double)rand()/(double)RAND_MAX);
+      double x2 = ((double)rand()/(double)RAND_MAX);
+      nextState.vars[i] += 
+	sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+    }
   }
-
+  if(false){
+    //--------------------------ADD NOISE TO PARAMS---------------------//
+    // add noise
+    double sig = 0.001; // [cm] standard deviation of noise - it worked when it was 0.00001 - still worked with 0.01
+    double mu = 0.0; // mean of noise
+    for (size_t i=0;i<nextState.params.size();i++){
+      double x1 = ((double)rand()/(double)RAND_MAX);
+      double x2 = ((double)rand()/(double)RAND_MAX);
+      nextState.params[i] += 
+	sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+    }
+  }
   return nextState;
 }
 

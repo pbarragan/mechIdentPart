@@ -6,10 +6,13 @@
 #include "../Eigen/Dense"
 
 namespace setupUtils {
+  std::vector<int> fakeActions(std::vector< std::vector<double> >& actionList);
+  std::vector<std::vector<double> > fakeObs();
 
   // Particle filter
   void resampleParticles(std::vector<stateStruct>& stateList,std::vector<double>& logProbList);
   std::vector<double> standardGaussianVariates();
+  double randomDouble();
   Eigen::VectorXd sampleParticle(unsigned int size,Eigen::VectorXd& mu,Eigen::MatrixXd& A);
   void setupParticles(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace);
 

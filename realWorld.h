@@ -47,7 +47,10 @@ class RealWorld {
   int actionSelectionType_; // which type of action selection
 
   bool useSAS_; // if true, use the SAS list
-  bool useRobot_; // if true, use the robot
+  int useRobot_; // 0 - use sim, 1 - use robot, 2 - fake it
+  // things to fake it
+  std::vector<int> FAinds_;
+  std::vector<std::vector<double> > fakeObs_;
 
   //functions
   RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelectionType,int useRobot);

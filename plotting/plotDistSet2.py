@@ -325,118 +325,54 @@ def plotHist(whichModel,modelNums,step,plotType,plotSet,plotLog,colorNorm,setPat
     pyplot.clf()
 
 # the beef
+################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
 
 
 # set paths
 exeDir = os.path.abspath(os.path.dirname(__file__))
 
-#fileName = '/../data/2014_09_11/data0Thu_Sep_11_18_51_54_2014.txt'
-#fileName2 = '/../data/2014_09_11/data0Thu_Sep_11_21_34_32_2014.txt'
-#fileName3 = '/../data/2014_09_11/data0Thu_Sep_11_22_36_11_2014.txt'
-#fileName4 = '/../data/2014_09_11/data0Thu_Sep_11_22_39_00_2014.txt'
-#fileName5 = '/../data/2014_09_11/data0Thu_Sep_11_23_02_59_2014.txt'
+# real robot
+#fileName = '/../data/2014_12_02/'
+#fileName += 'data2Tue_Dec__2_09_48_21_2014.txt'
+#fileName += 'data2Tue_Dec__2_12_45_00_2014.txt'
+# nominal rev model
+#fileName += 'data2Tue_Dec__2_13_16_08_2014.txt' # compare these two
 
-#fileName = '/../data/2014_09_15/data0Mon_Sep_15_10_44_40_2014.txt'
-#fileName = '/../data/2014_09_15/data1Mon_Sep_15_10_45_21_2014.txt'
-#fileName = '/../data/2014_09_15/data2Mon_Sep_15_10_45_54_2014.txt'
-#fileName = '/../data/2014_09_15/data2Mon_Sep_15_10_46_24_2014.txt'
+# this was a faked experiment
+#fileName = '/../data/2014_12_04/'
+# using nominal rev model actions and obs
+#fileName += 'data2Thu_Dec__4_13_35_47_2014.txt' # compare these two
 
-#fileName = '/../data/2014_09_15/data2Mon_Sep_15_12_05_08_2014.txt'
+# real robot
+fileName = '/../data/2014_12_05/'
 
-# you can use this one to verify things are working
-#fileName = '/../data/2014_09_15/data2Mon_Sep_15_14_56_54_2014.txt' 
-#fileName = '/../data/2014_09_16/data2Tue_Sep_16_00_00_13_2014.txt'
+# nominal x-axis aligned pris model
+#fileName += 'data3Fri_Dec__5_09_42_02_2014.txt'
 
-# this has two models to verify with
-#fileName = '/../data/2014_09_16/data2Tue_Sep_16_00_02_46_2014.txt'
+# nominal pris model at ~0.588 or ~-2.554 [rad]
+# random
+#fileName += 'data3Fri_Dec__5_10_02_28_2014.txt' # success
+#fileName += 'data3Fri_Dec__5_10_47_56_2014.txt' # failure
+#fileName += 'data3Fri_Dec__5_10_52_26_2014.txt' # failure
+#fileName += 'data3Fri_Dec__5_10_55_39_2014.txt' # success
 
-# this verifies model 3
-#fileName = '/../data/2014_09_16/data3Tue_Sep_16_10_28_09_2014.txt'
+# going back to it
+#fileName += 'data3Fri_Dec__5_11_52_56_2014.txt' # success
+#fileName += 'data3Fri_Dec__5_11_56_00_2014.txt' # failure
+#fileName += 'data3Fri_Dec__5_12_11_32_2014.txt' # success
 
-# model 2, 10000 particles, still wrong
-#fileName = '/../data/2014_09_16/data2Tue_Sep_16_14_21_25_2014.txt'
+# relax before reading observation
+#fileName += 'data3Fri_Dec__5_12_28_29_2014.txt' # success
+fileName += 'data3Fri_Dec__5_12_30_47_2014.txt' # 
 
-# model 2, 3 particles, just to verify, seems right
-#fileName = '/../data/2014_09_16/data2Tue_Sep_16_14_49_08_2014.txt'
+# back to normal
+# entropy
+#fileName += 'data3Fri_Dec__5_10_59_36_2014.txt' # ? right model, bad param
+#fileName += 'data3Fri_Dec__5_11_06_56_2014.txt' # ? right model eventually, bad param
 
-# model 2, 1000 particles, need to see what's going on
-#fileName = '/../data/2014_09_19/data2Fri_Sep_19_11_06_46_2014.txt'
-
-# model 2, 1000 particles, .01*paramSD, correct mu
-#fileName = '/../data/2014_09_22/data2Mon_Sep_22_20_14_31_2014.txt'
-#fileName = '/../data/2014_09_22/data2Mon_Sep_22_20_14_38_2014.txt'
-
-# model 2, 1000 particles, .1*paramSD, correct mu
-#fileName = '/../data/2014_09_22/data2Mon_Sep_22_20_15_23_2014.txt'
-#fileName = '/../data/2014_09_22/data2Mon_Sep_22_20_21_16_2014.txt'
-
-# trying to figure out how bad the problem of sampling is
-#fileName = '/../data/2014_09_23/data2Tue_Sep_23_18_08_16_2014.txt'
-
-# PARAMVAR 2
-#fileName = '/../data/2014_09_23/data2Tue_Sep_23_20_22_35_2014.txt'
-#fileName = '/../data/2014_09_23/data2Tue_Sep_23_20_51_51_2014.txt'
-#fileName = '/../data/2014_09_23/data2Tue_Sep_23_21_27_13_2014.txt'
-
-# ENTROPY
-#fileName = '/../data/2014_10_01/data2Wed_Oct__1_10_37_30_2014.txt'
-
-# prechosen actions
-#fileName = '/../data/2014_10_01/data2Wed_Oct__1_15_34_29_2014.txt'
-#fileName = '/../data/2014_10_01/data2Wed_Oct__1_15_39_27_2014.txt'
-#fileName = '/../data/2014_10_01/data2Wed_Oct__1_15_45_32_2014.txt'
-#fileName = '/../data/2014_10_01/data2Wed_Oct__1_16_07_30_2014.txt'
-#fileName = '/../data/2014_10_01/data2Wed_Oct__1_16_12_49_2014.txt'
-#fileName = '/../data/2014_10_01/data2Wed_Oct__1_16_27_39_2014.txt'
-#fileName = '/../data/2014_10_01/data2Wed_Oct__1_16_28_44_2014.txt'
-#fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_16_17_2014.txt'
-#fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_19_58_2014.txt'
-#fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_29_04_2014.txt'
-#fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_30_14_2014.txt'
-#fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_35_59_2014.txt'
-#fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_42_31_2014.txt'
-#fileName = '/../data/2014_10_02/data2Thu_Oct__2_00_51_21_2014.txt'
-
-# demo of model 0 for group meeting
-#fileName = '/../data/2014_10_10/data0Fri_Oct_10_11_06_45_2014.txt'
-
-# testing distance action selection
-#fileName = '/../data/2014_10_16/data3Thu_Oct_16_11_37_43_2014.txt' # wrong mech, right particle
-#fileName = '/../data/2014_10_16/data3Thu_Oct_16_11_38_40_2014.txt' # right mech, right particle
-
-# 11/12/14 - real robot tests
-#fileName = '/../data/2014_11_12/data3Wed_Nov_12_11_49_27_2014.txt'
-#fileName = '/../data/2014_11_12/data3Wed_Nov_12_11_54_10_2014.txt'
-#fileName = '/../data/2014_11_12/data3Wed_Nov_12_11_58_59_2014.txt'
-
-# 11/13/14 - real robot tests
-#fileName = '/../data/2014_11_13/data2Thu_Nov_13_13_17_56_2014.txt' # chose rev but wrong
-#fileName = '/../data/2014_11_13/data2Thu_Nov_13_13_23_38_2014.txt' # chose rev but wrong
-#fileName = '/../data/2014_11_13/data2Thu_Nov_13_13_26_21_2014.txt' # chose rev but wrong entropy maybe
-#fileName = '/../data/2014_11_13/data2Thu_Nov_13_13_33_44_2014.txt' # chose rev but wrong random with bigger actions
-#fileName = '/../data/2014_11_13/data0Thu_Nov_13_13_36_54_2014.txt' # free failed
-#fileName = '/../data/2014_11_13/data0Thu_Nov_13_13_39_59_2014.txt' # free failed
-#fileName = '/../data/2014_11_13/data1Thu_Nov_13_13_43_30_2014.txt' # fixed wins
-#fileName = '/../data/2014_11_13/data3Thu_Nov_13_13_46_27_2014.txt' # good guess for pris but still chose rev
-
-# 11/19/14 - real robot tests
-# scripted actions - 6cm, +x,+x,-x,-x,-x,-x or +x,+x,+y,-x,-x,-y,-x,-x,+y
-# low stiffness caused weird failures. high stiffness on free helps.
-# the last two show how this works for ideal conditions
-# without more noise added to transitions. It doesn't work completely because
-# huge radii are still allowed
-
-fileName = '/../data/2014_11_19/'
-
-#fileName += 'data0Wed_Nov_19_12_07_40_2014.txt' # 0, short set, low stiffness
-#fileName += 'data0Wed_Nov_19_13_10_23_2014.txt' # 0, short set, low stiffness
-#fileName += 'data0Wed_Nov_19_13_13_05_2014.txt' # 0, short set, low stiffness
-#fileName += 'data0Wed_Nov_19_13_16_26_2014.txt' # 0, short set, low stiffness
-#fileName += 'data0Wed_Nov_19_13_21_26_2014.txt' # 0, short set, high stiffness
-#fileName += 'data0Wed_Nov_19_13_27_26_2014.txt' # 0, short set, high stiffness
-fileName += 'data0Wed_Nov_19_13_42_11_2014.txt' # 0, long set, high stiffness
-#fileName += 'data3Wed_Nov_19_13_46_44_2014.txt' # 3, long set, low stiffness
-
+#after adjusting the drawer
+#fileName += 'data3Fri_Dec__5_11_38_45_2014.txt' # success
+#fileName += 'data3Fri_Dec__5_11_45_14_2014.txt' # success
 
 folderName = fileName[fileName.rfind('/')+1:fileName.find('.txt')]
 setPath = exeDir+'/dataPlots/'+folderName+'/'
@@ -500,7 +436,7 @@ if doWhat == 1:
     plotDebug = True
     plotLines = True
 
-    whichModels = [0,2,3]
+    whichModels = [2,3]
 
     # to make sure indices match up
     lookAtList = [modelNums.index(x) for x in whichModels]
@@ -543,14 +479,16 @@ if doWhat == 1:
     
     #print states[whichStep][0][logProbs[whichStep][0].index(max(logProbs[whichStep][0]))]
 
-    sRef = [0, [], [1,1]] # for free
+    #sRef = [0, [], [1,1]] # for free
     #sRef = [3, [-0.396, 0.396, -0.785], [0.56]] # for pris
+    sRef = [3, [-0.56, 0.0, 0.0], [0.56]] # for pris
     #sRef = [2, [0.396, 0.396, 0.56], [-2.35619]] # for rev
+    #sRef = [2, [0.46, 0.32, 0.56], [-2.514]] # for rev, nominal from 12/2/14
     #sClosest =
     # find the closest states to sref
     # this probably shouldn't have which step and only look at step 0
     srefMI = modelNums.index(sRef[0])
-    closeStates = findCloseStates(sRef,states[0][srefMI],.003) #.003 for pris
+    closeStates = findCloseStates(sRef,states[0][srefMI],.0003) #.03 for rev, .003 for pris
     
     closeStateInds = [states[0][srefMI].index(x) for x in closeStates]
     closeStateProbs = [logProbs[whichStep][srefMI][x] for x in closeStateInds]
@@ -594,8 +532,20 @@ if doWhat == 1:
     print closeStatesInRbtList
     print 'dists'
     print closeStateDists
+    print 'actions'
+    print actions
+    for i,(x,y) in enumerate(zip(actions[0],actions[1])):
+        print "std::vector<double> actions"+str(i)+";"
+        print "actions"+str(i)+".push_back("+str(x)+");"
+        print "actions"+str(i)+".push_back("+str(y)+");"
+        print "fakeActions.push_back(actions"+str(i)+");"
     print 'obs'
     print obs
+    for i,(x,y) in enumerate(zip(obs[0],obs[1])):
+        print "std::vector<double> obs"+str(i)+";"
+        print "obs"+str(i)+".push_back("+str(x)+");"
+        print "obs"+str(i)+".push_back("+str(y)+");"
+        print "fakeObs.push_back(obs"+str(i)+");"
     print 'max dists'
     print maxDists
     print 'maxes in rbt'
@@ -657,7 +607,7 @@ if doWhat == 1:
                 #pyplot.scatter(s[1][0],s[1][1],'sr')
             if s[0]==2:
                 cir = pyplot.Circle((s[1][0],s[1][1]),s[1][2],\
-                                    color=col,fill=False)
+                                    color=col,fill=False,ls='dashed')
                 pyplot.gcf().gca().add_artist(cir)
             if s[0]==3:
                 x1 = s[1][0]+math.cos(s[1][2])
@@ -690,16 +640,16 @@ if doWhat == 1:
                     x2 = s[1][0]-math.cos(s[1][2])
                     y1 = s[1][1]+math.sin(s[1][2])
                     y2 = s[1][1]-math.sin(s[1][2])
-                    pyplot.plot([x1,x2],[y1,y2],'--',color=col)
+                    pyplot.plot([x1,x2],[y1,y2],color=col)
 
-        #if sRef[0]==2:
-            #cir = pyplot.Circle((sRef[1][0],sRef[1][1]),sRef[1][2],\
-            #                    color='g',fill=False)
-            #pyplot.gcf().gca().add_artist(cir)
+        if sRef[0]==2:
+            cir = pyplot.Circle((sRef[1][0],sRef[1][1]),sRef[1][2],\
+                                color='g',fill=False,ls='dashdot')
+            pyplot.gcf().gca().add_artist(cir)
 
-            #cirFit = pyplot.Circle((xc,yc),R,\
-            #                    color='k',fill=False)
-            #pyplot.gcf().gca().add_artist(cirFit)
+            cirFit = pyplot.Circle((xc,yc),R,\
+                                color='k',fill=False,ls='dashdot')
+            pyplot.gcf().gca().add_artist(cirFit)
 
         # add workspace
         pyplot.gcf().gca().add_patch(pylab.Rectangle((-.15,-.15),\
@@ -709,7 +659,7 @@ if doWhat == 1:
             pyplot.arrow(obs[0][i],obs[1][i], \
                          obs[0][i+1]-obs[0][i],obs[1][i+1]-obs[1][i], \
                          fc='k',ec='k',length_includes_head=True, \
-                         width=0.0001,head_width=0.0002)
+                         width=0.0001,head_width=0.004)
         # add observations
         pyplot.scatter(obs[0],obs[1],c='k',s=sSize)
 

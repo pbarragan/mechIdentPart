@@ -9,8 +9,123 @@
 #include <iostream> // DELETE
 #define _USE_MATH_DEFINES
 #include <math.h> // cos, sin
+#include <algorithm> // std::find_if
 
 #include <stdexcept> // throw exception
+
+// fake actions
+
+bool closeEnough(std::vector<double> &a1,std::vector<double> &a2,double thresh){
+  return pow(a1[0]-a2[0],2)<pow(thresh,2) && pow(a1[1]-a2[1],2)<pow(thresh,2);
+}
+
+std::vector<int> setupUtils::fakeActions(std::vector< 
+					   std::vector<double> >& actionList){
+  std::vector<std::vector<double> > fakeActions;
+
+  std::vector<double> actions0;
+  actions0.push_back(0.06);
+  actions0.push_back(0.0);
+  fakeActions.push_back(actions0);
+  std::vector<double> actions1;
+  actions1.push_back(0.0424264);
+  actions1.push_back(-0.0424264);
+  fakeActions.push_back(actions1);
+  std::vector<double> actions2;
+  actions2.push_back(-0.06);
+  actions2.push_back(7.34788*pow(10,-18));
+  fakeActions.push_back(actions2);
+  std::vector<double> actions3;
+  actions3.push_back(-0.06);
+  actions3.push_back(7.34788*pow(10,-18));
+  fakeActions.push_back(actions3);
+  std::vector<double> actions4;
+  actions4.push_back(-0.06);
+  actions4.push_back(7.34788*pow(10,-18));
+  fakeActions.push_back(actions4);
+  std::vector<double> actions5;
+  actions5.push_back(0.0424264);
+  actions5.push_back(-0.0424264);
+  fakeActions.push_back(actions5);
+  std::vector<double> actions6;
+  actions6.push_back(0.0424264);
+  actions6.push_back(-0.0424264);
+  fakeActions.push_back(actions6);
+  std::vector<double> actions7;
+  actions7.push_back(0.0424264);
+  actions7.push_back(-0.0424264);
+  fakeActions.push_back(actions7);
+  std::vector<double> actions8;
+  actions8.push_back(0.0424264);
+  actions8.push_back(-0.0424264);
+  fakeActions.push_back(actions8);
+  std::vector<double> actions9;
+  actions9.push_back(0.06);
+  actions9.push_back(0.0);
+  fakeActions.push_back(actions9);
+
+  std::vector<int> FAinds;
+  double thresh = 0.00001;
+  for(size_t i=0;i<fakeActions.size();i++){
+    for(size_t j=0;j<actionList.size();j++){
+      if(closeEnough(fakeActions[i],actionList[j],thresh)){
+	FAinds.push_back(j);
+	break;
+      }
+    }
+  }
+  return FAinds;
+}
+
+// fake observations
+
+std::vector<std::vector<double> > setupUtils::fakeObs(){
+  std::vector<std::vector<double> > fakeObs;
+
+  std::vector<double> obs0;
+  obs0.push_back(0.0553726);
+  obs0.push_back(-0.0608314);
+  fakeObs.push_back(obs0);
+  std::vector<double> obs1;
+  obs1.push_back(0.0923078);
+  obs1.push_back(-0.10497);
+  fakeObs.push_back(obs1);
+  std::vector<double> obs2;
+  obs2.push_back(0.0350082);
+  obs2.push_back(-0.0476456);
+  fakeObs.push_back(obs2);
+  std::vector<double> obs3;
+  obs3.push_back(-0.0214373);
+  obs3.push_back(0.0305455);
+  fakeObs.push_back(obs3);
+  std::vector<double> obs4;
+  obs4.push_back(-0.0694913);
+  obs4.push_back(0.130454);
+  fakeObs.push_back(obs4);
+  std::vector<double> obs5;
+  obs5.push_back(-0.0401708);
+  obs5.push_back(0.0762926);
+  fakeObs.push_back(obs5);
+  std::vector<double> obs6;
+  obs6.push_back(-0.0107585);
+  obs6.push_back(0.0224386);
+  fakeObs.push_back(obs6);
+  std::vector<double> obs7;
+  obs7.push_back(0.023466);
+  obs7.push_back(-0.0267884);
+  fakeObs.push_back(obs7);
+  std::vector<double> obs8;
+  obs8.push_back(0.0605368);
+  obs8.push_back(-0.07243);
+  fakeObs.push_back(obs8);
+  std::vector<double> obs9;
+  obs9.push_back(0.116451);
+  obs9.push_back(-0.117551);
+  fakeObs.push_back(obs9);
+
+  return fakeObs;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //                            Particle Section                                //
@@ -55,6 +170,11 @@ std::vector<double> setupUtils::standardGaussianVariates(){
   variates.push_back(sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2));
   variates.push_back(sqrt(-2*logUtils::safe_log(x1))*sin(2*M_PI*x2));
   return variates;
+}
+
+double setupUtils::randomDouble(){
+  double X = ((double)rand()/(double)RAND_MAX);
+  return X;
 }
 
 Eigen::VectorXd setupUtils::sampleParticle(unsigned int size,Eigen::VectorXd& mu,Eigen::MatrixXd& A){
@@ -349,6 +469,7 @@ void setupUtils::setupParticlesRevSpecial(std::vector<stateStruct>& stateList,st
   logProbList = probs;
 }
 
+// This is the special sampling that we actually use
 void setupUtils::setupParticlesSpecial(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace){
   stateList.clear(); // Make sure the stateList is empty
   if (modelNum == 0){
@@ -374,23 +495,51 @@ void setupUtils::setupParticlesSpecial(std::vector<stateStruct>& stateList,std::
     }
   }
   else if (modelNum == 2){
-    // For model 2 (the revolute model), only sample the pivot position and
-    // calculate the other parameters and variables
+    if(false){
+      // For model 2 (the revolute model), only sample the pivot position and
+      // calculate the other parameters and variables
+      
+      // Sample a pivot by sampling standard normal variates
+      double pivotSD = 2.0;
+      
+      for (size_t i=0;i<numParticles;i++){
+	std::vector<double> pivot = standardGaussianVariates();
+	stateStruct x_state;
+	x_state.model = modelNum;
+	double xp = pivot[0]*pivotSD;
+	double yp = pivot[1]*pivotSD;
+	x_state.params.push_back(xp);
+	x_state.params.push_back(yp);
+	x_state.params.push_back(sqrt(xp*xp+yp*yp));
+	x_state.vars.push_back(atan2(-yp,-xp));
+	stateList.push_back(x_state);
+      }
+    }
+    else{
+      // For model 2 (the revolute model), sample a radius and an angle and 
+      // calculate the other parameters
+      
+      // Sample a radius uniformly between min and max
+      double rMin = 0.15;
+      double rMax = 1.15;
 
-    // Sample a pivot by sampling standard normal variates
-    double pivotSD = 2.0;
+      // Sample a angle uniformly between min and max
+      double thMin = -M_PI+0.000000001; // maybe this is a good thing to do
+      double thMax = M_PI;
+      
+      for (size_t i=0;i<numParticles;i++){
+	double r = rMin+(rMax-rMin)*randomDouble();
+	double th = thMin+(thMax-thMin)*randomDouble();
 
-    for (size_t i=0;i<numParticles;i++){
-      std::vector<double> pivot = standardGaussianVariates();
-      stateStruct x_state;
-      x_state.model = modelNum;
-      double xp = pivot[0]*pivotSD;
-      double yp = pivot[1]*pivotSD;
-      x_state.params.push_back(xp);
-      x_state.params.push_back(yp);
-      x_state.params.push_back(sqrt(xp*xp+yp*yp));
-      x_state.vars.push_back(atan2(-yp,-xp));
-      stateList.push_back(x_state);
+	stateStruct x_state;
+	x_state.model = modelNum;
+	x_state.params.push_back(r*cos(th)); // xp
+	x_state.params.push_back(r*sin(th)); // yp
+	x_state.params.push_back(r);
+	if(th<=0) x_state.vars.push_back(th+M_PI);
+	else x_state.vars.push_back(th-M_PI);
+	stateList.push_back(x_state);
+      }
     }
   }
   else if (modelNum == 3){

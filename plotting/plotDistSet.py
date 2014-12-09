@@ -423,7 +423,7 @@ exeDir = os.path.abspath(os.path.dirname(__file__))
 # scripted actions - 6cm, +x,+x,-x,-x,-x,-x or +x,+x,+y,-x,-x,-y,-x,-x,+y
 # low stiffness caused weird failures. high stiffness on free helps.
 
-fileName = '/../data/2014_11_19/'
+#fileName = '/../data/2014_11_19/'
 
 #fileName += 'data0Wed_Nov_19_12_07_40_2014.txt' # 0, short set, low stiffness
 #fileName += 'data0Wed_Nov_19_13_10_23_2014.txt' # 0, short set, low stiffness
@@ -432,8 +432,19 @@ fileName = '/../data/2014_11_19/'
 #fileName += 'data0Wed_Nov_19_13_21_26_2014.txt' # 0, short set, high stiffness
 #fileName += 'data0Wed_Nov_19_13_27_26_2014.txt' # 0, short set, high stiffness
 #fileName += 'data0Wed_Nov_19_13_42_11_2014.txt' # 0, long set, high stiffness
-fileName += 'data3Wed_Nov_19_13_46_44_2014.txt' # 3, long set, low stiffness
+#fileName += 'data3Wed_Nov_19_13_46_44_2014.txt' # 3, long set, low stiffness
 
+# 11/26/14 - real robot tests
+# actions were random or entropy
+fileName = '/../data/2014_11_26/'
+
+fileName += 'data3Wed_Nov_26_16_33_04_2014.txt'
+#fileName += 'data3Wed_Nov_26_16_37_13_2014.txt'
+#fileName += 'data3Wed_Nov_26_16_41_12_2014.txt'
+#fileName += 'data3Wed_Nov_26_16_45_34_2014.txt'
+#fileName += 'data2Wed_Nov_26_16_51_58_2014.txt'
+#fileName += 'data2Wed_Nov_26_16_54_46_2014.txt'
+#fileName += 'data2Wed_Nov_26_16_58_19_2014.txt'
 
 folderName = fileName[fileName.rfind('/')+1:fileName.find('.txt')]
 setPath = exeDir+'/dataPlots/'+folderName+'/'

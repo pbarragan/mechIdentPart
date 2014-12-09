@@ -1,0 +1,15 @@
+import numpy as np
+from matplotlib import pyplot
+
+thf = np.arange(-np.pi,np.pi,.1)
+thi = np.pi/2
+Kx = 10
+Ky = 10
+r = 0.56
+ax = 0.06
+ay = 0.06
+
+dEdth = r*(Kx*(r*cos(thi)+ax)*sin(thf)-Ky*(r*sin(thi)+ay)*cos(thf))+r*r*((Ky-Kx)*sin(thf)*cos(thf))
+
+pyplot.plot(thf,dEdth)
+pyplot.show()
