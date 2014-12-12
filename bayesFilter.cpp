@@ -47,7 +47,7 @@ void BayesFilter::transitionUpdateLog(std::vector<double>& logProbList, std::vec
 
 	for (size_t i=0; i<stateList_.size(); i++) {
 		//this loop is for x_k-1
-		std::vector<double> tempStateLogProbList (stateList_.size(),0.0); //this will hold the probability in the inner loop waiting for normalization
+		std::vector<double> tempStateLogProbList(stateList_.size(),0.0); //this will hold the probability in the inner loop waiting for normalization
 
 		// SAS: This line changed
 		stateStruct nextState = translator::stateTransition(stateList_[i], action, sasList); //this will be the mean of the guassian used to calculate the transition probability
@@ -115,6 +115,34 @@ void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList, std::
     // For now, change answers to closed form inside stateTransition
     // Transition the state
     stateList[i] = translator::stateTransition(stateList[i], action);
+
+
+    if(true){
+      //--------------------------ADD NOISE TO VARS---------------------//
+      // THIS IS VERY TEMPORARY
+      // add noise
+      double sig = 0.05; // [cm] standard deviation of noise?????
+      double mu = 0.0; // mean of noise
+      for (size_t i=0;i<stateList[i].vars.size();i++){
+	double x1 = ((double)rand()/(double)RAND_MAX);
+	double x2 = ((double)rand()/(double)RAND_MAX);
+	stateList[i].vars[i] += 
+	  sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+      }
+    }
+    if(false){
+      //--------------------------ADD NOISE TO PARAMS---------------------//
+      // add noise
+      double sig = 0.001; // [cm] standard deviation of noise
+      double mu = 0.0; // mean of noise
+      for (size_t i=0;i<stateList[i].params.size();i++){
+	double x1 = ((double)rand()/(double)RAND_MAX);
+	double x2 = ((double)rand()/(double)RAND_MAX);
+	stateList[i].params[i] += 
+	  sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+      }
+    }
+
   }
 
 }

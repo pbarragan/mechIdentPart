@@ -121,7 +121,7 @@ stateStruct translator::stateTransition(stateStruct& state, std::vector<double>&
     delete mechPtr;
   }	
 
-  if(true){
+  if(false){
     //--------------------------ADD NOISE TO VARS---------------------//
     // THIS IS VERY TEMPORARY
     // add noise

@@ -55,8 +55,8 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   useRobot_ = useRobot;
 
   // Where the executable is
-  std::string exeDir = "/mit/barragan/Documents/cppCode/mechIdentPart";
-
+  //std::string exeDir = "/mit/barragan/Documents/cppCode/mechIdentPart";
+  std::string exeDir = "/home/barragan/data12112014new/";
   // get today's date and time
   // current date/time based on current system
   time_t now = time(0);
@@ -840,6 +840,10 @@ void RealWorld::runAction(){
     // HEY YOU CHANGE ME BACK
     // HEYYYYYYYYYYY!!!!!!!!!!!!!!!!!!!!!
     //tempState = mechPtr_->simulate(action_);
+
+    //
+    // This is where you add transition noise
+    //
     tempState = startState_;
     /*
       double x = action_[0]+tempState.params[2]*cos(tempState.vars[0]);
@@ -847,6 +851,37 @@ void RealWorld::runAction(){
       tempState.vars[0] = atan2(y,x);
     */
     tempState = translator::stateTransition(tempState,action_);
+
+    // add non-zero bias error
+    double errorScale = 0.8;
+    if(true){
+      for(size_t i=0;i<tempState.vars.size();i++){
+	// you might get wrapping error here so protect against it
+	if(tempState.model==2){
+	  double diff = tempState.vars[i]-startState_.vars[i];
+	  if(diff>M_PI) diff -= 2*M_PI;
+	  else if(diff<-M_PI) diff += 2*M_PI;
+	  double th = errorScale*diff+startState_.vars[i];
+	  tempState.vars[i] = th-floor((th+M_PI)/(2*M_PI))*2*M_PI;
+	}
+	else{
+	  tempState.vars[i] = errorScale*(tempState.vars[i]-startState_.vars[i])
+	    +startState_.vars[i];
+	 
+	}
+      }
+    }
+
+    // add transition noise to variables
+    if(true){
+      std::cout << "tempState.vars:" << std::endl; // DELETE
+      double transNoiseSD = 0.001;
+      for (size_t i=0; i<tempState.vars.size(); i++){
+	std::cout << "before: " << tempState.vars[i] << std::endl; // DELETE
+	tempState.vars[i]+=transNoiseSD*gaussianNoise();
+	std::cout << "after: " << tempState.vars[i] << std::endl; // DELETE
+      }
+    }
     startState_ = tempState;
 
     poseInRbt_ = mechPtr_->stToRbt(tempState); // state of the robot
@@ -869,14 +904,17 @@ void RealWorld::runAction(){
       std::cout << std::endl;
     */
 
-    std::cout << "poseInRbt_:" << std::endl; // DELETE
-    for (size_t i=0; i<poseInRbt_.size(); i++){
-      double X = gaussianNoise(); //remove the noise for a second
-      //double X = 0.0;
-      std::cout << "before: " << poseInRbt_[i] << std::endl; // DELETE
-      poseInRbt_[i]+=X;
-      std::cout << "noise: " << X << std::endl; // DELETE
-      std::cout << "after: " << poseInRbt_[i] << std::endl; // DELETE
+    //
+    // This is where you add observation noise
+    //
+    if(true){
+      std::cout << "poseInRbt_:" << std::endl; // DELETE
+      double obsNoiseSD = 0.001;
+      for (size_t i=0; i<poseInRbt_.size(); i++){
+	std::cout << "before: " << poseInRbt_[i] << std::endl; // DELETE
+	poseInRbt_[i]+=obsNoiseSD*gaussianNoise();
+	std::cout << "after: " << poseInRbt_[i] << std::endl; // DELETE
+      }
     }
   }
   else if (useRobot_==1){
@@ -1012,7 +1050,7 @@ double RealWorld::randomDouble(){
 double RealWorld::gaussianNoise(){
   double x1 = ((double)rand()/(double)RAND_MAX);
   double x2 = ((double)rand()/(double)RAND_MAX);
-  double sig = 0.001; // standard deviation of noise - it worked when it was 0.00001 - still worked with 0.01
+  double sig = 1; // standard deviation of noise - it should be scaled eslewhere. it worked when it was 0.00001 - still worked with 0.01
   double mu = 0.0; // mean of noise
   return sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
 }
@@ -1093,7 +1131,7 @@ void RealWorld::writeFileInitialData(){
   outFile_ << "Action Selection Type:\n";
   outFile_ << actionSelectionType_ << "\n";
   // Write different things depending on whether using the robot or not
-  if (!useRobot_){
+  if (useRobot_==0){
     // use simulation
     //
     outFile_ << "Real Model:\n";
@@ -1110,8 +1148,17 @@ void RealWorld::writeFileInitialData(){
       outFile_ << startState_.vars[i] << ",";
     }
     outFile_ << "\n";
+    //
+    std::vector<double> truePoseInRbt 
+      = mechPtr_->stToRbt(startState_); // state of the robot
+    outFile_ << "Real Pose in Rbt:\n";
+    for (size_t i=0;i<truePoseInRbt.size();i++){
+      outFile_ << truePoseInRbt[i]<< ",";
+    }
+    outFile_ << "\n";
+    //
   }
-  else if (useRobot_){
+  else if (useRobot_!=0){
     // using robot
         //
     outFile_ << "Real Model (if user inputted correctly):\n";
@@ -1122,6 +1169,10 @@ void RealWorld::writeFileInitialData(){
     //
     outFile_ << "Real Vars:\n";
     outFile_ << "unknown" << "\n";
+    //
+    outFile_ << "Real Pose in Rbt:\n";
+    outFile_ << "unknown" << "\n";
+    //
   }
   //
   outFile_ << "Number of Mechanism Types:\n";
@@ -1237,6 +1288,50 @@ void RealWorld::writeFileStepData(){
     outFile_ << action_[i]<< ",";
   }
   outFile_ << "\n";
+  // Write different things depending on whether using the robot or not
+  if (useRobot_==0){
+    // use simulation
+    //
+    outFile_ << "Real Model:\n";
+    outFile_ << modelNum_ << "\n";
+    //
+    outFile_ << "Real Params:\n";
+    for (size_t i=0;i<startState_.params.size();i++){
+      outFile_ << startState_.params[i] << ",";
+    }
+    outFile_ << "\n";
+    //
+    outFile_ << "Real Vars:\n";
+    for (size_t i=0;i<startState_.vars.size();i++){
+      outFile_ << startState_.vars[i] << ",";
+    }
+    outFile_ << "\n";
+    //
+    std::vector<double> truePoseInRbt 
+      = mechPtr_->stToRbt(startState_); // state of the robot
+    outFile_ << "Real Pose in Rbt:\n";
+    for (size_t i=0;i<truePoseInRbt.size();i++){
+      outFile_ << truePoseInRbt[i]<< ",";
+    }
+    outFile_ << "\n";
+    //
+  }
+  else if (useRobot_!=0){
+    // using robot
+        //
+    outFile_ << "Real Model (if user inputted correctly):\n";
+    outFile_ << modelNum_ << "\n";
+    //
+    outFile_ << "Real Params:\n";
+    outFile_ << "unknown" << "\n";
+    //
+    outFile_ << "Real Vars:\n";
+    outFile_ << "unknown" << "\n";
+    //
+    outFile_ << "Real Pose in Rbt:\n";
+    outFile_ << "unknown" << "\n";
+    //
+  }
   //
   outFile_ << "Pose in Rbt:\n";
   for (size_t i=0;i<poseInRbt_.size();i++){

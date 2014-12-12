@@ -344,7 +344,7 @@ exeDir = os.path.abspath(os.path.dirname(__file__))
 #fileName += 'data2Thu_Dec__4_13_35_47_2014.txt' # compare these two
 
 # real robot
-fileName = '/../data/2014_12_05/'
+#fileName = '/../data/2014_12_05/'
 
 # nominal x-axis aligned pris model
 #fileName += 'data3Fri_Dec__5_09_42_02_2014.txt'
@@ -363,7 +363,7 @@ fileName = '/../data/2014_12_05/'
 
 # relax before reading observation
 #fileName += 'data3Fri_Dec__5_12_28_29_2014.txt' # success
-fileName += 'data3Fri_Dec__5_12_30_47_2014.txt' # 
+#fileName += 'data3Fri_Dec__5_12_30_47_2014.txt' # 
 
 # back to normal
 # entropy
@@ -373,6 +373,9 @@ fileName += 'data3Fri_Dec__5_12_30_47_2014.txt' #
 #after adjusting the drawer
 #fileName += 'data3Fri_Dec__5_11_38_45_2014.txt' # success
 #fileName += 'data3Fri_Dec__5_11_45_14_2014.txt' # success
+
+# debug after systematic error
+fileName = '/../data/2014_12_11/data2Thu_Dec_11_10_57_22_2014.txt'
 
 folderName = fileName[fileName.rfind('/')+1:fileName.find('.txt')]
 setPath = exeDir+'/dataPlots/'+folderName+'/'
@@ -390,7 +393,7 @@ plotSet = False
 # get data
 fbProbs, numSteps, model, statesInRbt, states, logProbs_O, logProbs, poses, \
          actions, obs, actionType, actionSelectionType, \
-         numMechanismTypes, numParticles, modelNums\
+         numMechanismTypes, numParticles, modelNums, realStates\
          = readData.get_data(exeDir+fileName)
 
 
@@ -481,14 +484,15 @@ if doWhat == 1:
 
     #sRef = [0, [], [1,1]] # for free
     #sRef = [3, [-0.396, 0.396, -0.785], [0.56]] # for pris
-    sRef = [3, [-0.56, 0.0, 0.0], [0.56]] # for pris
+    #sRef = [3, [-0.56, 0.0, 0.0], [0.56]] # for pris
     #sRef = [2, [0.396, 0.396, 0.56], [-2.35619]] # for rev
+    sRef = [2, [-0.396,-0.396,0.56],[0.7854]] # for rev
     #sRef = [2, [0.46, 0.32, 0.56], [-2.514]] # for rev, nominal from 12/2/14
     #sClosest =
     # find the closest states to sref
     # this probably shouldn't have which step and only look at step 0
     srefMI = modelNums.index(sRef[0])
-    closeStates = findCloseStates(sRef,states[0][srefMI],.0003) #.03 for rev, .003 for pris
+    closeStates = findCloseStates(sRef,states[0][srefMI],.03) #.03 for rev, .003 for pris
     
     closeStateInds = [states[0][srefMI].index(x) for x in closeStates]
     closeStateProbs = [logProbs[whichStep][srefMI][x] for x in closeStateInds]

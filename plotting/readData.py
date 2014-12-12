@@ -15,6 +15,8 @@ def skip_lines(f,lines):
 
 def get_data(fileName):
 
+    realStates = []
+
     statesInRbt = []
     states = []
     logProbs = []
@@ -27,7 +29,41 @@ def get_data(fileName):
     actionSelectionType = int(f.readline())
     f.readline()
     model = int(f.readline())
-    skip_lines(f,5)
+
+
+
+
+
+
+
+    # this is a change from the old file type to the new
+    #skip_lines(f,7) # 5 changed to 7
+    
+    # params
+    skip_lines(f,1)
+    holdLine1 = f.readline()
+    valList1 = holdLine1.split(',')
+    valList1.pop() # remove the last empty string
+    numList1 = [float(x) for x in valList1]
+    
+    # vars
+    skip_lines(f,1)
+    holdLine2 = f.readline()
+    valList2 = holdLine2.split(',')
+    valList2.pop() # remove the last empty string
+    numList2 = [float(x) for x in valList2]
+
+    realStates.append([model,numList1,numList2]) # adding a state
+
+    skip_lines(f,3)
+
+
+
+
+
+
+
+    
     numMechanismTypes = int(f.readline())
     f.readline()
     numParticles = int(f.readline())
@@ -137,7 +173,39 @@ def get_data(fileName):
         actions[0].append(actionList[0])
         actions[1].append(actionList[1])
 
+        # old file to new file change
+        #skip_lines(f,9) # 1 changed to 9
+
+        # params
+        skip_lines(f,3) # skip to params
+        holdLine1 = f.readline()
+        valList1 = holdLine1.split(',')
+        valList1.pop() # remove the last empty string
+        numList1 = [float(x) for x in valList1]
+        
+        # vars
         skip_lines(f,1)
+        holdLine2 = f.readline()
+        valList2 = holdLine2.split(',')
+        valList2.pop() # remove the last empty string
+        numList2 = [float(x) for x in valList2]
+        
+        realStates.append([model,numList1,numList2]) # adding a state
+
+        skip_lines(f,3)
+
+
+
+
+
+
+
+
+
+
+
+
+        
         
         # get current pose
         holdP = f.readline()
@@ -240,4 +308,4 @@ def get_data(fileName):
     f.close()
 
 
-    return fbProbs, numSteps, model, statesInRbt, states, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, modelNums
+    return fbProbs, numSteps, model, statesInRbt, states, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, modelNums, realStates
