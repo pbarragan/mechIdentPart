@@ -6,6 +6,13 @@
 #include "../Eigen/Dense"
 
 namespace setupUtils {
+
+  void fakeAOfromFile(std::vector<std::vector<double> > &actionList,
+		      std::vector<int> &FAinds,
+		      std::vector<std::vector<double> > &fakeObs,
+		      std::string fileName,
+		      int numSteps);
+
   std::vector<int> fakeActions(std::vector< std::vector<double> >& actionList);
   std::vector<std::vector<double> > fakeObs();
 
@@ -21,6 +28,8 @@ namespace setupUtils {
   void setupParticlesRevSpecial(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace);
   
   void setupParticlesSpecial(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numMechTypes,std::vector< std::vector<double> >& workspace);
+
+  void setupParticlesSpecialRepeat(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numRepeats,int numMechTypes,std::vector< std::vector<double> >& workspace);
 
   //models
   std::vector<stateStruct> setupModel0(std::vector<stateStruct>& modelParamPairs);  

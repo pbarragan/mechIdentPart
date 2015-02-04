@@ -1,4 +1,6 @@
 //Filter Models
+#include "globalVars.h"
+
 #include "translator.h"
 #include "logUtils.h"
 #include "filterModels.h"
@@ -71,18 +73,20 @@ double filterModels::logProbObs(std::vector<double> obs, stateStruct state){
   // set additional variables
   // create inverse matrix (hard coded)
   //double invObsArray[] = {100.0,0.0,0.0,100.0}; // change // old .1
-  double invObsArray[] = {10000.0,0.0,0.0,10000.0}; // smaller .01
+  //double invObsArray[] = {10000.0,0.0,0.0,10000.0}; // smaller .01
   //double invObsArray[] = {625.0,0.0,0.0,625.0}; // middle .04
   //double invObsArray[] = {2500.0,0.0,0.0,2500.0};
+  double invObsArray[] = {1.0/(FOSD*FOSD),0.0,0.0,1.0/(FOSD*FOSD)};
 
   std::vector<double> invObsCovMat;
   invObsCovMat.assign(invObsArray, invObsArray + sizeof(invObsArray)/sizeof(double));
   
   // create determinant (hard coded)
   //double detCovMat = 0.0001; // change // old .1
-  double detCovMat = 0.00000001; // smaller .01
+  //double detCovMat = 0.00000001; // smaller .01
   //double detCovMat = 0.00000256; // middle .04
   //double detCovMat = 0.00000016;
+  double detCovMat = FOSD*FOSD*FOSD*FOSD;
 
   //obs is the sample vector. state is the mean vector. This just drops a gaussian at the state with a constant covariance from the class.
   //Obs is already translated to the observation space which should be a vector directly comparable with another

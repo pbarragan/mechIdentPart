@@ -1,3 +1,5 @@
+#include "globalVars.h"
+
 #include <algorithm>
 #include <numeric>
 #include <iostream> // cout
@@ -719,14 +721,30 @@ void actionSelection::chooseActionOG(BayesFilter& filter,std::vector< std::vecto
 // Simplest action selection. Just go through the list. Doesn't really make sense
 void actionSelection::chooseActionSimpleRel(std::vector< std::vector<double> >& actionList,int step,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace){
 
-  std::vector< std::vector<double> > validRelActionList;
-  validateRelActionList(actionList,poseInRbt,workspace,validRelActionList);
+  //std::vector< std::vector<double> > validRelActionList;
+  //validateRelActionList(actionList,poseInRbt,workspace,validRelActionList);
 
-  action = validRelActionList[step%validRelActionList.size()]; // select action
+  //action = validRelActionList[step%validRelActionList.size()]; // select action
   
   // DELETE THIS
   //action = actionList[7];
   //if (step > 2) action = actionList[3];
+
+  /*
+  if (step == 0) action = actionList[0];
+  else if (step == 1) action = actionList[0];
+  else if (step == 2) action = actionList[2];
+  else if (step == 3) action = actionList[2];
+  else if (step == 4) action = actionList[4];
+  else if (step == 5) action = actionList[4];
+  else if (step == 6) action = actionList[6];
+  else if (step == 7) action = actionList[6];
+  else if (step == 8) action = actionList[0];
+  else if (step == 9) action = actionList[0];
+  else action = actionList[0];
+  */
+
+  /*
   if (step == 0) action = actionList[0];
   else if (step == 1) action = actionList[0];
   else if (step == 2) action = actionList[2];
@@ -737,7 +755,35 @@ void actionSelection::chooseActionSimpleRel(std::vector< std::vector<double> >& 
   else if (step == 7) action = actionList[4];
   else if (step == 8) action = actionList[2];
   else action = actionList[0];
+  */
 
+  /*
+  // revolute joint perfect
+  if (step == 0) action = actionList[7];
+  else if (step == 1) action = actionList[7];
+  else if (step == 2) action = actionList[0];
+  else if (step == 3) action = actionList[4];
+  else if (step == 4) action = actionList[3];
+  else if (step == 5) action = actionList[3];
+  else if (step == 6) action = actionList[3];
+  else if (step == 7) action = actionList[2];
+  else if (step == 8) action = actionList[2];
+  else if (step == 9) action = actionList[2];
+  else action = actionList[0];
+  */
+
+  // revolute joint not perfect
+  if (step == 0) action = actionList[7];
+  else if (step == 1) action = actionList[1];
+  else if (step == 2) action = actionList[7];
+  else if (step == 3) action = actionList[0];
+  else if (step == 4) action = actionList[6];
+  else if (step == 5) action = actionList[4];
+  else if (step == 6) action = actionList[3];
+  else if (step == 7) action = actionList[3];
+  else if (step == 8) action = actionList[5];
+  else if (step == 9) action = actionList[2];
+  else action = actionList[0];
 
 }
 
@@ -747,8 +793,23 @@ void actionSelection::chooseActionRandomRel(std::vector< std::vector<double> >& 
   std::vector< std::vector<double> > validRelActionList;
   validateRelActionList(actionList,poseInRbt,workspace,validRelActionList);
 
-  size_t ind = rand() % validRelActionList.size();
-  action = validRelActionList[ind];
+  if (validRelActionList.size()>0){
+    size_t ind = rand() % validRelActionList.size();
+    action = validRelActionList[ind];
+  }
+  else{
+    double x;
+    double y;
+    std::vector<double> dists;
+    for(size_t i=0;i<actionList.size();i++){
+      x = poseInRbt[0]+actionList[i][0];
+      y = poseInRbt[1]+actionList[i][1];
+      dists.push_back(x*x+y*y);
+    }
+    action = actionList[std::distance(dists.begin(),
+				      std::min_element(dists.begin(),
+						       dists.end()))];
+  }
 }
 
 // overloaded

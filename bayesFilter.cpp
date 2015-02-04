@@ -1,4 +1,6 @@
 //Bayes Filter
+#include "globalVars.h"
+
 //The entire filter is in log space
 #include <iostream> // for cout
 #include <fstream>
@@ -114,31 +116,53 @@ void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList, std::
   for (size_t i=0; i<stateList.size(); i++) {
     // For now, change answers to closed form inside stateTransition
     // Transition the state
-    stateList[i] = translator::stateTransition(stateList[i], action);
 
+    // add non-zero bias error                                                                                       
+    if(false){
+      stateStruct startState = stateList[i];
+      stateList[i] = translator::stateTransition(stateList[i], action);
+      double errorScale = 0.8;
+      for(size_t j=0;j<stateList[i].vars.size();j++){
+        // you might get wrapping error here so protect against it                                                    
+	if(stateList[i].model==2){
+          double diff = stateList[i].vars[j]-startState.vars[j];
+          if(diff>M_PI) diff -= 2*M_PI;
+          else if(diff<-M_PI) diff += 2*M_PI;
+          double th = errorScale*diff+startState.vars[j];
+          stateList[i].vars[j] = th-floor((th+M_PI)/(2*M_PI))*2*M_PI;
+        }
+        else{
+          stateList[i].vars[j] = errorScale*(stateList[i].vars[j]-startState.vars[j])
+            +startState.vars[j];
+
+        }
+      }
+    }
+    else stateList[i] = translator::stateTransition(stateList[i], action);
 
     if(true){
       //--------------------------ADD NOISE TO VARS---------------------//
       // THIS IS VERY TEMPORARY
       // add noise
-      double sig = 0.05; // [cm] standard deviation of noise?????
+      double sig = FTSD; // [cm] standard deviation of noise?????
       double mu = 0.0; // mean of noise
-      for (size_t i=0;i<stateList[i].vars.size();i++){
+      for (size_t j=0;j<stateList[i].vars.size();j++){
 	double x1 = ((double)rand()/(double)RAND_MAX);
 	double x2 = ((double)rand()/(double)RAND_MAX);
-	stateList[i].vars[i] += 
+	stateList[i].vars[j] += 
 	  sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
       }
     }
+
     if(false){
       //--------------------------ADD NOISE TO PARAMS---------------------//
       // add noise
       double sig = 0.001; // [cm] standard deviation of noise
       double mu = 0.0; // mean of noise
-      for (size_t i=0;i<stateList[i].params.size();i++){
+      for (size_t j=0;j<stateList[i].params.size();j++){
 	double x1 = ((double)rand()/(double)RAND_MAX);
 	double x2 = ((double)rand()/(double)RAND_MAX);
-	stateList[i].params[i] += 
+	stateList[i].params[j] += 
 	  sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
       }
     }

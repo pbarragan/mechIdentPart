@@ -3,6 +3,7 @@
 #include "logUtils.h"
 #include "translator.h"
 #include "actionSelection.h"
+#include "fileUtils.h"
 
 #include "globalVars.h" // Global variables
 
@@ -13,55 +14,78 @@
 
 #include <stdexcept> // throw exception
 
-// fake actions
-
 bool closeEnough(std::vector<double> &a1,std::vector<double> &a2,double thresh){
   return pow(a1[0]-a2[0],2)<pow(thresh,2) && pow(a1[1]-a2[1],2)<pow(thresh,2);
 }
+
+// fake actions and fake observations
+
+void setupUtils::fakeAOfromFile(std::vector<std::vector<double> > &actionList,
+				std::vector<int> &FAinds,
+				std::vector<std::vector<double> > &fakeObs,
+				std::string fileName,
+				int numSteps){
+  std::vector<std::vector<double> > fakeActions;
+  fileUtils::txtFileToActionsObs(fileName,fakeActions,fakeObs,numSteps);
+
+  std::vector<int> FAIs;
+  double thresh = 0.00001;
+  for(size_t i=0;i<fakeActions.size();i++){
+    for(size_t j=0;j<actionList.size();j++){
+      if(closeEnough(fakeActions[i],actionList[j],thresh)){
+	FAIs.push_back(j);
+	break;
+      }
+    }
+  }
+  FAinds = FAIs;
+}
+
+// fake actions
 
 std::vector<int> setupUtils::fakeActions(std::vector< 
 					   std::vector<double> >& actionList){
   std::vector<std::vector<double> > fakeActions;
 
   std::vector<double> actions0;
-  actions0.push_back(0.06);
-  actions0.push_back(0.0);
+  actions0.push_back(-2.20436e-17);
+  actions0.push_back(-0.12);
   fakeActions.push_back(actions0);
   std::vector<double> actions1;
-  actions1.push_back(0.0424264);
-  actions1.push_back(-0.0424264);
+  actions1.push_back(0.12);
+  actions1.push_back(0.0);
   fakeActions.push_back(actions1);
   std::vector<double> actions2;
-  actions2.push_back(-0.06);
-  actions2.push_back(7.34788*pow(10,-18));
+  actions2.push_back(0.0848528);
+  actions2.push_back(0.0848528);
   fakeActions.push_back(actions2);
   std::vector<double> actions3;
-  actions3.push_back(-0.06);
-  actions3.push_back(7.34788*pow(10,-18));
+  actions3.push_back(-0.12);
+  actions3.push_back(1.46958e-17);
   fakeActions.push_back(actions3);
   std::vector<double> actions4;
-  actions4.push_back(-0.06);
-  actions4.push_back(7.34788*pow(10,-18));
+  actions4.push_back(-2.20436e-17);
+  actions4.push_back(-0.12);
   fakeActions.push_back(actions4);
   std::vector<double> actions5;
-  actions5.push_back(0.0424264);
-  actions5.push_back(-0.0424264);
+  actions5.push_back(0.0848528);
+  actions5.push_back(0.0848528);
   fakeActions.push_back(actions5);
   std::vector<double> actions6;
-  actions6.push_back(0.0424264);
-  actions6.push_back(-0.0424264);
+  actions6.push_back(0.0848528);
+  actions6.push_back(-0.0848528);
   fakeActions.push_back(actions6);
   std::vector<double> actions7;
-  actions7.push_back(0.0424264);
-  actions7.push_back(-0.0424264);
+  actions7.push_back(0.12);
+  actions7.push_back(0.0);
   fakeActions.push_back(actions7);
   std::vector<double> actions8;
-  actions8.push_back(0.0424264);
-  actions8.push_back(-0.0424264);
+  actions8.push_back(-0.0848528);
+  actions8.push_back(-0.0848528);
   fakeActions.push_back(actions8);
   std::vector<double> actions9;
-  actions9.push_back(0.06);
-  actions9.push_back(0.0);
+  actions9.push_back(7.34788e-18);
+  actions9.push_back(0.12);
   fakeActions.push_back(actions9);
 
   std::vector<int> FAinds;
@@ -83,44 +107,44 @@ std::vector<std::vector<double> > setupUtils::fakeObs(){
   std::vector<std::vector<double> > fakeObs;
 
   std::vector<double> obs0;
-  obs0.push_back(0.0553726);
-  obs0.push_back(-0.0608314);
+  obs0.push_back(0.00061114);
+  obs0.push_back(0.002612);
   fakeObs.push_back(obs0);
   std::vector<double> obs1;
-  obs1.push_back(0.0923078);
-  obs1.push_back(-0.10497);
+  obs1.push_back(0.00133904);
+  obs1.push_back(0.00395064);
   fakeObs.push_back(obs1);
   std::vector<double> obs2;
-  obs2.push_back(0.0350082);
-  obs2.push_back(-0.0476456);
+  obs2.push_back(0.00185868);
+  obs2.push_back(0.00609914);
   fakeObs.push_back(obs2);
   std::vector<double> obs3;
-  obs3.push_back(-0.0214373);
-  obs3.push_back(0.0305455);
+  obs3.push_back(0.000326171);
+  obs3.push_back(0.00410389);
   fakeObs.push_back(obs3);
   std::vector<double> obs4;
-  obs4.push_back(-0.0694913);
-  obs4.push_back(0.130454);
+  obs4.push_back(0.000480639);
+  obs4.push_back(0.00303153);
   fakeObs.push_back(obs4);
   std::vector<double> obs5;
-  obs5.push_back(-0.0401708);
-  obs5.push_back(0.0762926);
+  obs5.push_back(0.00150034);
+  obs5.push_back(0.00635989);
   fakeObs.push_back(obs5);
   std::vector<double> obs6;
-  obs6.push_back(-0.0107585);
-  obs6.push_back(0.0224386);
+  obs6.push_back(0.0010297);
+  obs6.push_back(0.00337847);
   fakeObs.push_back(obs6);
   std::vector<double> obs7;
-  obs7.push_back(0.023466);
-  obs7.push_back(-0.0267884);
+  obs7.push_back(0.00143139);
+  obs7.push_back(0.00413988);
   fakeObs.push_back(obs7);
   std::vector<double> obs8;
-  obs8.push_back(0.0605368);
-  obs8.push_back(-0.07243);
+  obs8.push_back(9.53211e-05);
+  obs8.push_back(0.00229638);
   fakeObs.push_back(obs8);
   std::vector<double> obs9;
-  obs9.push_back(0.116451);
-  obs9.push_back(-0.117551);
+  obs9.push_back(0.00151811);
+  obs9.push_back(0.0034373);
   fakeObs.push_back(obs9);
 
   return fakeObs;
@@ -140,6 +164,9 @@ void setupUtils::resampleParticles(std::vector<stateStruct>& stateList,std::vect
   double logProbPerPart = logUtils::logSumExp(logProbList)
     -logUtils::safe_log(logProbList.size());
 
+  std::cout << "Number of particles: " << logProbList.size() << std::endl;
+  std::cout << "Log Prob Per Particle: " << logProbPerPart << std::endl;
+
   // Samples from the particles state according to the probability distribution 
   // Step 0: Normalize the log probability list
   std::vector<double> normLogProbList = 
@@ -150,12 +177,15 @@ void setupUtils::resampleParticles(std::vector<stateStruct>& stateList,std::vect
 
   //Step 1: Create the CDF of the current belief from the PDF probList_.
   std::vector<double> probCDF = actionSelection::createCDF(probList);
+  std::cout << probCDF[0] << std::endl;
+  std::cout << probCDF[probCDF.size()-1] << std::endl;
 
   //Step 2: Sample states from the belief
   std::vector<stateStruct> tempStateList; // empty state list
   for (size_t i=0;i<stateList.size();i++){
     tempStateList.push_back(actionSelection::getSampleState(probCDF,stateList));
   }
+  stateList = tempStateList;
   std::vector<double> tempLogProbList (logProbList.size(),logProbPerPart);
   logProbList = tempLogProbList;
 }
@@ -573,6 +603,116 @@ void setupUtils::setupParticlesSpecial(std::vector<stateStruct>& stateList,std::
   std::vector<double> probs (numParticles,probPerParticle);
   logProbList = probs;
 }
+
+// This is the special sampling that we actually use with repeating samples
+void setupUtils::setupParticlesSpecialRepeat(std::vector<stateStruct>& stateList,std::vector<double>& logProbList,int modelNum,double initParamVar,double initVarVar,int numParticles,int numRepeats,int numMechTypes,std::vector< std::vector<double> >& workspace){
+  stateList.clear(); // Make sure the stateList is empty
+  if (modelNum == 0){
+    // For model 0 (the free model), only ever sample the single valid state
+    // which is vars x,y = (0,0)
+    for (size_t i=0;i<numParticles;i+=numRepeats){
+      stateStruct x_state;
+      x_state.model = modelNum;
+      x_state.vars.push_back(0.0);
+      x_state.vars.push_back(0.0);
+      for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+    }
+  }
+  else if (modelNum == 1){
+    // For model 1 (the fixed model), only ever sample the single valid state
+    // which is parameters x,y = (0,0)
+    for (size_t i=0;i<numParticles;i+=numRepeats){
+      stateStruct x_state;
+      x_state.model = modelNum;
+      x_state.params.push_back(0.0);
+      x_state.params.push_back(0.0);
+      for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+    }
+  }
+  else if (modelNum == 2){
+    if(false){
+      // For model 2 (the revolute model), only sample the pivot position and
+      // calculate the other parameters and variables
+      
+      // Sample a pivot by sampling standard normal variates
+      double pivotSD = 2.0;
+      
+      for (size_t i=0;i<numParticles;i+=numRepeats){
+	std::vector<double> pivot = standardGaussianVariates();
+	stateStruct x_state;
+	x_state.model = modelNum;
+	double xp = pivot[0]*pivotSD;
+	double yp = pivot[1]*pivotSD;
+	x_state.params.push_back(xp);
+	x_state.params.push_back(yp);
+	x_state.params.push_back(sqrt(xp*xp+yp*yp));
+	x_state.vars.push_back(atan2(-yp,-xp));
+	for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+      }
+    }
+    else{
+      // For model 2 (the revolute model), sample a radius and an angle and 
+      // calculate the other parameters
+      
+      // Sample a radius uniformly between min and max
+      //double rMin = 0.54;//0.15;
+      //double rMax = 0.58;//1.15;
+      double r = 0.56;
+
+      // Sample an angle uniformly between min and max
+      double thMin = -M_PI+0.000000001; // -2.5 // maybe this is a good thing to do
+      double thMax = M_PI; // -2.1
+      
+      for (size_t i=0;i<numParticles;i+=numRepeats){
+	//double r = rMin+(rMax-rMin)*randomDouble();
+	double th = thMin+(thMax-thMin)*randomDouble();
+
+	stateStruct x_state;
+	x_state.model = modelNum;
+	x_state.params.push_back(r*cos(th+M_PI)); // xp - flip angle
+	x_state.params.push_back(r*sin(th+M_PI)); // yp - flip angle
+	x_state.params.push_back(r);
+	x_state.vars.push_back(th);
+	//if(th<=0) x_state.vars.push_back(th+M_PI);
+	//else x_state.vars.push_back(th-M_PI);
+	for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+      }
+    }
+  }
+  else if (modelNum == 3){
+    // For model 3 (the prismatic model), only sample the angle and calculate
+    // the other parameters and variables.
+    // **** This model needs to be changed in the future because the pivot
+    // is a redundant piece of information ****
+
+    double offset = 0.40; // Pivot offset. This should be unnecessary.
+
+    for (size_t i=0;i<numParticles;i+=numRepeats){
+      // sample uniformly between -pi and pi
+      //double angle = 2*M_PI*((double)rand()/(double)RAND_MAX)-M_PI;
+      // sample uniformly between 0 and pi
+      double angle = M_PI*((double)rand()/(double)RAND_MAX);
+      stateStruct x_state;
+      x_state.model = modelNum;
+      x_state.params.push_back(-offset*cos(angle));
+      x_state.params.push_back(-offset*sin(angle));
+      x_state.params.push_back(angle);
+      x_state.vars.push_back(offset);
+      for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+    }
+  }
+  else{
+    throw std::invalid_argument("Sampler not setup for more than models 0-3.");
+  }
+
+  // Set the probability of the samples equal across all models
+  // prob per particle
+  double probPerParticle = logUtils::safe_log(1.0/(numParticles*numMechTypes));
+  logProbList.clear(); // Make sure the logProbList is empty
+  std::vector<double> probs (numParticles,probPerParticle);
+  logProbList = probs;
+}
+
 
 // END SAMPLING SECTION
 
@@ -1417,7 +1557,7 @@ void setupUtils::setupActions(std::vector< std::vector<double> >& actionList){
     //This is totally 2D
     // In a circle around the gripper
     int numPts = 8; // how many points around the circle
-    double radius = 0.06; // radius of the points //used to be .06, big is .12
+    double radius = 0.12; // radius of the points //used to be .06, big is .12
     double angleDelta = 2*M_PI/numPts;
 
     actionList.clear(); // clear anything in there

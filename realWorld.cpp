@@ -47,12 +47,13 @@ double timeDiff(timespec& ts1, timespec& ts2){
 }
 
 //Constructor
-RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelectionType,int useRobot) : mechPtr_(NULL) {
+RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelectionType,int useRobot,std::string fakeFileName) : mechPtr_(NULL) {
   writeOutFile_ = writeOutFile;
   stepsTotal_ = numSteps;
   modelNum_ = modelNum;
   actionSelectionType_ = actionSelectionType;
   useRobot_ = useRobot;
+  fakeFileName_ = fakeFileName;
 
   // Where the executable is
   //std::string exeDir = "/mit/barragan/Documents/cppCode/mechIdentPart";
@@ -107,7 +108,7 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   //whichMechTypes_.push_back(5);
   
   numMechTypes_ = whichMechTypes_.size();
-  numParticles_ = 10000;
+  numParticles_ = NUM_PARTICLES;
   std::cout << numParticles_ << std::endl;
   float initParamVar = 2.0; // initial parameter variance
   float initVarVar = 0.1; // initial variable variance
@@ -117,14 +118,29 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   for (size_t i=0; i<numMechTypes_; i++){
     BayesFilter filter;
     // this function must validate the particles
-    setupUtils::setupParticlesSpecial(filter.stateList_,
-				      filter.logProbList_,
-				      whichMechTypes_[i],
-				      initParamVar,
-				      initVarVar,
-				      numParticles_,
-				      numMechTypes_,
-				      workspace_); // initialize particles
+    if(false){
+      setupUtils::setupParticlesSpecial(filter.stateList_,
+					filter.logProbList_,
+					whichMechTypes_[i],
+					initParamVar,
+					initVarVar,
+					numParticles_,
+					numMechTypes_,
+					workspace_); // initialize particles
+    }
+    else{
+      int numRepeats = NUM_REPEATS;
+      // initialize particles
+      setupUtils::setupParticlesSpecialRepeat(filter.stateList_,
+					      filter.logProbList_,
+					      whichMechTypes_[i],
+					      initParamVar,
+					      initVarVar,
+					      numParticles_,
+					      numRepeats,
+					      numMechTypes_,
+					      workspace_);
+    }
     std::cout << "inside" << std::endl;
     filterBank_.push_back(filter); // add filter to bank
   }
@@ -235,8 +251,13 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
     std::vector<double> zeroVect (2,0.0);
     poseInRbt_ = zeroVect; // relies on 2D - robot always starts at 0.0
     if(useRobot_==2){
-      FAinds_ = setupUtils::fakeActions(actionList_);
-      fakeObs_ = setupUtils::fakeObs();
+      //FAinds_ = setupUtils::fakeActions(actionList_);
+      //fakeObs_ = setupUtils::fakeObs();
+      setupUtils::fakeAOfromFile(actionList_,
+				 FAinds_,
+				 fakeObs_,
+				 fakeFileName_,
+				 stepsTotal_);
     }
   }
 
@@ -702,6 +723,41 @@ void RealWorld::updateFilter(std::vector<double> action,std::vector<double> obs)
   //std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after transition" << std::endl; // DELETE
   //filter_.printStatesAndProbs(); // DELETE
 
+
+
+
+  // maybe move this somewhere better
+  // Don't resample if you're at the first step
+  //if(step_+1 < stepsTotal_){
+  if(step_!=0){
+    for (size_t i=0; i<filterBank_.size(); i++){
+
+      // Step 0: Normalize the log probability list
+      std::vector<double> normLogProbList = 
+	logUtils::normalizeVectorInLogSpace(filterBank_[i].logProbList_);
+      
+      double Neff = 0;
+      for (size_t j=0; j<normLogProbList.size(); j++){
+	Neff += logUtils::safe_exp(normLogProbList[j])
+	  *logUtils::safe_exp(normLogProbList[j]);
+      }
+      Neff = 1/Neff;
+      std::cout << "Filter #: " << i << std::endl;
+      std::cout << "Neff: " << Neff << std::endl;
+      std::cout << "Neff needed: " << NEFF_FRACT*numParticles_ << std::endl;
+      // Check if resampling is needed
+      if (Neff/numParticles_ < NEFF_FRACT){
+	std::cout << "\033[1;31mRESAMPLING!\033[0m" << std::endl;
+	setupUtils::resampleParticles(filterBank_[i].stateList_,
+				      filterBank_[i].logProbList_);
+      }
+      else std::cout << "No Resampling" << std::endl;
+    }
+  }
+
+
+
+
   // We have to normalize the probabilities across all filters at the end
   // observationUpdateLog does not do any normalizing on purpose
 
@@ -713,24 +769,17 @@ void RealWorld::updateFilter(std::vector<double> action,std::vector<double> obs)
 
   // Normalize across all filters
   modelUtils::normalizeAcrossFilters(filterBank_);
-  
-  // maybe move this somewhere better
-  for (size_t i=0; i<filterBank_.size(); i++){
-    double Neff = 0;
-    for (size_t j=0; j<filterBank_[i].logProbList_.size(); j++){
-      Neff += logUtils::safe_exp(filterBank_[i].logProbList_[j])
-	*logUtils::safe_exp(filterBank_[i].logProbList_[j]);
-    }
-    Neff = 1/Neff;
-    std::cout << "Neff:" << std::endl;
-    std::cout << i << "," << Neff << std::endl;
-    // Check if resampling is needed
-    if (Neff/numParticles_ < NEFF_FRACT){
-      std::cout << "\033[1;31mRESAMPLING!\033[0m" << std::endl;
-      setupUtils::resampleParticles(filterBank_[i].stateList_,
-				    filterBank_[i].logProbList_);
-    }
-  }
+
+  // RESAMPLING USED TO BE HERE
+
+
+
+
+
+
+
+
+
   //std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after observation" << std::endl; // DELETE
   //filter_.printStatesAndProbs(); // DELETE
 
@@ -853,8 +902,8 @@ void RealWorld::runAction(){
     tempState = translator::stateTransition(tempState,action_);
 
     // add non-zero bias error
-    double errorScale = 0.8;
-    if(true){
+    if(BIAS){
+      double errorScale = 0.8;
       for(size_t i=0;i<tempState.vars.size();i++){
 	// you might get wrapping error here so protect against it
 	if(tempState.model==2){
@@ -875,7 +924,7 @@ void RealWorld::runAction(){
     // add transition noise to variables
     if(true){
       std::cout << "tempState.vars:" << std::endl; // DELETE
-      double transNoiseSD = 0.001;
+      double transNoiseSD = RTSD;
       for (size_t i=0; i<tempState.vars.size(); i++){
 	std::cout << "before: " << tempState.vars[i] << std::endl; // DELETE
 	tempState.vars[i]+=transNoiseSD*gaussianNoise();
@@ -909,7 +958,7 @@ void RealWorld::runAction(){
     //
     if(true){
       std::cout << "poseInRbt_:" << std::endl; // DELETE
-      double obsNoiseSD = 0.001;
+      double obsNoiseSD = ROSD;
       for (size_t i=0; i<poseInRbt_.size(); i++){
 	std::cout << "before: " << poseInRbt_[i] << std::endl; // DELETE
 	poseInRbt_[i]+=obsNoiseSD*gaussianNoise();
@@ -976,6 +1025,13 @@ void RealWorld::stepWorld(){
   std::vector<double> tempObs = getObs(); // 3. get observation from the world
   updateFilter(action_,tempObs); // 4. update filter bank
   clock_gettime(CLOCK_REALTIME, &ts8);
+
+  if(poseInRbt_[0]<workspace_[0][0] ||
+     poseInRbt_[0]>workspace_[0][1] ||
+     poseInRbt_[1]<workspace_[1][0] ||
+     poseInRbt_[1]>workspace_[1][1]){
+    std::cout << "\033[1;31mOUTSIDE WORKSPACE\033[0m" << std::endl;
+  }
 
   std::cout << "Time to choose:\n" << timeDiff(ts5,ts6) << std::endl;
   std::cout << "Time to run:\n" << timeDiff(ts6,ts7) << std::endl;
@@ -1130,6 +1186,21 @@ void RealWorld::writeFileInitialData(){
   //
   outFile_ << "Action Selection Type:\n";
   outFile_ << actionSelectionType_ << "\n";
+  //
+  outFile_ << "Transition Bias Error:\n";
+  outFile_ << BIAS << "\n";
+  //
+  outFile_ << "Filter Transition Standard Deviation:\n";
+  outFile_ << FTSD << "\n";
+  //
+  outFile_ << "Filter Observation Standard Deviation:\n";
+  outFile_ << FOSD << "\n";
+  //
+  outFile_ << "Real Transition Standard Deviation:\n";
+  outFile_ << RTSD << "\n";
+  //
+  outFile_ << "Real Observation Standard Deviation:\n";
+  outFile_ << ROSD << "\n";
   // Write different things depending on whether using the robot or not
   if (useRobot_==0){
     // use simulation
@@ -1180,6 +1251,12 @@ void RealWorld::writeFileInitialData(){
   //
   outFile_ << "Number of Particles per Filter:\n";
   outFile_ << numParticles_ << "\n";
+  //
+  outFile_ << "Number of Repeat Particles per Filter:\n";
+  outFile_ << NUM_REPEATS << "\n";
+  //
+  outFile_ << "Fraction of Effective Particles per Filter:\n";
+  outFile_ << NEFF_FRACT << "\n";
   //
   for (size_t l=0;l<filterBank_.size();l++){
     outFile_ << "Filter model number:\n";
@@ -1452,7 +1529,7 @@ void printVect(std::vector<double> vect){
 
 int main(int argc, char* argv[])
 {
-  if (argc > 6) { // We expect 3 arguments: the program name, the model number, the number of iterations, writeOutFile
+  if (argc > 7) { // We expect 3 arguments: the program name, the model number, the number of iterations, writeOutFile
     std::cerr << "Usage: " << argv[0] << "NUMBER OF ITERATIONS" << std::endl;
   }
   else {
@@ -1461,12 +1538,14 @@ int main(int argc, char* argv[])
     int writeOutFile;
     int actionSelectionType;
     int useRobot;
+    std::string fakeFileName;
     if (argc == 1){
       modelNum = 0; // default: free model
       steps = 1; // default: run one step
       writeOutFile = 0; // default: don't write file
       actionSelectionType = 0; // default: go in order
       useRobot = 0; // default: use simulation
+      fakeFileName = ""; // default: empty string
     }
     else if (argc == 2){
       modelNum = atoi(argv[1]);
@@ -1474,6 +1553,7 @@ int main(int argc, char* argv[])
       writeOutFile = 0; // default: don't write file
       actionSelectionType = 0; // default: go in order
       useRobot = 0; // default: use simulation
+      fakeFileName = ""; // default: empty string
     }
     else if (argc == 3){
       modelNum = atoi(argv[1]);
@@ -1481,6 +1561,7 @@ int main(int argc, char* argv[])
       writeOutFile = 0; // default: don't write file
       actionSelectionType = 0; // default: go in order
       useRobot = 0; // default: use simulation
+      fakeFileName = ""; // default: empty string
     }
     else if (argc == 4){
       modelNum = atoi(argv[1]);
@@ -1488,6 +1569,7 @@ int main(int argc, char* argv[])
       writeOutFile = atoi(argv[3]);
       actionSelectionType = 0; // default: go in order
       useRobot = 0; // default: use simulation
+      fakeFileName = ""; // default: empty string
     }
     else if (argc == 5){
       modelNum = atoi(argv[1]);
@@ -1495,6 +1577,15 @@ int main(int argc, char* argv[])
       writeOutFile = atoi(argv[3]);
       actionSelectionType = atoi(argv[4]);
       useRobot = 0; // default: use simulation
+      fakeFileName = ""; // default: empty string
+    }
+    else if (argc == 6){
+      modelNum = atoi(argv[1]);
+      steps = atoi(argv[2]);
+      writeOutFile = atoi(argv[3]);
+      actionSelectionType = atoi(argv[4]);
+      useRobot = atoi(argv[5]);
+      fakeFileName = ""; // default: empty string
     }
     else{
       modelNum = atoi(argv[1]);
@@ -1502,8 +1593,9 @@ int main(int argc, char* argv[])
       writeOutFile = atoi(argv[3]);
       actionSelectionType = atoi(argv[4]);
       useRobot = atoi(argv[5]);
+      std::string fileStr(argv[6]);
+      fakeFileName = fileStr;
     }
-
 
     std::cout << "steps: " << steps << std::endl;
 
@@ -1515,7 +1607,7 @@ int main(int argc, char* argv[])
       
       clock_gettime(CLOCK_REALTIME, &ts1); // get time before constructor
       std::cout << "hello" << std::endl;
-      RealWorld world(modelNum,steps,writeOutFile,actionSelectionType,useRobot);
+      RealWorld world(modelNum,steps,writeOutFile,actionSelectionType,useRobot,fakeFileName);
       std::cout << "didnt get here" << std::endl;
       clock_gettime(CLOCK_REALTIME, &ts2); // get time after constructor
 
@@ -1576,7 +1668,7 @@ int main(int argc, char* argv[])
       double conf = 0.7;
       std::vector<int> stepsNeededVect;
       for (size_t i=0;i<numExps;i++){
-	RealWorld world(modelNum,steps,writeOutFile,actionSelectionType,useRobot);
+	RealWorld world(modelNum,steps,writeOutFile,actionSelectionType,useRobot,fakeFileName);
 	stepsNeededVect.push_back(world.runWorldToConf(steps,conf));
       }
       std::cout << "Steps Needed:" << std::endl;
@@ -1591,6 +1683,13 @@ int main(int argc, char* argv[])
     //std::cout << WORKSPACE[0][1] << std::endl;
     //std::cout << WORKSPACE[1][0] << std::endl;
     //std::cout << WORKSPACE[1][1] << std::endl;
+    std::cout << NUM_PARTICLES << std::endl;
+    std::cout << NUM_REPEATS << std::endl;
+    std::cout << BIAS << std::endl;
+    std::cout << FTSD << std::endl;
+    std::cout << FOSD << std::endl;
+    std::cout << RTSD << std::endl;
+    std::cout << ROSD << std::endl;
   }
   return 1;
 }

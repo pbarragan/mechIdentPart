@@ -375,7 +375,161 @@ exeDir = os.path.abspath(os.path.dirname(__file__))
 #fileName += 'data3Fri_Dec__5_11_45_14_2014.txt' # success
 
 # debug after systematic error
-fileName = '/../data/2014_12_11/data2Thu_Dec_11_10_57_22_2014.txt'
+#fileName = '/../data/2014_12_11/data2Thu_Dec_11_10_57_22_2014.txt'
+
+# 12/18/14 - checking about the revolute model
+#fileName = '/home/barragan/data12112014new/data/2014_12_15/data2Mon_Dec_15_21_06_59_2014.txt'
+
+# 12/23/14
+#fileName = '/home/barragan/data12112014new/data/2014_12_23/data0Tue_Dec_23_22_57_42_2014.txt'
+
+#fileName = '/home/barragan/data12112014new//data/2014_12_24/data0Wed_Dec_24_11_55_39_2014.txt'
+
+#fileName = '/home/barragan/data12112014new//data/2014_12_24/data0Wed_Dec_24_12_23_46_2014.txt'
+
+#fileName = '/home/barragan/data12112014new//data/2014_12_26/data0Fri_Dec_26_15_33_42_2014.txt'
+
+# 12/26/14
+#fileName = '/home/barragan/data12112014new/data/2014_12_26/data0Fri_Dec_26_19_15_52_2014.txt'
+
+#dataDir = '/home/barragan/data12112014new/data/2014_12_27fifty/'
+#fileName = 'data0Sat_Dec_27_12_12_08_2014.txt'
+#fileName = 'data0Sat_Dec_27_12_36_53_2014.txt'
+#fileName = 'data2Sat_Dec_27_12_26_27_2014.txt'
+#fileName = 'data2Sat_Dec_27_13_10_47_2014.txt'
+#fileName = 'data3Sat_Dec_27_12_31_20_2014.txt'
+
+#dataDir = '/home/barragan/data12112014new/data/2014_12_27eighty/'
+#fileName = 'data2Sat_Dec_27_01_55_05_2014.txt'
+
+#fileName = dataDir+fileName
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_16/data2Fri_Jan_16_17_29_21_2015.txt' # failure
+fileName = '/home/barragan/data12112014new//data/2015_01_16/data2Fri_Jan_16_17_48_57_2015.txt' # scripted huge success
+fileName = '/home/barragan/data12112014new//data/2015_01_16/data2Fri_Jan_16_17_53_23_2015.txt' # scripted huge success
+fileName = '/home/barragan/data12112014new//data/2015_01_16/data2Fri_Jan_16_17_59_22_2015.txt' # random failure
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_09_52_42_2015.txt' # not perfect script failure
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_10_03_40_2015.txt' # not perfect script success with smaller rev dynamics
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_10_10_33_2015.txt' # not perfect script succes with smaller rev dynamics and large actions
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_10_16_42_2015.txt' # random success with smaller rev dynamics and large actions
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_10_31_58_2015.txt' # random success (very weird actual failure) with Small D and large A
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_10_43_14_2015.txt' # random failure (looked really good though) with Small D and large A
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_10_50_36_2015.txt' # same as last one
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_10_58_57_2015.txt' # random failure but close between rev and pris with resampling
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_11_02_55_2015.txt' # same as last time
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_11_06_19_2015.txt' # same as last time
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_11_21_40_2015.txt' # almost tied but bad
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_11_31_10_2015.txt' # almost tied but bad
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_11_36_49_2015.txt' # same as last time with lower forward stiffness (got it right)
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_11_43_51_2015.txt' # same as last time with even lower forward stiffness (got it right)
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_11_51_00_2015.txt' # same with lower resampling. not as good.
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_11_53_20_2015.txt' # same with lower resampling. failed. but better rev guess.
+
+fileName = '/home/barragan/data12112014new//data/2015_01_19/data2Mon_Jan_19_11_55_49_2015.txt' # also just a failure with a bad rev guess.
+
+# a new day
+fileName = '/home/barragan/data12112014new//data/2015_01_20/data2Tue_Jan_20_09_49_10_2015.txt' # repeat of yesterday
+
+fileName = '/home/barragan/data12112014new//data/2015_01_20/data2Tue_Jan_20_10_00_15_2015.txt' # with sampling much closer to the right answer for Rev
+
+fileName = '/home/barragan/data12112014new//data/2015_01_20/data2Tue_Jan_20_10_10_56_2015.txt' # got the right answer i think because so many particles near it
+
+fileName = '/home/barragan/data12112014new//data/2015_01_20/data2Tue_Jan_20_10_18_41_2015.txt' # got the right answer I think because so many particles near it
+
+fileName = '/home/barragan/data12112014new//data/2015_01_20/data0Tue_Jan_20_10_25_25_2015.txt' # switched to make sure Free model was going to still work. It did.
+
+fileName = '/home/barragan/data12112014new//data/2015_01_20/data3Tue_Jan_20_10_38_26_2015.txt' # Pris model fail (to fixed) because no usable action used
+
+fileName = '/home/barragan/data12112014new//data/2015_01_20/data3Tue_Jan_20_10_41_18_2015.txt' # same as last one
+
+fileName = '/home/barragan/data12112014new//data/2015_01_20/data3Tue_Jan_20_10_45_22_2015.txt' # Pris worked after turning up the forward gain
+
+fileName = '/home/barragan/data12112014new//data/2015_01_20/data3Tue_Jan_20_11_03_13_2015.txt' # same as last one
+
+# a new day
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_21/data2Wed_Jan_21_09_46_37_2015.txt' # failure I think because the particles aren't in the right place
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_21/data2Wed_Jan_21_09_51_44_2015.txt' # failure weird arm freak out at the end. stupid kinematics.
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_21/data2Wed_Jan_21_09_54_38_2015.txt' # failure but it should have worked. too sensitive.
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_21/data2Wed_Jan_21_09_58_28_2015.txt' # also a failure. I'm changing the gain back.
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_21/data2Wed_Jan_21_10_02_51_2015.txt' # success with a lower gain
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_21/data2Wed_Jan_21_10_05_10_2015.txt' # also success with a lower gain
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_21/data2Wed_Jan_21_10_08_13_2015.txt' # failure higher gain but bigger swing in translator
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_21/data2Wed_Jan_21_10_13_13_2015.txt' # higher gain but kp = 500 in translator too
+
+# these are faked
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_21/data2Wed_Jan_21_16_33_29_2015.txt' # rev worked after changing transitions back to old way
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_21/data2Wed_Jan_21_16_43_21_2015.txt' # pris still works after the previous change
+
+# a new day 1/22
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_22/data2Thu_Jan_22_10_31_41_2015.txt' # failed rev with old school rev transitions
+
+#fileName = '/home/barragan/data12112014new//data/2015_01_22/data2Thu_Jan_22_11_07_47_2015.txt' # failed rev with old school rev transitions and sampling only one r but lots of thetas
+
+
+
+
+
+# Rev with Kx = 400 Ky = 100, switched translator to the "appropriate" sim
+s = [2,[0.49555,0.2608,0.56],[-2.657]]
+s = [3,[0.1864,-0.3539,-1.086],[-.40]]
+#fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_12_59_06_2015.txt' # failure
+#fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_13_01_18_2015.txt' # failure
+#fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_13_04_13_2015.txt' # failure
+#fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_13_06_30_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_13_08_53_2015.txt' # mega fail
+
+
+# pris with Kx = 400 Ky = 100
+#s = [3,[0.3327,0.222,0.588424174],[-0.40]]
+#fileName = '/home/barragan/data12112014new//data/2015_01_28/data3Wed_Jan_28_13_21_21_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_01_28/data3Wed_Jan_28_13_24_05_2015.txt' # sucess
+#fileName = '/home/barragan/data12112014new//data/2015_01_28/data3Wed_Jan_28_13_27_23_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_01_28/data3Wed_Jan_28_13_30_52_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_01_28/data3Wed_Jan_28_13_35_50_2015.txt' # success
+
+
+# Back to robot experiments Free and Fixed with Kx = 400 and Ky = 100
+# Free
+#fileName = '/home/barragan/data12112014new//data/2015_02_03/data0Tue_Feb__3_11_59_41_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_02_03/data0Tue_Feb__3_12_02_01_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_02_03/data0Tue_Feb__3_12_04_27_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_02_03/data0Tue_Feb__3_12_06_42_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_02_03/data0Tue_Feb__3_12_09_11_2015.txt' # success
+
+# Fixed
+#fileName = '/home/barragan/data12112014new//data/2015_02_03/data1Tue_Feb__3_12_14_12_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_02_03/data1Tue_Feb__3_12_16_27_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_02_03/data1Tue_Feb__3_12_18_35_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_02_03/data1Tue_Feb__3_12_21_02_2015.txt' # success
+fileName = '/home/barragan/data12112014new//data/2015_02_03/data1Tue_Feb__3_12_23_46_2015.txt' # success
+
 
 folderName = fileName[fileName.rfind('/')+1:fileName.find('.txt')]
 setPath = exeDir+'/dataPlots/'+folderName+'/'
@@ -391,12 +545,13 @@ plotLog = True
 plotSet = False
 
 # get data
-fbProbs, numSteps, model, statesInRbt, states, logProbs_O, logProbs, poses, \
-         actions, obs, actionType, actionSelectionType, \
-         numMechanismTypes, numParticles, modelNums, realStates\
-         = readData.get_data(exeDir+fileName)
+fbProbs, numSteps, model, statesInRbt, states, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, numRepeats, neff_fract, modelNums, realStates, BIAS, FTSD, FOSD, RTSD, ROSD = readData.get_data(fileName)
 
-
+print "YO"
+print numParticles
+print numRepeats
+print neff_fract
+print BIAS,FTSD,FOSD,RTSD,ROSD
 
 ######################### VERIFICATION CODE ###################################
 if doWhat == 0:
@@ -437,7 +592,9 @@ if doWhat == 0:
 ############################### DEBUGGING CODE #################################
 if doWhat == 1:
     plotDebug = True
-    plotLines = True
+    plotLines = False
+    plotArrows = False
+    resampling = False
 
     whichModels = [2,3]
 
@@ -467,6 +624,8 @@ if doWhat == 1:
         maxStatesInRbt.append([[statesInRbt[whichStep][i][0][x],\
                                 statesInRbt[whichStep][i][1][x]]\
                                for x in maxInds[-1]])
+
+        
     print 'maxes'
     for m,mp,mS,mSR in zip(maxes,maxesPrev,maxStates,maxStatesInRbt):
         print 'states'
@@ -483,16 +642,19 @@ if doWhat == 1:
     #print states[whichStep][0][logProbs[whichStep][0].index(max(logProbs[whichStep][0]))]
 
     #sRef = [0, [], [1,1]] # for free
+    #sRef = [3, [0.0,-0.4,1.57],[0.4]] # for pris
     #sRef = [3, [-0.396, 0.396, -0.785], [0.56]] # for pris
     #sRef = [3, [-0.56, 0.0, 0.0], [0.56]] # for pris
     #sRef = [2, [0.396, 0.396, 0.56], [-2.35619]] # for rev
-    sRef = [2, [-0.396,-0.396,0.56],[0.7854]] # for rev
+    sRef = [2, [0.3731,0.4176,0.56], [-2.3]] # for rev real
+    #sRef = [2, [0.405179,0.361999,0.543335], [-2.3448]] # for rev real
+    #sRef = [2, [-0.396,-0.396,0.56],[0.7854]] # for rev
     #sRef = [2, [0.46, 0.32, 0.56], [-2.514]] # for rev, nominal from 12/2/14
     #sClosest =
     # find the closest states to sref
     # this probably shouldn't have which step and only look at step 0
     srefMI = modelNums.index(sRef[0])
-    closeStates = findCloseStates(sRef,states[0][srefMI],.03) #.03 for rev, .003 for pris
+    closeStates = findCloseStates(sRef,states[0][srefMI],.000325) #.03 for rev, .003 for pris
     
     closeStateInds = [states[0][srefMI].index(x) for x in closeStates]
     closeStateProbs = [logProbs[whichStep][srefMI][x] for x in closeStateInds]
@@ -503,6 +665,9 @@ if doWhat == 1:
     closeStatesInRbtList = []
     maxStatesInRbtList = [[] for x in maxInds]
     maxProbsList = [[] for x in maxInds]
+
+
+    #  here's where to do it
 
     for i in range(numSteps+1):
         closeStateProbsList.append([logProbs[i][srefMI][x] \
@@ -525,9 +690,12 @@ if doWhat == 1:
     for i in range(numSteps):
         closeStateDists.append([dist([obs[0][i],obs[1][i]],x) \
                                 for x in closeStatesInRbtList[i+1]])
+
+    for msL in maxStatesInRbtList:
         #maxDists.append([dist([obs[0][i],obs[1][i]],x) \
         #                 for x in maxStatesInRbtList[i+1]])
-
+        print "here"
+        print msL
 
     print 'here we go:'
     print 'probs'
@@ -538,18 +706,30 @@ if doWhat == 1:
     print closeStateDists
     print 'actions'
     print actions
+    print
+    print
+    print
     for i,(x,y) in enumerate(zip(actions[0],actions[1])):
         print "std::vector<double> actions"+str(i)+";"
         print "actions"+str(i)+".push_back("+str(x)+");"
         print "actions"+str(i)+".push_back("+str(y)+");"
         print "fakeActions.push_back(actions"+str(i)+");"
+    print
+    print
+    print
     print 'obs'
     print obs
+    print
+    print
+    print
     for i,(x,y) in enumerate(zip(obs[0],obs[1])):
         print "std::vector<double> obs"+str(i)+";"
         print "obs"+str(i)+".push_back("+str(x)+");"
         print "obs"+str(i)+".push_back("+str(y)+");"
         print "fakeObs.push_back(obs"+str(i)+");"
+    print
+    print
+    print
     print 'max dists'
     print maxDists
     print 'maxes in rbt'
@@ -605,6 +785,11 @@ if doWhat == 1:
             col = colorList.next()
             pyplot.scatter(plotableClose[i][0],plotableClose[i][1],\
                            marker='v',c=col,s=sSize,edgecolor='None')
+
+            for f,(x,y) in enumerate(zip(plotableClose[i][0],\
+                                     plotableClose[i][1])):
+                if f!=0:
+                    pyplot.annotate(f-1,(x,y),color='magenta',size='large')
             #if s[0]==0:
                 #pyplot.scatter(s[2][0],s[2][1],c='r',s=sSize)
             #if s[0]==1:
@@ -621,6 +806,8 @@ if doWhat == 1:
                 pyplot.plot([x1,x2],[y1,y2],'--',color=col)
 
         cListUsed = []
+
+        # plotableMax[model type][which max 1,2,3][x or y]
         for k,mIs in enumerate(maxInds):
             cListUsed.append([])
             colorListIT = itertools.cycle(colorListNIT)
@@ -629,6 +816,11 @@ if doWhat == 1:
                 cListUsed[-1].append(col)
                 pyplot.scatter(plotableMax[k][i][0],plotableMax[k][i][1],\
                                marker='*',c=col,s=sSize,edgecolor='None')
+
+                for f,(x,y) in enumerate(zip(plotableMax[k][i][0],\
+                                             plotableMax[k][i][1])):
+                    if f!=0:
+                        pyplot.annotate(f-1,(x,y),color='magenta',size='large')
         for cLs,mSs in zip(cListUsed,maxStates):
             for col,s in zip(cLs,mSs):
                 #if s[0]==0:
@@ -659,13 +851,18 @@ if doWhat == 1:
         pyplot.gcf().gca().add_patch(pylab.Rectangle((-.15,-.15),\
                                                      .3,.3,facecolor='none'))
         # add arrows
-        for i in range(len(obs[0])-1):
-            pyplot.arrow(obs[0][i],obs[1][i], \
-                         obs[0][i+1]-obs[0][i],obs[1][i+1]-obs[1][i], \
-                         fc='k',ec='k',length_includes_head=True, \
-                         width=0.0001,head_width=0.004)
+        if plotArrows:
+            for i in range(len(obs[0])-1):
+                pyplot.arrow(obs[0][i],obs[1][i], \
+                             obs[0][i+1]-obs[0][i],obs[1][i+1]-obs[1][i], \
+                             fc='k',ec='k',length_includes_head=True, \
+                             width=0.0001,head_width=0.004)
+            
         # add observations
         pyplot.scatter(obs[0],obs[1],c='k',s=sSize)
+        for i, txt in enumerate(range(len(obs[0]))):
+            pyplot.annotate(txt,(obs[0][i],obs[1][i]),\
+                            color='magenta',size='large')
 
         if plotLines:
             # add lines between close states and corresponding observations

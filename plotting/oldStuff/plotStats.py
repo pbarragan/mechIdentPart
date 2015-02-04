@@ -1,7 +1,10 @@
+# this is for the 12/14/2015 experiments
 
 import readData
 import heapq
 import math
+
+import statsFiles
 
     
 def stateDist(s1,s2):
@@ -24,6 +27,9 @@ def stateDist(s1,s2):
 # real trans: 0.001
 # real obs: 0.001
 
+print len(statsFiles.files)
+
+#dirName = '/home/barragan/data12112014new/data/2014_12_13'
 dirName = '/home/barragan/data12112014new//data/2014_12_11/'
 fileNames = []
 fileNames.append(['data2Thu_Dec_11_13_41_20_2014.txt',\

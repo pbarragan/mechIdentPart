@@ -1,0 +1,31 @@
+import readData
+import statsFilesNR
+
+dirName1 = '/home/barragan/data12112014new/data/2014_12_30/'
+dirName2 = '/home/barragan/data12112014new/data/2014_12_31/'
+switchNum = 811
+fileInds = [0,200,400,600,800]
+
+for fI in fileInds:
+    if fI < switchNum:
+        dName = dirName1
+    else:
+        dName = dirName2
+
+    f = statsFilesNR.files[fI]
+
+    fbProbs, numSteps, model, statesInRbt, states, logProbs_O,\
+             logProbs, poses, actions, obs, \
+             actionType, actionSelectionType, numMechanismTypes,\
+             numParticles, numRepeats, neff_fract, \
+             modelNums, realStates, BIAS, FTSD, FOSD, RTSD, ROSD \
+             = readData.get_data(dName+f)
+
+    diffS = []
+    for s in states:
+        sMP = s[:2]
+        if not sMP in diffS:
+            diffS.append(sMP)
+
+    print fI,len(diffS)
+    #print diffS

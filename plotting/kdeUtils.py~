@@ -1,0 +1,76 @@
+import scipy.spatial
+import scipy.misc
+import numpy as np
+
+def calcKDE(states,logProbs,r):
+
+    # convert states into array with n rows (number of points)
+    # of k columns (dimension)
+    sArray=np.array([s[1]+s[2] for s in states])
+
+    # create KD tree
+    tree = scipy.spatial.KDTree(sArray)
+
+    # find close points for all points
+    results = tree.query_ball_tree(tree,r)
+
+    # initialize the result list
+    lPs = []
+    kdeSs = []
+    # accumulate log probabilities
+    for res in results:
+        lPs.append([logProbs[i] for i in res])
+        kdeSs.append([states[i] for i in res])
+
+    # compute log sum exp of each point
+    #print 'your stuff'
+    #print lPs
+    #print
+    #print states
+    #print
+    #print kdeSs
+    #print
+    kde = np.array([scipy.misc.logsumexp(np.array(ls)) for ls in lPs])
+    #print kde
+
+    return kde
+
+def findMaxState(states,logProbs,r):
+
+    kde = calcKDE(states,logProbs,r)
+    return states[np.argmax(kde)],np.amax(kde)
+
+
+def findMaxRegionState(states,logProbs,r):
+    
+    # convert states into array with n rows (number of points)
+    # of k columns (dimension)
+    sArray=np.array([s[1]+s[2] for s in states])
+
+    # find max state
+    maxProb = max(logProbs)
+    maxInd = logProbs.index(maxProb)
+    maxS = sArray[maxInd]
+
+    # calc closest states
+    closeSs = []
+    closePs = []
+    for s,p in zip(sArray,logProbs):
+        if np.linalg.norm(maxS-s) <= r:
+            closeSs.append(s)
+            closePs.append(p)
+
+    print 'states probs'
+    for s,p in zip(closeSs,closePs):
+        print s,p
+
+    cSa = np.array(closeSs)
+    cPa = np.array(closePs)
+    meanS = np.dot(cSa.T,np.exp(cPa)/np.sum(np.exp(cPa)))
+    meanP = scipy.misc.logsumexp(cPa)
+    states[0]
+    newS = [states[0][0],\
+            [meanS[i] for i in range(len(states[0][1]))],\
+            [meanS[j] for j in range(len(states[0][1]),\
+                                     len(states[0][1])+len(states[0][2]))]]
+    return newS,meanP

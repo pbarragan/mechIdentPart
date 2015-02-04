@@ -28,13 +28,18 @@ def get_data(fileName):
     f.readline()
     actionSelectionType = int(f.readline())
     f.readline()
+    BIAS = int(f.readline())
+    f.readline()
+    FTSD = float(f.readline())
+    f.readline()
+    FOSD = float(f.readline())
+    f.readline()
+    RTSD = float(f.readline())
+    f.readline()
+    ROSD = float(f.readline())
+
+    f.readline()
     model = int(f.readline())
-
-
-
-
-
-
 
     # this is a change from the old file type to the new
     #skip_lines(f,7) # 5 changed to 7
@@ -55,18 +60,15 @@ def get_data(fileName):
 
     realStates.append([model,numList1,numList2]) # adding a state
 
-    skip_lines(f,3)
-
-
-
-
-
-
-
-    
+    # number of mechanism types
+    skip_lines(f,3)    
     numMechanismTypes = int(f.readline())
     f.readline()
     numParticles = int(f.readline())
+    f.readline()
+    numRepeats = int(f.readline())
+    f.readline()
+    neff_fract = float(f.readline())
 
     # iterate through the mechanisms
     modelNums = []
@@ -308,4 +310,4 @@ def get_data(fileName):
     f.close()
 
 
-    return fbProbs, numSteps, model, statesInRbt, states, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, modelNums, realStates
+    return fbProbs, numSteps, model, statesInRbt, states, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, numRepeats, neff_fract, modelNums, realStates, BIAS, FTSD, FOSD, RTSD, ROSD 

@@ -2,6 +2,7 @@
 #define REAL_WORLD_H
 
 #include <vector>
+#include <string>
 #include "stateStruct.h"
 #include "bayesFilter.h"
 #include "mechanisms/mechanism.h"
@@ -51,9 +52,10 @@ class RealWorld {
   // things to fake it
   std::vector<int> FAinds_;
   std::vector<std::vector<double> > fakeObs_;
+  std::string fakeFileName_;
 
   //functions
-  RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelectionType,int useRobot);
+  RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelectionType,int useRobot,std::string fakeFileName);
   ~RealWorld();
   void initMechFree();
   void initMechFixed();
