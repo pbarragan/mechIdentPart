@@ -12,7 +12,7 @@ const int NUM_PARTICLES = 10000;
 const int NUM_REPEATS = 1;
 
 const bool BIAS = true; // Non-zero bias error
-const double FTSD = 0.025; // Filter Transition Standard Deviation
+const double FTSD = 0.10; // Filter Transition Standard Deviation
 const double FOSD = 0.01; // Filter Observation Standard Deviation
 const double RTSD = 0.025; // Real Transition Standard Deviation
 const double ROSD = 0.01; // Real Observation Standard Deviation
