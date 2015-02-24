@@ -531,6 +531,23 @@ s = [3,[0.1864,-0.3539,-1.086],[-.40]]
 fileName = '/home/barragan/data12112014new//data/2015_02_03/data1Tue_Feb__3_12_23_46_2015.txt' # success
 
 
+#check
+fileName = '/home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_00_22_51_2015.txt' # doesn't work
+
+# rev
+fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_39_36_2015.txt' # failure with angle 0.84781697379 - close
+fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_43_05_2015.txt' # same as above
+
+# 2/20/15
+# latch
+fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_44_51_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_47_49_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_50_07_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_52_34_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_54_43_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_57_10_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_59_36_2015.txt'
+
 folderName = fileName[fileName.rfind('/')+1:fileName.find('.txt')]
 setPath = exeDir+'/dataPlots/'+folderName+'/'
 

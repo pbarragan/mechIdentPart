@@ -74,10 +74,8 @@ stateStruct translator::stateTransition(stateStruct& state, std::vector<double>&
   else if (state.model == 2){
     // Old Way
     // Calculate equilibrium point
-    //double x = action[0]+state.params[2]*cos(state.vars[0]);
-    //double y = action[1]+state.params[2]*sin(state.vars[0]);
-    //nextState.vars[0] = atan2(y,x);
-    
+
+    // this used to be after
     /*
       for (size_t j=0;j<state.params.size();j++){
       state.params[j] 
@@ -86,28 +84,32 @@ stateStruct translator::stateTransition(stateStruct& state, std::vector<double>&
       }
     */
 
-    
-    // new way
-    double thi = state.vars[0];
-    int numSteps = 360;
-    double dth = 2*M_PI/numSteps;
-    std::vector<double> E(numSteps);
-    double r = state.params[2];
-    double ax = action[0];
-    double ay = action[1];
-    double KxP = 100;
-    double KyP = 400;
-
-    for(size_t i=0;i<numSteps;i++){
-      double th = -M_PI+(i+1)*dth;
-      E[i]=0.5*KxP*pow((r*((cos(thi)-cos(th))*ay-(sin(thi)-sin(th))*ax)),2)
-	+ 0.5*KyP*pow((r*((cos(thi)-cos(th))*ax+(sin(thi)-sin(th))*ay)
-		       +ax*ax+ay*ay),2);
+    if(false){
+      double x = action[0]+state.params[2]*cos(state.vars[0]);
+      double y = action[1]+state.params[2]*sin(state.vars[0]);
+      nextState.vars[0] = atan2(y,x);
     }
-    nextState.vars[0] = -M_PI
-      +(std::distance(E.begin(),std::min_element(E.begin(),E.end()))+1)*dth;
-    
+    else{
+      // new way
+      double thi = state.vars[0];
+      int numSteps = 360;
+      double dth = 2*M_PI/numSteps;
+      std::vector<double> E(numSteps);
+      double r = state.params[2];
+      double ax = action[0];
+      double ay = action[1];
+      double KxP = 100;
+      double KyP = 400;
 
+      for(size_t i=0;i<numSteps;i++){
+	double th = -M_PI+(i+1)*dth;
+	E[i]=0.5*KxP*pow((r*((cos(thi)-cos(th))*ay-(sin(thi)-sin(th))*ax)),2)
+	  + 0.5*KyP*pow((r*((cos(thi)-cos(th))*ax+(sin(thi)-sin(th))*ay)
+			 +ax*ax+ay*ay),2);
+      }
+      nextState.vars[0] = -M_PI
+	+(std::distance(E.begin(),std::min_element(E.begin(),E.end()))+1)*dth;
+    }
   }
   else if (state.model == 3){
     // Calculate equilibrium point

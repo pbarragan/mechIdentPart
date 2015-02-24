@@ -122,9 +122,9 @@ fileName = '/home/barragan/data12112014new//data/2015_01_23/data2Fri_Jan_23_17_1
 #fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_12_19_13_2015.txt' # failure
 
 # Rev with Kx = 400 Ky = 100, switched translator to the "appropriate" sim
-s = [2,[0.49555,0.2608,0.56],[-2.657]]
-s = [3,[0.1864,-0.3539,-1.086],[-.40]]
-fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_12_59_06_2015.txt' # failure
+#s = [2,[0.49555,0.2608,0.56],[-2.657]]
+#s = [3,[0.1864,-0.3539,-1.086],[-.40]]
+#fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_12_59_06_2015.txt' # failure
 #fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_13_01_18_2015.txt' # failure
 #fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_13_04_13_2015.txt' # failure
 #fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_13_06_30_2015.txt' # success
@@ -139,6 +139,41 @@ fileName = '/home/barragan/data12112014new//data/2015_01_28/data2Wed_Jan_28_12_5
 #fileName = '/home/barragan/data12112014new//data/2015_01_28/data3Wed_Jan_28_13_30_52_2015.txt' # success
 #fileName = '/home/barragan/data12112014new//data/2015_01_28/data3Wed_Jan_28_13_35_50_2015.txt' # success
 
+
+# 2/4/15
+
+# a couple more experiments at different angles
+# night of 2/4/15
+# pris
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_20_11_00_2015.txt' # success with angle 1.39751669079 - really close
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_20_19_58_2015.txt' # success with angle 0.70454741879 - still pretty close
+s = [2,[0.4420,0.3439,0.56],[-2.480]]
+#s = [3,[-0.2456,0.3157,2.232],[-0.40]]
+fileName = '/home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_20_26_52_2015.txt' # success with angle 2.23183949559 - really close
+
+# rev
+#s = [2,[0.3706,0.4199,0.56],[-2.294]] # 2.41738898038
+#s = [2,[0.3689,0.4213,0.56],[-2.29]]
+#s = [3,[0.334015,-0.220078,2.559],[0.40]]
+#s = [3,[-0.2995,0.2651,2.417],[-0.40]]
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_39_36_2015.txt' # failure with angle 0.84781697379 - close
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_43_05_2015.txt' # same as above
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_50_10_2015.txt' # success with angle 0.588002604 - close
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_52_37_2015.txt' # same as above
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_57_49_2015.txt' # success with angle -0.968508981
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_21_00_08_2015.txt' # same as above
+
+# 2/5/15
+#fileName = '/home/barragan/data12112014new//data/2015_02_05/data2Thu_Feb__5_15_20_07_2015.txt' # copy of /home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_39_36_2015.txt with the noise on the angle for the revolute joint corrected
+
+# 2/6/15
+
+# small radius
+#fileName = '/home/barragan/data12112014new//data/2015_02_06/data2Fri_Feb__6_10_07_49_2015.txt' # failure 
+
+# 2/17/15
+
+#fileName = '/home/barragan/data12112014new//data/2015_02_17/data2Tue_Feb_17_13_44_46_2015.txt' # copy of /home/barragan/data12112014new//data/2015_02_05/data2Thu_Feb__5_15_20_07_2015.txt with only one of each of pris and rev
 
 # get data
 fbProbs, numSteps, model, statesInRbt, states, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, numRepeats, neff_fract, modelNums, realStates, BIAS, FTSD, FOSD, RTSD, ROSD = readData.get_data(fileName)
@@ -212,8 +247,8 @@ if s[0] == 2:
     c=pyplot.Circle((s[1][0],s[1][1]),s[1][2],color='r',fill=False)
     pyplot.gca().add_artist(c)
 if s[0] == 3:
-    pyplot.plot([s[1][0],s[1][0]-0.8*math.cos(s[1][2])],\
-                [s[1][1],s[1][1]-0.8*math.sin(s[1][2])],color='r')
+    pyplot.plot([s[1][0],s[1][0]+0.8*math.cos(s[1][2])],\
+                [s[1][1],s[1][1]+0.8*math.sin(s[1][2])],color='r')
 pyplot.axis('equal')
 pyplot.show()
 

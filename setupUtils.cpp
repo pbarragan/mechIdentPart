@@ -650,7 +650,7 @@ void setupUtils::setupParticlesSpecialRepeat(std::vector<stateStruct>& stateList
 	for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
       }
     }
-    else{
+    else if(false){
       // For model 2 (the revolute model), sample a radius and an angle and 
       // calculate the other parameters
       
@@ -678,6 +678,64 @@ void setupUtils::setupParticlesSpecialRepeat(std::vector<stateStruct>& stateList
 	for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
       }
     }
+    else if(false){
+      // SAMPLE ONLY ONE SET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      // For model 2 (the revolute model), sample a radius and an angle and 
+      // calculate the other parameters
+      
+      // Sample a radius uniformly between min and max
+      //double rMin = 0.54;//0.15;
+      //double rMax = 0.58;//1.15;
+      double r = 0.56;
+
+      // Sample an angle uniformly between min and max
+      //double thMin = -M_PI+0.000000001; // -2.5 // maybe this is a good thing to do
+      //double thMax = M_PI; // -2.1
+      double th = -2.480;//-2.29;
+
+      for (size_t i=0;i<numParticles;i+=numRepeats){
+	//double r = rMin+(rMax-rMin)*randomDouble();
+	//double th = thMin+(thMax-thMin)*randomDouble();
+
+	stateStruct x_state;
+	x_state.model = modelNum;
+	x_state.params.push_back(r*cos(th+M_PI)); // xp - flip angle
+	x_state.params.push_back(r*sin(th+M_PI)); // yp - flip angle
+	x_state.params.push_back(r);
+	x_state.vars.push_back(th);
+	//if(th<=0) x_state.vars.push_back(th+M_PI);
+	//else x_state.vars.push_back(th-M_PI);
+	for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+      }
+    }
+    else{
+      // For model 2 (the revolute model), sample a radius and an angle and 
+      // calculate the other parameters
+      
+      // Sample a radius uniformly between min and max
+      double rMin = 0.15;
+      double rMax = 1.15;
+
+      // Sample an angle uniformly between min and max
+      double thMin = -M_PI+0.000000001; // -2.5 // maybe this is a good thing to do
+      double thMax = M_PI; // -2.1
+      
+      for (size_t i=0;i<numParticles;i+=numRepeats){
+	double r = rMin+(rMax-rMin)*randomDouble();
+	double th = thMin+(thMax-thMin)*randomDouble();
+
+	stateStruct x_state;
+	x_state.model = modelNum;
+	x_state.params.push_back(r*cos(th+M_PI)); // xp - flip angle
+	x_state.params.push_back(r*sin(th+M_PI)); // yp - flip angle
+	x_state.params.push_back(r);
+	x_state.vars.push_back(th);
+	//if(th<=0) x_state.vars.push_back(th+M_PI);
+	//else x_state.vars.push_back(th-M_PI);
+	for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+      }
+    }
   }
   else if (modelNum == 3){
     // For model 3 (the prismatic model), only sample the angle and calculate
@@ -687,18 +745,40 @@ void setupUtils::setupParticlesSpecialRepeat(std::vector<stateStruct>& stateList
 
     double offset = 0.40; // Pivot offset. This should be unnecessary.
 
-    for (size_t i=0;i<numParticles;i+=numRepeats){
-      // sample uniformly between -pi and pi
-      //double angle = 2*M_PI*((double)rand()/(double)RAND_MAX)-M_PI;
-      // sample uniformly between 0 and pi
-      double angle = M_PI*((double)rand()/(double)RAND_MAX);
-      stateStruct x_state;
-      x_state.model = modelNum;
-      x_state.params.push_back(-offset*cos(angle));
-      x_state.params.push_back(-offset*sin(angle));
-      x_state.params.push_back(angle);
-      x_state.vars.push_back(offset);
-      for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+    if(false){
+      // SAMPLE ONLY ONE SET!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      for (size_t i=0;i<numParticles;i+=numRepeats){
+	// sample uniformly between -pi and pi
+	//double angle = 2*M_PI*((double)rand()/(double)RAND_MAX)-M_PI;
+	// sample uniformly between 0 and pi
+	//double angle = M_PI*((double)rand()/(double)RAND_MAX);
+	double angle = 2.232;//2.417;
+	stateStruct x_state;
+	x_state.model = modelNum;
+	x_state.params.push_back(-offset*cos(angle));
+	x_state.params.push_back(-offset*sin(angle));
+	x_state.params.push_back(angle);
+	x_state.vars.push_back(offset);
+	for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+      }
+    }
+    else{
+      // NORMAL
+
+      for (size_t i=0;i<numParticles;i+=numRepeats){
+	// sample uniformly between -pi and pi
+	//double angle = 2*M_PI*((double)rand()/(double)RAND_MAX)-M_PI;
+	// sample uniformly between 0 and pi
+	double angle = M_PI*((double)rand()/(double)RAND_MAX);
+	stateStruct x_state;
+	x_state.model = modelNum;
+	x_state.params.push_back(-offset*cos(angle));
+	x_state.params.push_back(-offset*sin(angle));
+	x_state.params.push_back(angle);
+	x_state.vars.push_back(offset);
+	for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+      }
     }
   }
   else{

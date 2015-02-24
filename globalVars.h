@@ -7,7 +7,7 @@ const bool RELATIVE = true;
 const double WORKSPACE[2][2] = {{-0.151,0.151},{-0.151,0.151}};
 const int MODEL_DESCRIPTIONS[6][2] = {{0,2},{2,0},{3,1},{3,1},{5,2},{5,2}};
 
-const double NEFF_FRACT = 0.025;
+const double NEFF_FRACT = 0.9999; //0.025;
 const int NUM_PARTICLES = 10000;
 const int NUM_REPEATS = 1;
 

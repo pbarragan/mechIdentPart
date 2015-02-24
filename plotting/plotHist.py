@@ -248,7 +248,7 @@ def plotSome(whichModels,modelNums,step,plotType,plotSet,plotLog,colorNorm,setPa
     pyplot.clf()
 
 # if you want to plot one model as a histogram
-def plotHist(whichModels,modelNums,step,plotType,plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_O,fbProbs,poses=None,actions=None,obs=None):
+def plotHist(whichModels,modelNums,step,plotType,plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_O,fbProbs,s,poses=None,actions=None,obs=None):
 
     print 'checkpoint'
     print len(logProbs)
@@ -279,7 +279,7 @@ def plotHist(whichModels,modelNums,step,plotType,plotSet,plotLog,colorNorm,setPa
                            width_ratios=(15,1,15,1,15,1),\
                            wspace=0.25)
     f = pyplot.figure()
-    f.set_size_inches(30,10)
+    f.set_size_inches(30,15)
 
     totals = [sum([math.exp(y) for y in logProbs[i+1][x]]) for x in whichModels]
     maxes = [max([math.exp(y) for y in logProbs[i+1][x]]) for x in whichModels]
@@ -300,7 +300,7 @@ def plotHist(whichModels,modelNums,step,plotType,plotSet,plotLog,colorNorm,setPa
 
         print j
 
-        b = 20 # how many bins for histogram
+        b = 100 # how many bins for histogram
 
 
         cProbsS =[math.exp(x) for x in logProbs[i][j]]
@@ -402,11 +402,24 @@ def plotHist(whichModels,modelNums,step,plotType,plotSet,plotLog,colorNorm,setPa
                       ' - Marginal: '+str(totals[n])+\
                       ' - Max P_o: '+str(maxesO[n]))
 
-        #for a in axarr:
-        #    a.set_xlim([-.2,.2])
-        #    a.set_ylim([-.2,.2])
-    #for a in axarr:
-    #    a.axis('equal')
+
+        # draw truth
+        if s[0] == j:
+            if s[0]==2:
+                cir = pyplot.Circle((s[1][0],s[1][1]),s[1][2],\
+                                    color='g',fill=False,ls='dashed')
+                ax1.add_artist(cir)
+            if s[0]==3:
+                x1 = s[1][0]+math.cos(s[1][2])
+                x2 = s[1][0]-math.cos(s[1][2])
+                y1 = s[1][1]+math.sin(s[1][2])
+                y2 = s[1][1]-math.sin(s[1][2])
+                ax1.plot([x1,x2],[y1,y2],'--',color='g')
+
+        for a in axarr:
+            a.axis('equal')
+            a.set_xlim([-.2,.2])
+            a.set_ylim([-.2,.2])
 
     outFile = setPath+'step'+str(i)+plotType+'.png'
     pyplot.savefig(outFile,bbox_inches='tight')
@@ -654,6 +667,62 @@ s = [3,[0.1864,-0.3539,-1.086],[-.40]]
 #fileName = '/home/barragan/data12112014new//data/2015_02_03/data1Tue_Feb__3_14_07_13_2015.txt'
 #fileName = '/home/barragan/data12112014new//data/2015_02_03/data1Tue_Feb__3_14_09_49_2015.txt'
 fileName = '/home/barragan/data12112014new//data/2015_02_03/data1Tue_Feb__3_14_11_19_2015.txt'
+
+# 2/4/15
+
+# difference between revolute models - first one worked, 2nd doesn't, 2nd is the old way for the revolute model, but the prismatic model fails which means it favors the revolute
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_00_18_14_2015.txt' # worked
+fileName = '/home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_00_22_51_2015.txt' # doesn't work
+
+# a couple more experiments at different angles
+# night of 2/4/15
+# pris
+fileName = '/home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_20_11_00_2015.txt' # success with angle 1.39751669079 - really close
+fileName = '/home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_20_19_58_2015.txt' # success with angle 0.70454741879 - still pretty close
+#s = [2,[0.4420,0.3439,0.56],[-2.480]]
+s = [3,[-0.2456,0.3157,2.232],[-0.40]]
+fileName = '/home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_20_26_52_2015.txt' # success with angle 2.23183949559 - really close
+
+# rev
+fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_39_36_2015.txt' # failure with angle 0.84781697379 - close
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_43_05_2015.txt' # same as above
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_50_10_2015.txt' # success with angle 0.588002604 - close
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_52_37_2015.txt' # same as above
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_57_49_2015.txt' # success with angle -0.968508981
+#fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_21_00_08_2015.txt' # same as above
+
+# 2/5/15
+fileName = '/home/barragan/data12112014new//data/2015_02_05/data2Thu_Feb__5_15_20_07_2015.txt' # copy of /home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_39_36_2015.txt with the noise on the angle for the revolute joint corrected
+
+# new
+s = [2,[0.3706,0.4199,0.56],[-2.294]]
+fileName = '/home/barragan/data12112014new//data/2015_02_05/data2Thu_Feb__5_16_25_08_2015.txt' # failure at almost exactly pi/2. weird arm things
+fileName = '/home/barragan/data12112014new//data/2015_02_05/data2Thu_Feb__5_16_31_50_2015.txt' # success same as last time - still weird arm thing
+fileName = '/home/barragan/data12112014new//data/2015_02_05/data2Thu_Feb__5_16_37_40_2015.txt' # torso up - failure
+fileName = '/home/barragan/data12112014new//data/2015_02_05/data2Thu_Feb__5_16_41_10_2015.txt' # same as before but it seems that motion equates to goodness here. there isn't enough information.
+
+
+# 2/6/15
+
+# small radius
+s = [2,[0.0,0.292,0.292],[-1.57]]
+fileName = '/home/barragan/data12112014new//data/2015_02_06/data2Fri_Feb__6_10_07_49_2015.txt' # failure
+fileName = '/home/barragan/data12112014new//data/2015_02_06/data2Fri_Feb__6_10_31_59_2015.txt' # failure
+fileName = '/home/barragan/data12112014new//data/2015_02_06/data2Fri_Feb__6_10_36_38_2015.txt' # success? almost even
+fileName = '/home/barragan/data12112014new//data/2015_02_06/data2Fri_Feb__6_10_40_08_2015.txt' # success
+fileName = '/home/barragan/data12112014new//data/2015_02_06/data2Fri_Feb__6_10_43_12_2015.txt' # failure - not terrible
+
+fileName = '/home/barragan/data12112014new//data/2015_02_06/data2Fri_Feb__6_12_02_36_2015.txt' # totally worked. slightly displaced from the previous ones.
+
+fileName = '/home/barragan/data12112014new//data/2015_02_06/data2Fri_Feb__6_12_13_20_2015.txt' # still worked
+
+
+# 2/17/15
+s = [2,[0.3689,0.4213,0.56],[-2.29]]
+fileName = '/home/barragan/data12112014new//data/2015_02_17/data2Tue_Feb_17_13_44_46_2015.txt' # copy of /home/barragan/data12112014new//data/2015_02_05/data2Thu_Feb__5_15_20_07_2015.txt with only one of each of pris and rev
+
+s = [3,[-0.2456,0.3157,2.232],[-0.40]]
+fileName = '/home/barragan/data12112014new//data/2015_02_17/data2Tue_Feb_17_14_01_28_2015.txt' # copy of /home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_20_26_52_2015.txt with only one of each of pris and rev
 
 folderName = fileName[fileName.rfind('/')+1:fileName.find('.txt')]
 setPath = exeDir+'/dataPlots/'+folderName+'/'
@@ -1045,6 +1114,6 @@ if doWhat == 2:
         
         #plotSome([2],modelNums,i,'F',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
         #plotAll(i,'F',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
-        plotHist([2,3],modelNums,i,'H',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_O,fbProbs,poses,actions,obs)
+        plotHist([2,3],modelNums,i,'H',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_O,fbProbs,s,poses,actions,obs)
         print [sum([math.exp(y) for y in logProbs[i][x]]) for x in range(len(modelNums))]
 

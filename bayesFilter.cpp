@@ -117,13 +117,13 @@ void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList, std::
     // For now, change answers to closed form inside stateTransition
     // Transition the state
 
-    // add non-zero bias error                                                                                       
+    // add non-zero bias error                               
     if(false){
       stateStruct startState = stateList[i];
       stateList[i] = translator::stateTransition(stateList[i], action);
       double errorScale = 0.8;
       for(size_t j=0;j<stateList[i].vars.size();j++){
-        // you might get wrapping error here so protect against it                                                    
+        // you might get wrapping error here so protect against it        
 	if(stateList[i].model==2){
           double diff = stateList[i].vars[j]-startState.vars[j];
           if(diff>M_PI) diff -= 2*M_PI;
@@ -132,7 +132,8 @@ void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList, std::
           stateList[i].vars[j] = th-floor((th+M_PI)/(2*M_PI))*2*M_PI;
         }
         else{
-          stateList[i].vars[j] = errorScale*(stateList[i].vars[j]-startState.vars[j])
+          stateList[i].vars[j] = errorScale*(stateList[i].vars[j]
+					     -startState.vars[j])
             +startState.vars[j];
 
         }
@@ -149,8 +150,16 @@ void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList, std::
       for (size_t j=0;j<stateList[i].vars.size();j++){
 	double x1 = ((double)rand()/(double)RAND_MAX);
 	double x2 = ((double)rand()/(double)RAND_MAX);
-	stateList[i].vars[j] += 
-	  sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+	if(stateList[i].model == 2){
+	  stateList[i].vars[j] += 
+	    sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)
+	    *(sig/stateList[i].params[2])
+	    +(mu/stateList[i].params[2]); // this last part is never used
+	}
+	else{
+	  stateList[i].vars[j] += 
+	    sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+	}
       }
     }
 
