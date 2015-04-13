@@ -28,14 +28,22 @@ void setupUtils::fakeAOfromFile(std::vector<std::vector<double> > &actionList,
   std::vector<std::vector<double> > fakeActions;
   fileUtils::txtFileToActionsObs(fileName,fakeActions,fakeObs,numSteps);
 
+  std::cout << "action size: " << fakeActions.size() << std::endl;
+  std::cout << "obs size:" << fakeObs.size() << std::endl;
+
   std::vector<int> FAIs;
   double thresh = 0.00001;
   for(size_t i=0;i<fakeActions.size();i++){
+    std::cout << "step: " << i << std::endl;
+    std::cout << fakeActions[i][0] << "," << fakeActions[i][1] << std::endl;
     for(size_t j=0;j<actionList.size();j++){
+      std::cout << actionList[j][0] << "," << actionList[j][1] << std::endl;
       if(closeEnough(fakeActions[i],actionList[j],thresh)){
+	std::cout << "found an action" << std::endl;
 	FAIs.push_back(j);
 	break;
       }
+      else std::cout << "didn't match that action" << std::endl;
     }
   }
   FAinds = FAIs;
@@ -777,6 +785,68 @@ void setupUtils::setupParticlesSpecialRepeat(std::vector<stateStruct>& stateList
 	x_state.params.push_back(-offset*sin(angle));
 	x_state.params.push_back(angle);
 	x_state.vars.push_back(offset);
+	for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+      }
+    }
+  }
+  else if (modelNum == 4){
+    // For model 4 (the latch 1 model), only sample the angle and calculate
+    // the other parameters and variables.
+    // **** This model needs to be changed in the future because the pivot
+    // is a redundant piece of information ****
+
+
+    if(false){
+      // NORMAL
+
+      for (size_t i=0;i<numParticles;i+=numRepeats){
+	// sample uniformly between -pi and pi
+	//double angle = 2*M_PI*((double)rand()/(double)RAND_MAX)-M_PI;
+	// sample uniformly between 0 and pi
+	double angle = M_PI*((double)rand()/(double)RAND_MAX);
+	double offset = 0.30; // Pivot offset. This should be unnecessary.
+	stateStruct x_state;
+	x_state.model = modelNum;
+	x_state.params.push_back(-offset*cos(angle));
+	x_state.params.push_back(-offset*sin(angle));
+	x_state.params.push_back(0.19);
+	x_state.params.push_back(angle);
+	x_state.params.push_back(0.11);
+
+	x_state.vars.push_back(angle);
+	x_state.vars.push_back(0.11);
+	for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
+      }
+    }
+    else{
+      // NORAML over two dimensions, th and d
+
+      // set radius as constant
+      double r = 0.19;
+
+      // Sample a distance uniformly between min and max
+      double dMin = 0.05;
+      double dMax = 0.15;
+
+      // Sample an angle uniformly between min and max
+      double thMin = -M_PI+0.000000001; // maybe this is a good thing to do
+      double thMax = M_PI;
+
+      for (size_t i=0;i<numParticles;i+=numRepeats){
+	// sample uniformly between -pi and pi
+	double d = dMin+(dMax-dMin)*randomDouble();
+	double th = thMin+(thMax-thMin)*randomDouble();
+	double offset = r+d;
+	stateStruct x_state;
+	x_state.model = modelNum;
+	x_state.params.push_back(-offset*cos(th));
+	x_state.params.push_back(-offset*sin(th));
+	x_state.params.push_back(r);
+	x_state.params.push_back(th);
+	x_state.params.push_back(d);
+
+	x_state.vars.push_back(th);
+	x_state.vars.push_back(d);
 	for (size_t j=0;j<numRepeats;j++) stateList.push_back(x_state);
       }
     }

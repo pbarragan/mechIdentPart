@@ -1,0 +1,120 @@
+from matplotlib import pyplot
+from math import cos,sin,pi
+
+l = 0.05
+w = 0.038
+
+
+As=[]
+Os=[]
+ps=[]
+vs=[]
+As.append([0,0])
+Os.append([0,0])
+ps.append([0,-0.3,0.19,1.5708,0.11])
+vs.append([1.5708,0.11])
+As.append([-0.0848528,0.0848528])
+Os.append([-0.000953149,-0.000111598])
+ps.append([0,-0.3,0.19,1.5708,0.11])
+vs.append([1.5708,0.11])
+As.append([-2.20436e-17,-0.12])
+Os.append([8.88733e-05,-0.109452])
+ps.append([0,-0.3,0.19,1.5708,0.11])
+vs.append([1.5708,0])
+As.append([0.0848528,0.0848528])
+Os.append([0.0769531,-0.0280716])
+ps.append([0,-0.3,0.19,1.5708,0.11])
+vs.append([1.27136,0.0976523])
+As.append([-2.20436e-17,-0.12])
+Os.append([0.0738308,-0.127177])
+ps.append([0,-0.3,0.19,1.5708,0.11])
+vs.append([1.06953,0])
+As.append([7.34788e-18,0.12])
+Os.append([0.0826914,-0.0121552])
+ps.append([0,-0.3,0.19,1.5708,0.11])
+vs.append([1.26242,0.110816])
+As.append([-2.20436e-17,-0.12])
+Os.append([0.0799746,-0.122961])
+ps.append([0,-0.3,0.19,1.5708,0.11])
+vs.append([1.06953,2.77556e-17])
+As.append([-0.0848528,0.0848528])
+Os.append([0.0416737,-0.0298375])
+ps.append([0,-0.3,0.19,1.5708,0.11])
+vs.append([1.54516,0.0615605])
+As.append([-0.0848528,-0.0848528])
+Os.append([-0.0222209,-0.115916])
+ps.append([0,-0.3,0.19,1.5708,0.11])
+vs.append([2.0106,0])
+As.append([0.0848528,0.0848528])
+Os.append([0.0582718,-0.0343393])
+ps.append([0,-0.3,0.19,1.5708,0.11])
+vs.append([1.55538,0.0668022])
+As.append([0.0848528,0.0848528])
+Os.append([0.126293,0.0414726])
+ps.append([0,-0.3,0.19,1.5708,0.11])
+vs.append([1.55538,0.11])
+
+
+
+
+
+for i,(a,o,p,v) in enumerate(zip(As,Os,ps,vs)):
+
+    backCenter=[p[0]+(p[2]+p[4])*cos(p[3]),p[1]+(p[2]+p[4])*sin(p[3])]
+
+    frontCenter=[backCenter[0]+l*cos(p[3]+pi),backCenter[1]+l*sin(p[3]+pi)]
+  
+    backLeft=[backCenter[0]+(w/2)*cos(p[3]+pi/2),\
+              backCenter[1]+(w/2)*sin(p[3]+pi/2)]
+    
+    backRight=[backCenter[0]-(w/2)*cos(p[3]+pi/2),\
+               backCenter[1]-(w/2)*sin(p[3]+pi/2)]
+
+    frontLeft=[backLeft[0]+l*cos(p[3]+pi),backLeft[1]+l*sin(p[3]+pi)]
+
+    frontRight=[backRight[0]+l*cos(p[3]+pi),backRight[1]+l*sin(p[3]+pi)]
+
+    # draw latch
+    pts = [backLeft,backRight]
+    x,y = zip(*pts)
+    pyplot.plot(x,y,'-or')
+
+    pts = [backLeft,frontLeft]
+    x,y = zip(*pts)
+    pyplot.plot(x,y,'-or')
+
+    pts = [backRight,frontRight]
+    x,y = zip(*pts)
+    pyplot.plot(x,y,'-or')
+
+
+    xH = p[0]+(p[2]+v[1])*cos(v[0])
+    yH = p[1]+(p[2]+v[1])*sin(v[0])
+    pyplot.plot(xH,yH,'sk')
+
+    xS = p[0]+(p[2])*cos(v[0])
+    yS = p[1]+(p[2])*sin(v[0])
+    
+    pts = [[p[0],p[1]],[xS,yS]]
+    x,y = zip(*pts)
+    pyplot.plot(x,y,'-og')
+
+    pts = [[xS,yS],[xH,yH]]
+    x,y = zip(*pts)
+    pyplot.plot(x,y,'-ob')
+    pyplot.annotate(i,(xH,yH),size='x-large',color='b')
+
+
+    if(i>0):
+        # show action
+        x = ps[i-1][0]+(ps[i-1][2]+vs[i-1][1])*cos(vs[i-1][0])+a[0]
+        y = ps[i-1][1]+(ps[i-1][2]+vs[i-1][1])*sin(vs[i-1][0])+a[1]
+        pyplot.plot(x,y,'xg',markersize=50)
+        pyplot.annotate(i,(x,y),size='x-large',color='g')
+        
+        # show obs
+        pyplot.plot(o[0],o[1],'ok',markersize=10)
+        pyplot.annotate(i,(o[0],o[1]),size='x-large',color='k')
+        
+pyplot.axis('equal')
+pyplot.show()

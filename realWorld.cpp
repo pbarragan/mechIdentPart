@@ -9,6 +9,7 @@
 #include "modelUtils.h"
 #include "translator.h"
 #include "robotComm.h"
+#include "latch1.h"
 
 #include "mechanisms/mechFree.h"
 #include "mechanisms/mechFixed.h"
@@ -104,7 +105,7 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
   whichMechTypes_.push_back(1);
   whichMechTypes_.push_back(2);
   whichMechTypes_.push_back(3);
-  //whichMechTypes_.push_back(4);
+  whichMechTypes_.push_back(4);
   //whichMechTypes_.push_back(5);
   
   numMechTypes_ = whichMechTypes_.size();
@@ -145,9 +146,15 @@ RealWorld::RealWorld(int modelNum,int numSteps,int writeOutFile,int actionSelect
     filterBank_.push_back(filter); // add filter to bank
   }
   std::cout << "after sampling" << std::endl;
+
+  // Init fbProbs_, bestStates_, and bestStatesProbs_ before doing anything
   // print filter bank probabilities before any action is taken
   fbProbs_ = modelUtils::calcFilterBankProbs(filterBank_);
   printFilterBankProbs(fbProbs_);
+  modelUtils::findFilterBankBestGuesses(filterBank_,bestStates_,
+					bestStatesProbs_);
+
+
 
   setupUtils::setupActions(actionList_); //initialize actions
 
@@ -743,8 +750,8 @@ void RealWorld::updateFilter(std::vector<double> action,std::vector<double> obs)
       }
       Neff = 1/Neff;
       std::cout << "Filter #: " << i << std::endl;
-      std::cout << "Neff: " << Neff << std::endl;
-      std::cout << "Neff needed: " << NEFF_FRACT*numParticles_ << std::endl;
+      std::cout << "Neff: " << Neff 
+		<< ", Neff needed: " << NEFF_FRACT*numParticles_ << std::endl;
       // Check if resampling is needed
       if (Neff/numParticles_ < NEFF_FRACT){
 	std::cout << "\033[1;31mRESAMPLING!\033[0m" << std::endl;
@@ -810,11 +817,17 @@ void RealWorld::nextAction(){
 						 poseInRbt_,workspace_);
       }
       else if (whichSelectionType == 3){
+	std::cout << "OG Action Selection for Particles:" << std::endl;
+	actionSelection::chooseActionOGPart(filterBank_,fbProbs_,bestStates_,
+					    actionList_,action_,
+					    poseInRbt_,workspace_);
+      }
+      else if (whichSelectionType == 4){
 	std::cout << "Distance Action Selection:" << std::endl;
 	actionSelection::chooseActionPartDist(filterBank_,actionList_,action_,
 					      poseInRbt_,workspace_);
       }
-      else if (whichSelectionType == 4){
+      else if (whichSelectionType == 5){
 	std::cout << "Expected Distance Action Selection:" << std::endl;
 	actionSelection::chooseActionPartDist2(filterBank_,actionList_,action_,
 					       poseInRbt_,workspace_);
@@ -875,6 +888,7 @@ void RealWorld::nextAction(){
   }
   else{
     std::cout << "\033[1;31mWe are faking it:\033[0m" << step_ << std::endl;
+    std::cout << "size:" << actionList_.size() << "," << FAinds_.size() << std::endl;
     action_=actionList_[FAinds_[step_]]; // use fake action
   }
   std::cout << "\033[1;31mstep: \033[0m" << step_ << std::endl;
@@ -899,38 +913,82 @@ void RealWorld::runAction(){
       double y = action_[1]+tempState.params[2]*sin(tempState.vars[0]);
       tempState.vars[0] = atan2(y,x);
     */
-    tempState = translator::stateTransition(tempState,action_);
 
-    // add non-zero bias error
-    if(BIAS){
-      double errorScale = 0.8;
-      for(size_t i=0;i<tempState.vars.size();i++){
-	// you might get wrapping error here so protect against it
-	if(tempState.model==2){
-	  double diff = tempState.vars[i]-startState_.vars[i];
-	  if(diff>M_PI) diff -= 2*M_PI;
-	  else if(diff<-M_PI) diff += 2*M_PI;
-	  double th = errorScale*diff+startState_.vars[i];
-	  tempState.vars[i] = th-floor((th+M_PI)/(2*M_PI))*2*M_PI;
-	}
-	else{
-	  tempState.vars[i] = errorScale*(tempState.vars[i]-startState_.vars[i])
-	    +startState_.vars[i];
-	 
-	}
-      }
-    }
-
-    // add transition noise to variables
+    // Add noise to the transitions
     if(true){
-      std::cout << "tempState.vars:" << std::endl; // DELETE
-      double transNoiseSD = RTSD;
-      for (size_t i=0; i<tempState.vars.size(); i++){
+      if(startState_.model == 4){
+	// Special case for the latch
+	double sig = RTSD; // [cm] standard deviation of noise?????
+	double mu = 0.0; // mean of noise
+	latch1::simulateWActionNoise(tempState.params,tempState.vars,
+				     action_,sig,mu);
+      }
+      else{
+	tempState = translator::stateTransition(tempState,action_);
+
+	// add non-zero bias error
+	if(BIAS){
+	  double errorScale = 0.8;
+	  for(size_t i=0;i<tempState.vars.size();i++){
+	    // you might get wrapping error here so protect against it
+	    if(tempState.model==2){
+	      double diff = tempState.vars[i]-startState_.vars[i];
+	      if(diff>M_PI) diff -= 2*M_PI;
+	      else if(diff<-M_PI) diff += 2*M_PI;
+	      double th = errorScale*diff+startState_.vars[i];
+	      tempState.vars[i] = th-floor((th+M_PI)/(2*M_PI))*2*M_PI;
+	    }
+	    else{
+	      tempState.vars[i] = 
+		errorScale*(tempState.vars[i]-startState_.vars[i])
+		+startState_.vars[i];
+	    }
+	  }
+	}
+
+	//----------------------------------------------------------------------
+	// add transition noise to variables
+	// This was fixed on 4/6/15
+
+	/*
+	// old
+	std::cout << "tempState.vars:" << std::endl; // DELETE
+	double transNoiseSD = RTSD;
+	for (size_t i=0; i<tempState.vars.size(); i++){
 	std::cout << "before: " << tempState.vars[i] << std::endl; // DELETE
 	tempState.vars[i]+=transNoiseSD*gaussianNoise();
 	std::cout << "after: " << tempState.vars[i] << std::endl; // DELETE
+	}
+	*/
+
+	double sig = RTSD; // [cm] standard deviation of noise?????
+	double mu = 0.0; // mean of noise
+	/*
+	  if(tempState.model == 4){
+	  latch1::addNoise(tempState.params,tempState.vars,sig,mu);
+	  }
+	  else{
+	*/
+	for (size_t j=0;j<tempState.vars.size();j++){
+	  double x1 = ((double)rand()/(double)RAND_MAX);
+	  double x2 = ((double)rand()/(double)RAND_MAX);
+	  if(tempState.model == 2){
+	    tempState.vars[j] += 
+	      sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)
+	      *(sig/tempState.params[2])
+	      +(mu/tempState.params[2]); // this last part is never used
+	  }
+	  else{
+	    tempState.vars[j] += 
+	      sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+	  }
+	}
+	//}
       }
+      //------------------------------------------------------------------------
     }
+    else tempState = translator::stateTransition(tempState,action_);
+
     startState_ = tempState;
 
     poseInRbt_ = mechPtr_->stToRbt(tempState); // state of the robot

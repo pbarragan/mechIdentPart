@@ -6,6 +6,9 @@
 #include <algorithm>
 #include <iterator>
 
+// include new mechanism versions
+#include "latch1.h"
+
 //include mechanisms
 #include "mechanisms/mechFree.h"
 #include "mechanisms/mechFixed.h"
@@ -115,6 +118,9 @@ stateStruct translator::stateTransition(stateStruct& state, std::vector<double>&
     // Calculate equilibrium point
     nextState.vars[0] += action[0]*cos(state.params[2])
       +action[1]*sin(state.params[2]);
+  }
+  else if (state.model == 4){
+    latch1::simulate(nextState.params,nextState.vars,action);
   }
   else{
     Mechanism* mechPtr = createMechanism(state.model);

@@ -7,6 +7,17 @@
 #include "bayesFilter.h"
 
 namespace actionSelection {
+
+  void chooseActionOGPart(std::vector<BayesFilter>& filterBank,
+			  std::vector<double>& fbProbs,
+			  std::vector<stateStruct>& bestStates,
+			  std::vector< std::vector<double> >& 
+			  actionList,
+			  std::vector<double>& action,
+			  std::vector<double>& poseInRbt,
+			  std::vector< std::vector<double> >& 
+			  workspace);
+
   void chooseActionPartDist(std::vector<BayesFilter>& filterBank,std::vector< std::vector<double> >& actionList,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace);
   void chooseActionPartDist2(std::vector<BayesFilter>& filterBank,std::vector< std::vector<double> >& actionList,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace);
   void chooseActionPartEntropy(std::vector<BayesFilter>& filterBank,std::vector< std::vector<double> >& actionList,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace);

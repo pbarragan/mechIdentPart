@@ -692,7 +692,7 @@ fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_3
 #fileName = '/home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_21_00_08_2015.txt' # same as above
 
 # 2/5/15
-fileName = '/home/barragan/data12112014new//data/2015_02_05/data2Thu_Feb__5_15_20_07_2015.txt' # copy of /home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_39_36_2015.txt with the noise on the angle for the revolute joint corrected
+fileName = '/home/barragan/data12112014new//data/2015_02_05/data2Thu_Feb__5_15_20_07_2015.txt' # copy of /home/barragan/data12112014new//data/2015_02_04/data2Wed_Feb__4_20_39_36_2015.txt with the noise on the angle for the revolute joint corrected - this one was less wrong but still wrong
 
 # new
 s = [2,[0.3706,0.4199,0.56],[-2.294]]
@@ -723,6 +723,109 @@ fileName = '/home/barragan/data12112014new//data/2015_02_17/data2Tue_Feb_17_13_4
 
 s = [3,[-0.2456,0.3157,2.232],[-0.40]]
 fileName = '/home/barragan/data12112014new//data/2015_02_17/data2Tue_Feb_17_14_01_28_2015.txt' # copy of /home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_20_26_52_2015.txt with only one of each of pris and rev
+
+
+# 2/20/15
+# latch
+fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_44_51_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_47_49_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_50_07_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_52_34_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_54_43_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_57_10_2015.txt'
+#fileName = '/home/barragan/data12112014new//data/2015_02_20/data3Fri_Feb_20_10_59_36_2015.txt'
+
+# 3/10/15
+# latch1 1 dof run with the latch in the simulation
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_07_19_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_08_34_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_09_06_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_09_44_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_10_35_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_11_16_2015.txt' # success - less extreme only 70%, 30% in rev, the one that got stuck
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_12_13_2015.txt' # success
+
+# latch1 2 dof run with the latch in the simulation
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_14_24_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_15_13_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_16_03_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_16_58_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_17_58_2015.txt' # success
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_18_40_2015.txt' # failure with 40% to 53% rev
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data4Tue_Mar_10_09_19_23_2015.txt' # success
+
+# Free with the latch1 in simulation - lots of failures
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data0Tue_Mar_10_13_50_13_2015.txt' # free - 5%, latch - 95%
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data0Tue_Mar_10_13_53_23_2015.txt' # free - 3%, latch - 97%
+fileName = '/home/barragan/data12112014new//data/2015_03_10/data0Tue_Mar_10_13_54_07_2015.txt' # free - 65%, latch - 35%
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data0Tue_Mar_10_13_54_52_2015.txt' # free - 35%, latch - 64%
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data0Tue_Mar_10_13_55_44_2015.txt' # free - 44%, latch - 56%
+
+# Free simulation trying to cover the space (latch in simulation still)
+fileName = '/home/barragan/data12112014new//data/2015_03_10/data0Tue_Mar_10_14_06_14_2015.txt' # free - 40%, latch - 60%
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data0Tue_Mar_10_14_06_57_2015.txt' # free - 29%, latch - 81%
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data0Tue_Mar_10_14_08_02_2015.txt' # free - 39%, latch - 61%
+
+# Same free with a different set of actions
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data0Tue_Mar_10_14_12_35_2015.txt' # free - 72%, latch - 28%
+#fileName = '/home/barragan/data12112014new//data/2015_03_10/data0Tue_Mar_10_14_13_29_2015.txt' # free - 52%, latch - 48%
+
+# turn the bias off in simulation - same as above
+#fileName = '/home/barragan/data12112014new//data/2015_03_31/data0Tue_Mar_31_10_35_55_2015.txt' # free - 91%, latch - 9%
+#fileName = '/home/barragan/data12112014new//data/2015_03_31/data0Tue_Mar_31_10_37_20_2015.txt' # free - 92%, latch - 8%
+fileName = '/home/barragan/data12112014new//data/2015_03_31/data0Tue_Mar_31_10_39_57_2015.txt' # free - 93%, latch - 7%
+
+# 4/2/2015
+
+# first 3 are random with free as the real one
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_22_03_2015.txt' # free - 1%, latch - 99%
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_25_32_2015.txt' # free - 12%, latch - 88%
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_28_10_2015.txt' # free - 49%, latch - 51%
+
+# second 3 are OG with free as the real one
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_32_58_2015.txt' # free - 38%, latch - 62%
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_35_48_2015.txt' # free - 8%, latch - 92%
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_37_56_2015.txt' # free - 0%, latch - 100%
+
+# third 3 are scripted with free as the real one
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_40_08_2015.txt' # free - 81%, latch - 19%
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_42_13_2015.txt' # free - 69%, latch - 31%
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_44_22_2015.txt' # free - 68%, latch - 32% 
+
+# 4/6/2015
+fileName = '/home/barragan/data12112014new//data/2015_04_06/data0Mon_Apr__6_11_19_29_2015.txt' # free - 25%, latch - 75% *
+fileName = '/home/barragan/data12112014new//data/2015_04_06/data0Mon_Apr__6_11_25_38_2015.txt' # free - 7%, latch - 93% *
+fileName = '/home/barragan/data12112014new//data/2015_04_06/data0Mon_Apr__6_11_27_55_2015.txt' # free - 51%, latch - 49%
+fileName = '/home/barragan/data12112014new//data/2015_04_06/data0Mon_Apr__6_11_30_06_2015.txt' # free - 3%, latch - 97% *
+fileName = '/home/barragan/data12112014new//data/2015_04_06/data0Mon_Apr__6_11_32_53_2015.txt' # free - 85%, latch - 15%
+
+fileName = '/home/barragan/data12112014new//data/2015_04_06/data0Mon_Apr__6_11_35_20_2015.txt' # free - 28%, latch - 72% *
+fileName = '/home/barragan/data12112014new//data/2015_04_06/data0Mon_Apr__6_11_37_52_2015.txt' # free - 0%, latch - 100% **
+fileName = '/home/barragan/data12112014new//data/2015_04_06/data0Mon_Apr__6_11_40_29_2015.txt' # free - 1%, latch - 99% *
+fileName = '/home/barragan/data12112014new//data/2015_04_06/data0Mon_Apr__6_11_43_02_2015.txt' # free - 75%, latch - 25%
+fileName = '/home/barragan/data12112014new//data/2015_04_06/data0Mon_Apr__6_11_45_34_2015.txt' # free - 5%, latch - 95%
+
+# 4/7/2015
+fileName = '/home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_01_54_2015.txt' # free - 100%, latch - 0%
+fileName = '/home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_04_53_2015.txt' # free - 18%, latch - 82%
+fileName = '/home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_07_31_2015.txt' # free - 22%, latch - 78%
+fileName = '/home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_09_49_2015.txt' # free - 100%, latch - 0%
+fileName = '/home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_12_57_2015.txt' # free - 100%, latch - 0%
+
+fileName = '/home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_18_35_2015.txt' # free - 100%, latch - 0%
+fileName = '/home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_20_57_2015.txt' # free - 10%, latch - 90%
+fileName = '/home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_23_25_2015.txt' # free - 100%, latch - 0% *
+fileName = '/home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_26_33_2015.txt' # free - 25%, latch - 75% *
+fileName = '/home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_29_14_2015.txt' # free - 100%, latch - 0%
+
+# back to the latch
+#fileName = '/home/barragan/data12112014new//data/2015_04_07/data4Tue_Apr__7_13_47_24_2015.txt' # free - 0%, latch - 100%
+#fileName = '/home/barragan/data12112014new//data/2015_04_07/data4Tue_Apr__7_13_49_54_2015.txt' # free - 1%, latch - 99%
+#fileName = '/home/barragan/data12112014new//data/2015_04_07/data4Tue_Apr__7_13_52_37_2015.txt' # free - 1%, latch - 99%
+#fileName = '/home/barragan/data12112014new//data/2015_04_07/data4Tue_Apr__7_13_55_56_2015.txt' # free - 0%, latch - 100%
+#fileName = '/home/barragan/data12112014new//data/2015_04_07/data4Tue_Apr__7_13_58_20_2015.txt' # free - 0%, latch - 100%
+
+
 
 folderName = fileName[fileName.rfind('/')+1:fileName.find('.txt')]
 setPath = exeDir+'/dataPlots/'+folderName+'/'
@@ -798,7 +901,7 @@ if doWhat == 1:
     plotArrows = False
     resampling = False
 
-    whichModels = [2,3]
+    whichModels = [0,4]
 
     # to make sure indices match up
     lookAtList = [modelNums.index(x) for x in whichModels]
@@ -1114,6 +1217,6 @@ if doWhat == 2:
         
         #plotSome([2],modelNums,i,'F',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
         #plotAll(i,'F',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,fbProbs,poses,actions,obs)
-        plotHist([2,3],modelNums,i,'H',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_O,fbProbs,s,poses,actions,obs)
+        plotHist([0,4],modelNums,i,'H',plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_O,fbProbs,s,poses,actions,obs)
         print [sum([math.exp(y) for y in logProbs[i][x]]) for x in range(len(modelNums))]
 

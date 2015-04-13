@@ -26,6 +26,154 @@ double timeDiffa(timespec& ts1, timespec& ts2){
 
 // !!!!!!!!!!!!!!!!!!!!!!!! ALL ACTIONS ARE RELATIVE !!!!!!!!!!!!!!!!!!!!!!!! //
 
+// Try to implement the OG version for particle filters
+void actionSelection::chooseActionOGPart(std::vector<BayesFilter>& filterBank,
+					 std::vector<double>& fbProbs,
+					 std::vector<stateStruct>& bestStates,
+					 std::vector< std::vector<double> >& 
+					 actionList,
+					 std::vector<double>& action,
+					 std::vector<double>& poseInRbt,
+					 std::vector< std::vector<double> >& 
+					 workspace){
+  //OG == Original Gangster
+  //The original method was simply to run a bunch of actions on the top two models in terms of probability and try to determine which action produced the most different outcome and then choose that one.
+  //this will only work if there is at least two models
+  //and the probabilities better be positive
+
+
+  // Step -1: check if you're uniform first because this doesn't make sense 
+  // if you are
+
+  double tol = 0.001;
+  double uniformFilterProb = 1.0/fbProbs.size();
+  bool uniformPrior = true;
+  for(size_t i=0;i<fbProbs.size();i++){
+    if(fbProbs[i] < (uniformFilterProb-tol) || 
+       fbProbs[i] > (uniformFilterProb+tol)){
+      uniformPrior = false;
+      break;
+    }
+  }
+  
+  if(uniformPrior){
+    std::cout << "Choose randomly because distribution is uniform" << std::endl;
+    chooseActionRandomRel(actionList,action,poseInRbt,workspace);
+  }
+  else{
+    //Step 0: Validate relative action list
+    std::vector< std::vector<double> > validRelActionList;
+    validateRelActionList(actionList,poseInRbt,workspace,validRelActionList);
+
+    //Step 1: Calculate all the model-parameter probabilities so you know which models to compare (the highest two)
+
+    // you already have this from the previous step calculation
+
+    //std::vector<double> modelProbs = calcModelProb();
+    //std::vector<double> fbProbs = modelUtils::calcFilterBankProbs(filterBank);
+
+    if (fbProbs.size()<2){
+      std::cout << "At least 2 models needed" << std::endl;
+    }
+    else {
+
+      //std::cout << "Let's choose a model" << std::endl;
+      double first=-1.0;
+      double second=-1.0;
+      int firstIndex=-1;
+      int secondIndex=-1;
+    
+      for (size_t i = 0; i<fbProbs.size(); i++){
+	if (fbProbs[i]>first){
+	  second = first;
+	  secondIndex = firstIndex;
+	  first = fbProbs[i];
+	  firstIndex = i;
+	}
+	else if (fbProbs[i]>second){
+	  second = fbProbs[i];
+	  secondIndex = i;
+	}
+      }
+
+      //int firstModel = modelParamPairs[firstIndex].model;
+      //int secondModel = modelParamPairs[secondIndex].model;
+
+      //std::vector<double> firstParams = modelParamPairs[firstIndex].params;
+      //std::vector<double> secondParams = modelParamPairs[secondIndex].params;
+    
+      // Step 2: Figure out the maximum probability state for those models to simulate from 
+      // (THIS IS IN LOG SPACE)
+      stateStruct firstState = bestStates[firstIndex];
+      //double firstStateProb;
+      stateStruct secondState = bestStates[secondIndex];
+      //double secondStateProb;
+      //bool foundFirst = false;
+      //bool foundSecond = false;
+
+      /*
+	for (size_t i = 0; i<filter.stateList_.size(); i++){
+	if (filter.stateList_[i].model == firstModel && filter.stateList_[i].params == firstParams){
+	if (foundFirst == false){
+	firstState = filter.stateList_[i];
+	firstStateProb = filter.logProbList_[i];
+	foundFirst = true;
+	}
+	else if (filter.logProbList_[i] > firstStateProb){
+	firstState = filter.stateList_[i];
+	firstStateProb = filter.logProbList_[i];
+	}
+	}
+	else if (filter.stateList_[i].model == secondModel && filter.stateList_[i].params == secondParams){
+	if (foundSecond == false){
+	secondState = filter.stateList_[i];
+	secondStateProb = filter.logProbList_[i];
+	foundSecond = true;
+	}
+	else if (filter.logProbList_[i] > secondStateProb){
+	secondState = filter.stateList_[i];
+	secondStateProb = filter.logProbList_[i];
+	}
+	}
+	}
+      */
+
+      //Step 3: Simulate all the actions from the states found in Step 2 + 
+      //Step 4: Calculate distances between results from Step 3 and determine which is greatest
+      stateStruct tempFirstNextState;
+      stateStruct tempSecondNextState;
+      double furthestDist = -1.0;
+      double currentDist = -2.0;
+      std::vector<double> bestAction;
+    
+      //std::cout << "error is righhhhhhht here:" << std::endl;
+
+
+      for (size_t i=0; i<validRelActionList.size(); i++){
+	tempFirstNextState = 
+	  translator::stateTransition(firstState,validRelActionList[i]);
+	tempSecondNextState = 
+	  translator::stateTransition(secondState,validRelActionList[i]);
+
+	currentDist = 
+	  distPointsSquared(translator::translateStToObs(tempFirstNextState),
+			    translator::translateStToObs(tempSecondNextState));
+
+	if (currentDist > furthestDist){
+	  furthestDist = currentDist;
+	  bestAction = validRelActionList[i];
+	}
+      }
+
+      //std::cout << "def not here" << std::endl;
+
+      //Step 5: Set the next action to do to the best action found
+      action = bestAction;
+    }
+  }
+}
+
+
 // Use a distance metric to choose the next action
 void actionSelection::chooseActionPartDist(std::vector<BayesFilter>& filterBank,std::vector< std::vector<double> >& actionList,std::vector<double>& action,std::vector<double>& poseInRbt,std::vector< std::vector<double> >& workspace){
 
@@ -772,6 +920,7 @@ void actionSelection::chooseActionSimpleRel(std::vector< std::vector<double> >& 
   else action = actionList[0];
   */
 
+  /*
   // revolute joint not perfect
   if (step == 0) action = actionList[7];
   else if (step == 1) action = actionList[1];
@@ -782,6 +931,20 @@ void actionSelection::chooseActionSimpleRel(std::vector< std::vector<double> >& 
   else if (step == 6) action = actionList[3];
   else if (step == 7) action = actionList[3];
   else if (step == 8) action = actionList[5];
+  else if (step == 9) action = actionList[2];
+  else action = actionList[0];
+  */
+
+  // free vs latch - to cover the space
+  if (step == 0) action = actionList[7];
+  else if (step == 1) action = actionList[2];
+  else if (step == 2) action = actionList[3];
+  else if (step == 3) action = actionList[4];
+  else if (step == 4) action = actionList[6];
+  else if (step == 5) action = actionList[6];
+  else if (step == 6) action = actionList[0];
+  else if (step == 7) action = actionList[0];
+  else if (step == 8) action = actionList[2];
   else if (step == 9) action = actionList[2];
   else action = actionList[0];
 

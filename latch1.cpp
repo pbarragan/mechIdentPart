@@ -1,4 +1,6 @@
 // http://www.blackpawn.com/texts/pointinpoly/
+#include "latch1.h"
+#include "logUtils.h"
 
 #include <vector>
 #include <iostream>
@@ -6,6 +8,7 @@
 //#include <math.h>
 #include <cmath>
 #include <algorithm>
+#include <stdlib.h> // rand
 
 const double _L = 0.05;
 const double _W = 0.038;
@@ -15,18 +18,19 @@ const double _W = 0.038;
 // Aux
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector<double> Vminus(std::vector<double> &a, std::vector<double> &b){
+std::vector<double> latch1::Vminus(std::vector<double> &a, 
+				   std::vector<double> &b){
   std::vector<double> ans (2,0.0);
   ans[0] = a[0]-b[0];
   ans[1] = a[1]-b[1];
   return ans;
 }
 
-double Vcross(std::vector<double> &a, std::vector<double> &b){
+double latch1::Vcross(std::vector<double> &a, std::vector<double> &b){
   return a[0]*b[1]-a[1]*b[0];
 }
 
-double Vdot(std::vector<double> &a, std::vector<double> &b){
+double latch1::Vdot(std::vector<double> &a, std::vector<double> &b){
   return a[0]*b[0]+a[1]*b[1];
 }
 
@@ -38,15 +42,16 @@ double Vdot(std::vector<double> &a, std::vector<double> &b){
 // Conv
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector<double> toCart(std::vector<double> &p, std::vector<double> &v){
+std::vector<double> latch1::toCart(std::vector<double> &p, 
+				   std::vector<double> &v){
   std::vector<double> xy (2,0.0);
   xy[0] = p[0]+(p[2]+v[1])*cos(v[0]);
   xy[1] = p[1]+(p[2]+v[1])*sin(v[0]);
   return xy;
 }
 
-void toModel(std::vector<double> &xy, std::vector<double> &p,
-	     std::vector<double> &v){
+void latch1::toModel(std::vector<double> &xy, std::vector<double> &p,
+		     std::vector<double> &v){
   v[0] = atan2(xy[1]-p[1],xy[0]-p[0]);
   double dist = sqrt((xy[0]-p[0])*(xy[0]-p[0])+(xy[1]-p[1])*(xy[1]-p[1]));
   v[1] = dist-p[2]; // distance - r
@@ -63,15 +68,15 @@ void toModel(std::vector<double> &xy, std::vector<double> &p,
 // th, d
 
 //?
-void slide(std::vector<double> &p, std::vector<double> &v,
-	   std::vector<double> &action){
+void latch1::slide(std::vector<double> &p, std::vector<double> &v,
+		   std::vector<double> &action){
   // Calculate equilibrium point
   double th = 0;
   v[1] += action[0]*cos(th)+action[1]*sin(th);
 }
 
-void free(std::vector<double> &p, std::vector<double> &v,
-	  std::vector<double> &action){
+void latch1::free(std::vector<double> &p, std::vector<double> &v,
+		  std::vector<double> &action){
   // Calculate equilibrium point
   std::vector<double> start = toCart(p,v);
   start[0] += action[0];
@@ -80,11 +85,11 @@ void free(std::vector<double> &p, std::vector<double> &v,
 }
 
 // with absolute action
-void slideAbs(double &th, double &d, std::vector<double> &aAbs){
+void latch1::slideAbs(double &th, double &d, std::vector<double> &aAbs){
   d = aAbs[0]*cos(th)+aAbs[1]*sin(th);
 }
 
-void freeAbs(double &x, double &y, std::vector<double> &aAbs){
+void latch1::freeAbs(double &x, double &y, std::vector<double> &aAbs){
   x = aAbs[0];
   y = aAbs[1];
 }
@@ -96,8 +101,8 @@ void freeAbs(double &x, double &y, std::vector<double> &aAbs){
 // Contain
 ////////////////////////////////////////////////////////////////////////////////
 
-bool contains(std::vector<double> &P, std::vector<double> &A,
-	      std::vector<double> &B, std::vector<double> &C){
+bool latch1::contains(std::vector<double> &P, std::vector<double> &A,
+		      std::vector<double> &B, std::vector<double> &C){
   // Compute vectors
   std::vector<double> v0 = Vminus(C,A);
   std::vector<double> v1 = Vminus(B,A);
@@ -127,15 +132,15 @@ bool contains(std::vector<double> &P, std::vector<double> &A,
 // Checks
 ////////////////////////////////////////////////////////////////////////////////
 
-bool inLatch(std::vector<double> &p, std::vector<double> &v){
+bool latch1::inLatch(std::vector<double> &p, std::vector<double> &v){
 
   // check if in latch
-  if((v[1] <= p[4]) && (v[1] >= (p[4]-_L))){
-    double thTol = std::abs(atan2(_W/2,p[2]+p[4]-_L));
-    //std::cout << "inside distance" << std::endl;
-    //std::cout << thTol << std::endl;
-    if(thTol > std::abs(v[0]-p[3])){
-      //std::cout << "inside theta" << std::endl;
+  double thTol = std::abs(atan2(_W/2,p[2]+p[4]-_L));
+  double thDel = std::abs(v[0]-p[3]);
+  if(thTol > thDel){
+    // if you are exactly equal, you are outside the latch
+    if(((v[1]+p[2])*cos(thDel) <= (p[2]+p[4])) && 
+       ((v[1]+p[2])*cos(thDel) >= (p[2]+p[4]-_L))){
       // In latch
       return true;
     }
@@ -165,13 +170,13 @@ bool inLatch(std::vector<double> &p, std::vector<double> &v){
 // 4 - on circle
 
 
-void machine(std::vector<double> &p, std::vector<double> &v,int &s,
-	     std::vector<double> &aAbs){
+void latch1::machine(std::vector<double> &p, std::vector<double> &v,int &s,
+		     std::vector<double> &aAbs){
   switch (s) {
   case 0:
     {
       // Don't need to set any variables beforehand
-      
+      v[0] = p[3];
       // make action relative to origin of slider
       std::vector<double> action = aAbs;
       action[0] -= p[0]+p[2]*cos(p[3]);
@@ -264,7 +269,7 @@ void machine(std::vector<double> &p, std::vector<double> &v,int &s,
 
       if(((v[1]+p[2])*(v[1]+p[2]))<dRMinSq){
 	// slid past latch and should slip back to free
-	v[1]=sqrt(dRMinSq)-p[2]; // the only square root. awful.
+	v[1]=sqrt(dRMinSq)-p[2]-.000001; // the only square root. awful.
 	s = 1;
       }
       // no other else because variables are already set
@@ -289,7 +294,7 @@ void machine(std::vector<double> &p, std::vector<double> &v,int &s,
 
       if(((v[1]+p[2])*(v[1]+p[2]))<dRMinSq){
 	// slid past latch and should slip back to free
-	v[1]=sqrt(dRMinSq)-p[2]; // the only square root. awful.
+	v[1]=sqrt(dRMinSq)-p[2]-.000001; // the only square root. awful.
 	s = 1;
       }
       // no other else because variables are already set
@@ -347,8 +352,8 @@ void machine(std::vector<double> &p, std::vector<double> &v,int &s,
 // Simulation
 ////////////////////////////////////////////////////////////////////////////////
 
-void simulate(std::vector<double> &p, std::vector<double> &v,
-	      std::vector<double> &action){
+void latch1::simulate(std::vector<double> &p, std::vector<double> &v,
+		      std::vector<double> &action){
   // make action absolute
   std::vector<double> aAbs = action;
   std::vector<double> start = toCart(p,v);
@@ -369,18 +374,70 @@ void simulate(std::vector<double> &p, std::vector<double> &v,
   while(true){
     //std::cout << "yo" << std::endl;
     machine(p,v,s,aAbs);
-    //std::cout << "current state: " << s << std::endl;
+    /*
+    std::cout << "current state: " << s << std::endl;
+    std::cout << "p:" << p[0] << "," << p[1] << "," << p[2] << ","
+	      << p[3] << "," << p[4] << std::endl;
+    std::cout << "v:" << v[0] << "," << v[1] << std::endl;
+    */
     if(s==sPrev) break;
     else sPrev=s;
   }
 }
+
+// Simulate the latch with action noise
+void latch1::simulateWActionNoise(std::vector<double> &p, 
+				  std::vector<double> &v,
+				  std::vector<double> &action,
+				  double &sig, double &mu){
+
+  double x1 = ((double)rand()/(double)RAND_MAX);
+  double x2 = ((double)rand()/(double)RAND_MAX);
+
+  // Add noise to the action
+  std::vector<double> aCopy = action;
+  aCopy[0] += sqrt(-2*logUtils::safe_log(x1))*sin(2*M_PI*x2)*sig+mu;
+  aCopy[1] += sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+
+  // Simulate with noisy action
+  simulate(p,v,aCopy);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // End Simulation
 ////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////////
+// Noise
+////////////////////////////////////////////////////////////////////////////////
 
+void latch1::addNoise(std::vector<double> &p, std::vector<double> &v, 
+		      double &sig, double &mu){
+
+  double x1 = ((double)rand()/(double)RAND_MAX);
+  double x2 = ((double)rand()/(double)RAND_MAX);
+  v[1] += sqrt(-2*logUtils::safe_log(x1))*sin(2*M_PI*x2)*sig+mu;
+  if(v[1]<0) v[1]=0;
+  v[0] += sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)
+    *(sig/(p[2]+v[1]))
+    +(mu/(p[2]+v[1])); // this last part is never used  
+
+  // check if past latch
+  double thTol = std::abs(atan2(_W/2,p[2]+p[4]-_L));
+  double thDel = std::abs(v[0]-p[3]);
+  if(thTol > thDel){
+    // if you are exactly equal, you are outside the latch
+    // Check if it's past
+    if((v[1]+p[2])*cos(thDel) > (p[2]+p[4])) v[1]=(p[2]+p[4])/cos(thDel)-p[2];
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// End Noise
+////////////////////////////////////////////////////////////////////////////////
+
+/*
 int main(){
-  /*
   std::vector<double> x1 (2,0.0);
   std::vector<double> x2 (2,2.0);
   std::vector<double> x3 (2,0.0);
@@ -388,7 +445,6 @@ int main(){
   std::vector<double> x4 (2,1.0);
   x4[1] = 5.0;
   std::cout << intLines(x1,x2,x3,x4) << std::endl;
-  */
 
   std::cout << "Dot product test" << std::endl;
   std::vector<double> x5 (2,1.0); // center
@@ -587,3 +643,4 @@ int main(){
 
   return 1;
 }
+*/

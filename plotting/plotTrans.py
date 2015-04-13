@@ -175,6 +175,32 @@ fileName = '/home/barragan/data12112014new//data/2015_02_04/data3Wed_Feb__4_20_2
 
 #fileName = '/home/barragan/data12112014new//data/2015_02_17/data2Tue_Feb_17_13_44_46_2015.txt' # copy of /home/barragan/data12112014new//data/2015_02_05/data2Thu_Feb__5_15_20_07_2015.txt with only one of each of pris and rev
 
+
+
+# 4/2/2015
+
+s = [0,[],[0.0,0.0]]
+
+# first 3 are random with free as the real one
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_22_03_2015.txt' # free - 1%, latch - 99%
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_25_32_2015.txt' # free - 12%, latch - 88%
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_28_10_2015.txt' # free - 49%, latch - 51%
+
+# second 3 are OG with free as the real one
+#fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_32_58_2015.txt' # free - 38%, latch - 62%
+#fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_35_48_2015.txt' # free - 8%, latch - 92%
+#fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_37_56_2015.txt' # free - 0%, latch - 100%
+
+# third 3 are scripted with free as the real one
+fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_40_08_2015.txt' # free - 81%, latch - 19%
+#fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_42_13_2015.txt' # free - 69%, latch - 31%
+#fileName = '/home/barragan/data12112014new//data/2015_04_02/data0Thu_Apr__2_14_44_22_2015.txt' # free - 68%, latch - 32% 
+
+
+
+
+
+
 # get data
 fbProbs, numSteps, model, statesInRbt, states, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, numRepeats, neff_fract, modelNums, realStates, BIAS, FTSD, FOSD, RTSD, ROSD = readData.get_data(fileName)
 

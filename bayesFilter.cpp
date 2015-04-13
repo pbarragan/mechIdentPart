@@ -12,6 +12,7 @@
 #include "translator.h"
 #include "filterModels.h"
 #include "actionSelection.h" // randomDouble()
+#include "latch1.h"
 
 // whoa nelly
 #include "realWorld.h" // gaussianNoise()
@@ -139,45 +140,64 @@ void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList, std::
         }
       }
     }
-    else stateList[i] = translator::stateTransition(stateList[i], action);
-
-    if(true){
-      //--------------------------ADD NOISE TO VARS---------------------//
-      // THIS IS VERY TEMPORARY
-      // add noise
-      double sig = FTSD; // [cm] standard deviation of noise?????
-      double mu = 0.0; // mean of noise
-      for (size_t j=0;j<stateList[i].vars.size();j++){
-	double x1 = ((double)rand()/(double)RAND_MAX);
-	double x2 = ((double)rand()/(double)RAND_MAX);
-	if(stateList[i].model == 2){
-	  stateList[i].vars[j] += 
-	    sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)
-	    *(sig/stateList[i].params[2])
-	    +(mu/stateList[i].params[2]); // this last part is never used
+    else{
+      // if true, add noise. else, don't.
+      if(true){
+	if(stateList[i].model == 4){
+	  // Special case for the latch
+	  double sig = FTSD; // [cm] standard deviation of noise?????
+	  double mu = 0.0; // mean of noise
+	  latch1::simulateWActionNoise(stateList[i].params,stateList[i].vars,
+				       action,sig,mu);
 	}
 	else{
-	  stateList[i].vars[j] += 
-	    sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+	  stateList[i] = translator::stateTransition(stateList[i], action);
+
+	  //--------------------------ADD NOISE TO VARS---------------------//
+	  // THIS IS VERY TEMPORARY
+	  // add noise
+	  double sig = FTSD; // [cm] standard deviation of noise?????
+	  double mu = 0.0; // mean of noise
+	  /*
+	  if(stateList[i].model == 4){
+	    latch1::addNoise(stateList[i].params,stateList[i].vars,sig,mu);
+	  }
+	  else{
+	  */
+	  for (size_t j=0;j<stateList[i].vars.size();j++){
+	    double x1 = ((double)rand()/(double)RAND_MAX);
+	    double x2 = ((double)rand()/(double)RAND_MAX);
+	    if(stateList[i].model == 2){
+	      stateList[i].vars[j] += 
+		sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)
+		*(sig/stateList[i].params[2])
+		+(mu/stateList[i].params[2]); // this last part is never used
+	    }
+	    else{
+	      stateList[i].vars[j] += 
+		sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+	    }
+	  }
+	  //}
 	}
       }
-    }
-
-    if(false){
-      //--------------------------ADD NOISE TO PARAMS---------------------//
-      // add noise
-      double sig = 0.001; // [cm] standard deviation of noise
-      double mu = 0.0; // mean of noise
-      for (size_t j=0;j<stateList[i].params.size();j++){
+      else stateList[i] = translator::stateTransition(stateList[i], action);
+      /*
+	if(false){
+	//--------------------------ADD NOISE TO PARAMS---------------------//
+	// add noise
+	double sig = 0.001; // [cm] standard deviation of noise
+	double mu = 0.0; // mean of noise
+	for (size_t j=0;j<stateList[i].params.size();j++){
 	double x1 = ((double)rand()/(double)RAND_MAX);
 	double x2 = ((double)rand()/(double)RAND_MAX);
 	stateList[i].params[j] += 
-	  sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
-      }
+	sqrt(-2*logUtils::safe_log(x1))*cos(2*M_PI*x2)*sig+mu;
+	}
+	}
+      */
     }
-
   }
-
 }
 
 /* //old
