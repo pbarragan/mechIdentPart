@@ -251,7 +251,7 @@ def plotSome(whichModels,modelNums,step,plotType,plotSet,plotLog,colorNorm,setPa
     pyplot.clf()
 
 # if you want to plot one model as a histogram
-def plotHist(whichModels,modelNums,step,plotType,savePlot,plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_O,fbProbs,s,poses=None,actions=None,obs=None,minCs=[None,None,None],maxCs=[None,None,None]):
+def plotHist(whichModels,modelNums,step,plotType,savePlot,plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_T,logProbs_O,fbProbs,s,poses=None,actions=None,obs=None,minCs=[None,None,None],maxCs=[None,None,None]):
 
     print 'checkpoint'
     print len(logProbs)
@@ -470,7 +470,7 @@ def plotHist(whichModels,modelNums,step,plotType,savePlot,plotSet,plotLog,colorN
 ################################################################################
 
 # if you want to plot one model as a histogram
-def plotHistImage(hists,whichModels,modelNums,step,plotType,savePlot,plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_O,fbProbs,s,poses=None,actions=None,obs=None,minCs=[None,None,None],maxCs=[None,None,None]):
+def plotHistImage(hists,whichModels,modelNums,step,plotType,savePlot,plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_T,logProbs_O,fbProbs,s,poses=None,actions=None,obs=None,minCs=[None,None,None],maxCs=[None,None,None]):
 
     print 'checkpoint'
     print len(logProbs)
@@ -506,11 +506,13 @@ def plotHistImage(hists,whichModels,modelNums,step,plotType,savePlot,plotSet,plo
     totals = [sum([math.exp(y) for y in logProbs[i+1][x]]) for x in whichModels]
     maxes = [max([math.exp(y) for y in logProbs[i+1][x]]) for x in whichModels]
     maxesO = [max([math.exp(y) for y in logProbs_O[i][x]]) for x in whichModels]
-    totalsO = [np.dot(np.exp(np.array(logProbs[i][x])),\
+    totalsO = [np.dot(np.exp(np.array(logProbs_T[i][x])),\
                       np.exp(np.array(logProbs_O[i][x])))/\
-               np.sum(np.exp(np.array(logProbs[i][x]))) for x in whichModels]
+               np.sum(np.exp(np.array(logProbs_T[i][x]))) for x in whichModels]
 
     totalsPrior = [np.sum(np.exp(logProbs[i][x])) for x in whichModels]
+    totalsPriorAfterTrans = [np.sum(np.exp(logProbs_T[i][x]))
+                             for x in whichModels]
 
     #totalsO = [np.dot(np.exp(np.array(logProbs[i+1][x])),\
     #                  np.exp(np.array(logProbs_O[i][x]))) for x in whichModels]
@@ -525,19 +527,22 @@ def plotHistImage(hists,whichModels,modelNums,step,plotType,savePlot,plotSet,plo
         lOs[k] = ([biNormalLog(np.mat(o).transpose(),\
                                np.mat(s).transpose()) for s in sList])
 
-    totalsOrecalc = [np.dot(np.exp(np.array(logProbs[i][x])),\
+    totalsOrecalc = [np.dot(np.exp(np.array(logProbs_T[i][x])),\
                             np.exp(np.array(lOs[x])))/\
-                            np.sum(np.exp(np.array(logProbs[i][x])))\
+                            np.sum(np.exp(np.array(logProbs_T[i][x])))\
                             for x in whichModels]
 
     #pO = np.sum([np.sum(np.exp(l)) for l in lOs])
-    totalsRecalcFull = [np.dot(np.exp(np.array(logProbs[i][x])),\
+    totalsRecalcFull = [np.dot(np.exp(np.array(logProbs_T[i][x])),\
                            np.exp(np.array(lOs[x])))\
                     for x in range(len(logProbs[i+1]))]
 
     denom = np.sum(totalsRecalcFull)
     # this is wrong
     totalsRecalc = [totalsRecalcFull[x]/denom for x in whichModels]
+
+    maxesOrecalc = [max([math.exp(y) for y in lOs[x]]) for x in whichModels]
+
     
     print
     print
@@ -547,9 +552,11 @@ def plotHistImage(hists,whichModels,modelNums,step,plotType,savePlot,plotSet,plo
     print len(maxes)
     print maxes
     print maxesO
+    print maxesOrecalc
     print 'P(O|M): ',totalsO
     print 'P(O|M) recalc: ',totalsOrecalc
     print 'Prior: ',totalsPrior
+    print 'Prior After Trans: ',totalsPriorAfterTrans
     print 'Posterior: ',totals
     print 'Posterior recalc: ',totalsRecalc
 
@@ -1090,6 +1097,9 @@ fileName = '/home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_2
 #fileName = '/home/barragan/data12112014new//data/2015_04_07/data4Tue_Apr__7_13_55_56_2015.txt' # free - 0%, latch - 100%
 #fileName = '/home/barragan/data12112014new//data/2015_04_07/data4Tue_Apr__7_13_58_20_2015.txt' # free - 0%, latch - 100%
 
+# 4/13/15
+
+fileName = '/home/barragan/data12112014new//data/2015_04_13/data0Mon_Apr_13_11_43_50_2015.txt' # free - 100%, latch - 0%, copy of /home/barragan/data12112014new//data/2015_04_07/data0Tue_Apr__7_13_29_14_2015.txt
 
 
 folderName = fileName[fileName.rfind('/')+1:fileName.find('.txt')]
@@ -1106,7 +1116,7 @@ plotLog = False
 plotSet = False
 
 # get data
-fbProbs, numSteps, model, statesInRbt, states, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, numRepeats, neff_fract, modelNums, realStates, BIAS, FTSD, FOSD, RTSD, ROSD = readData.get_data(fileName)
+fbProbs, numSteps, model, statesInRbt, states, logProbs_T, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, numRepeats, neff_fract, modelNums, realStates, BIAS, FTSD, FOSD, RTSD, ROSD = readData.get_data(fileName)
 
 print 'checkpoint'
 print len(logProbs)
@@ -1486,7 +1496,7 @@ if doWhat == 2:
         # don't save the first time
         # this variable is just for clarity
         savePlot = 0
-        minCounts,maxCounts,hists = plotHist([0,4],modelNums,i,'H',savePlot,plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_O,fbProbs,s,poses,actions,obs)
+        minCounts,maxCounts,hists = plotHist([0,4],modelNums,i,'H',savePlot,plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_T,logProbs_O,fbProbs,s,poses,actions,obs)
 
         # figure out what the colorbar limits should be
         print minCounts
@@ -1496,6 +1506,6 @@ if doWhat == 2:
 
         # save this time
         savePlot = 1
-        plotHistImage(hists,[0,4],modelNums,i,'H',savePlot,plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_O,fbProbs,s,poses,actions,obs,minCs,maxCs)
+        plotHistImage(hists,[0,4],modelNums,i,'H',savePlot,plotSet,plotLog,colorNorm,setPath,statesInRbt,states,logProbs,logProbs_T,logProbs_O,fbProbs,s,poses,actions,obs,minCs,maxCs)
         print [sum([math.exp(y) for y in logProbs[i][x]]) for x in range(len(modelNums))]
 

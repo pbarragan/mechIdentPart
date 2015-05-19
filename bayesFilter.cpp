@@ -103,11 +103,22 @@ void BayesFilter::transitionUpdateLog(std::vector<double>& logProbList, std::vec
 
 //overload this function
 void BayesFilter::transitionUpdateLog(std::vector<double> action){
-  transitionUpdateLog(stateList_, action);
+  transitionUpdateLog(logProbList_,logProbList_T_,stateList_, action);
+}
+
+// overload this function - this just provided for backwards compatibility
+// and because you don't need logProbList_T to debug action selection probably
+void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList,std::vector<double> action){
+  std::vector<double> logProbList;
+  std::vector<double> logProbList_T;
+  transitionUpdateLog(logProbList,logProbList_T,stateList, action);
 }
 
 //overload this function
-void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList, std::vector<double> action){
+void BayesFilter::transitionUpdateLog(std::vector<double>& logProbList, std::vector<double>& logProbList_T,std::vector<stateStruct>& stateList, std::vector<double> action){
+
+  logProbList_T.clear();
+
   // in here, we need to for each state
   // 0) transition to a new state
 
@@ -198,6 +209,9 @@ void BayesFilter::transitionUpdateLog(std::vector<stateStruct>& stateList, std::
       */
     }
   }
+
+  logProbList_T = logProbList;
+
 }
 
 /* //old

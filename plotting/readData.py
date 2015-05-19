@@ -158,6 +158,7 @@ def get_data(fileName):
     skip_lines(f,1)
     numSteps = int(f.readline())
     #this has to happen until you get to the end of the file
+    logProbs_T = []
     logProbs_O = []
     actions = [[],[]]
     obs = [[],[]]
@@ -236,6 +237,7 @@ def get_data(fileName):
 
 
         logProbs.append([])
+        logProbs_T.append([])
         logProbs_O.append([])
         statesInRbt.append([])
         states.append([]) # adding a step
@@ -285,6 +287,12 @@ def get_data(fileName):
                 statesInRbt[-1][-1][0].append(numList[1])
                 statesInRbt[-1][-1][1].append(numList[2])
 
+            # T
+            skip_lines(f,1)
+            logProbs_T[-1].append([])
+            for k in range(numStatesList[j]):
+                logProbs_T[-1][-1].append(float(f.readline()))
+
             # O
             skip_lines(f,1)
             logProbs_O[-1].append([])
@@ -310,4 +318,4 @@ def get_data(fileName):
     f.close()
 
 
-    return fbProbs, numSteps, model, statesInRbt, states, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, numRepeats, neff_fract, modelNums, realStates, BIAS, FTSD, FOSD, RTSD, ROSD 
+    return fbProbs, numSteps, model, statesInRbt, states, logProbs_T, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, numRepeats, neff_fract, modelNums, realStates, BIAS, FTSD, FOSD, RTSD, ROSD 

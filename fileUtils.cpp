@@ -39,9 +39,9 @@ void fileUtils::txtFileToActionsObs(std::string fileName,std::vector<std::vector
   std::string line;
   std::ifstream myfile(fileName.c_str());
 
-  int start = 320087;
+  int start = 400096;//320087;
   int AOspace = 12;
-  int stepSpace = 360083;
+  int stepSpace = 450099;//360083;
   int count = 1;
 
   //320087 -2.20436e-17,-0.12, action

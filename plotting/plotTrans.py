@@ -1,7 +1,6 @@
 from matplotlib import pyplot
 import pylab
 from matplotlib import colors
-#from matplotlib impo
 import numpy
 import math
 import os

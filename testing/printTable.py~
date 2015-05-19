@@ -1,0 +1,16 @@
+
+# sim
+
+# w/o misclassifications
+misC = [5, 0, 2, 0, 6]
+misCpM = [[0, 0, 0, 0, 5], [0, 0, 0, 0, 0], [0, 0, 0, 2, 0], [0, 0, 0, 0, 0], [6, 0, 0, 0, 0]]
+avgE = [0.0, 0.0, 0.05211775181426432, 0.0094434947500909479, 0.098875107730717199]
+stdE = [0.0, 0.0, 0.068236884720676572, 0.0059831475741941318, 0.058634350564657767]
+
+printString=''
+for a,s in zip(avgE,stdE):
+    printString+=str(a)+' & '+str(s)+' & '
+
+print printString
+
+# w/ misclassifications

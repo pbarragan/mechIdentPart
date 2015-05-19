@@ -63,19 +63,20 @@ def stateDist2(s1,s2):
                     + abs(angleDiff(s1[2][0],s2[2][0]))/(math.pi)
             #print angleDiff(s1[2][0],s2[2][0])
             return dist/4.0
-        elif s1[0]==4:
+        
+        ## elif s1[0]==4:
+        ##     lengthPs = math.sqrt((s1[1][0]-s2[1][0])**2
+        ##                          + (s1[1][1]-s2[1][1])**2)
+        ##     dist1 = abs(angleDiff(s1[1][2],s2[1][2]))\
+        ##             + abs(s1[2][0]-s2[2][0])
+        ##     dist2 = abs(angleDiff(s1[1][2],(s2[1][2]+math.pi))) \
+        ##             + abs(s1[2][0]-(lengthPs-s2[2][0]))
+        ##     dist3 = abs(angleDiff(s1[1][2],(s2[1][2]-math.pi))) \
+        ##             + abs(s1[2][0]-(lengthPs-s2[2][0]))
 
-            lengthPs = math.sqrt((s1[1][0]-s2[1][0])**2
-                                 + (s1[1][1]-s2[1][1])**2)
-            dist1 = abs(angleDiff(s1[1][2],s2[1][2]))\
-                    + abs(s1[2][0]-s2[2][0])
-            dist2 = abs(angleDiff(s1[1][2],(s2[1][2]+math.pi))) \
-                    + abs(s1[2][0]-(lengthPs-s2[2][0]))
-            dist3 = abs(angleDiff(s1[1][2],(s2[1][2]-math.pi))) \
-                    + abs(s1[2][0]-(lengthPs-s2[2][0]))
-
-            dist = min([dist1,dist2,dist3])
-            return dist/2.0
+        ##     dist = min([dist1,dist2,dist3])
+        ##     return dist/2.0
+        
         elif s1[0]==3:
             aE = abs(angleDiff(s1[1][2]%math.pi,s2[1][2]%math.pi))
             x1 = s1[1][0]+s1[2][0]*math.cos(s1[1][2])
@@ -87,9 +88,22 @@ def stateDist2(s1,s2):
             #print dE
             return (aE/math.pi+dE)/2.0
 
+        elif s1[0]==4:
+
+            # xp, yp, r, thL, dL
+            # th, d
+            dist = abs(s1[1][0]-s2[1][0]) + abs(s1[1][1]-s2[1][1]) \
+                   + abs(s1[1][2]-s2[1][2]) + abs(s1[1][3]-s2[1][3]) \
+                   + abs(s1[1][4]-s2[1][4]) \
+                   + abs(angleDiff(s1[2][0],s2[2][0]))/(math.pi) \
+                   + abs(s1[2][1]-s2[2][1])
+            #print angleDiff(s1[2][0],s2[2][0])
+            return dist/7.0        
+        
+
 def printTable(top,side,e,sd):
     row_format ="{:^15}"+"{:^21}" * len(top)
-    row_format2 ="{:^15}"+"{:^10.6f}|{:^10.6f}" * (len(top))
+    row_format2 ="{:^15}"+"{:^10.3f}|{:^10.3f}" * (len(top))
     print row_format.format("", *top)
     for ty, row,rowSD in zip(side, e,sd):
         print row_format2.format(ty,\
@@ -112,7 +126,7 @@ def printFlatTable(top,e,sd):
 
 
 def printMisClassTable(top,side,m,mM):
-    row_format ="{:^15}"+"{:^20}" * len(top)
+    row_format ="{:^15}"+"{:^23}" * len(top)
     innerString=",".join(["{:^2}"]*len(top))
     row_format2 ="{:^15}"+("  {:^2} ("+innerString+")  ") * (len(top))
     print row_format.format("", *top)

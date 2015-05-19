@@ -1,0 +1,18 @@
+import transExternal
+import readData
+import json
+import os
+
+
+
+#fbProbs, numSteps, model, statesInRbt, states, logProbs_T, logProbs_O, logProbs, poses, actions, obs, actionType, actionSelectionType, numMechanismTypes, numParticles, numRepeats, neff_fract, modelNums, realStates, BIAS, FTSD, FOSD, RTSD, ROSD = readData.getData(fileName)
+
+exeDir = os.path.abspath(os.path.dirname(__file__))
+outFile = exeDir+'/../plotting/rmStates04_14_2015.txt'
+
+
+f = open(outFile,'r')
+sSave = json.load(f)
+rStatesSave = sSave['rStatesSave']
+mStatesSave = sSave['mStatesSave']
+f.close()

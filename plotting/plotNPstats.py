@@ -162,9 +162,13 @@ print "Misclassification Error:"
 auxUtils.printMisClassTable(models,types,misClass,misClassMT)
 if(True):
 
-    pyplot.scatter(typesF,typeError)
-    pyplot.errorbar(typesF,typeError,yerr=typeErrorSD)
+    pyplot.errorbar(typesF,typeError,yerr=typeErrorSD,fmt='-o',color='k')
+    pyplot.plot(typesF,typeError,color='b',marker='o',lw=2,markersize=8,markeredgecolor='b')
     pyplot.xlabel('Number of Particles')
     pyplot.ylabel('Error [m]')
-    
+    pyplot.xlim([-1000,11000])
+
+    outFile = '/mit/barragan/Public/LIS/thesisFigures/NPstats.pdf'
+    pyplot.savefig(outFile,bbox_inches='tight')
     pyplot.show()
+    

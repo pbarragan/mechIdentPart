@@ -1,0 +1,20 @@
+#include <iostream>
+#include "translator.h"
+
+int main(){
+
+  stateStruct s;
+  s.model = 0;
+  s.vars.push_back(0.0);
+  s.vars.push_back(0.0);
+
+  std::vector<double> a;
+  a.push_back(0.12);
+  a.push_back(0.0);
+
+  stateStruct s2 = translator::stateTransition(s,a);
+
+  std::cout << "hi" << std::endl;
+  return 1;
+
+}

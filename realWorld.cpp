@@ -1516,6 +1516,11 @@ void RealWorld::writeFileStepData(){
       outFile_ << "\n";
     }
     //
+    outFile_ << "Log Probs of Transition:\n";
+    for (size_t i=0;i<filterBank_[l].logProbList_T_.size();i++){
+      outFile_ << filterBank_[l].logProbList_T_[i]<< "\n";
+    }
+    //
     outFile_ << "Log Probs of Observation:\n";
     for (size_t i=0;i<filterBank_[l].logProbList_O_.size();i++){
       outFile_ << filterBank_[l].logProbList_O_[i]<< "\n";
